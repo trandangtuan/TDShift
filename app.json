@@ -12,6 +12,13 @@
         {
           "photosPermission": "TDshift cần quyền truy cập thư viện ảnh để chọn hình và lưu vào dữ liệu offline."
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "TDshift cần quyền camera để quét QR và mã vạch khi nhập, xuất kho.",
+          "barcodeScannerEnabled": true
+        }
       ]
     ],
     "android": {

@@ -5,7 +5,7 @@ export const posModule: ModulePlugin = {
   manifest: {
     name: "point_of_sale",
     displayName: "Điểm bán hàng",
-    version: "1.0.0",
+    version: "1.1.0",
     summary: "Bán hàng POS offline, thanh toán và xuất kho",
     depends: ["base", "product", "stock"],
     autoInstall: true,

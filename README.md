@@ -8,7 +8,7 @@ Framework React Native/Expo mô phỏng kiến trúc module của Odoo trên cli
 - Module plugin có manifest, dependencies, models, views, seed và version.
 - Module Manager hỗ trợ install, update và uninstall.
 - Plugin Kho vận dùng tên model/field gần Odoo để thuận tiện đồng bộ.
-- Plugin POS có giao diện bán hàng, đơn giá, thanh toán và xuất kho offline.
+- Plugin POS có giao diện bán hàng, đơn giá, thanh toán và quét QR/mã vạch nhập-xuất kho offline.
 - List/Form renderer dùng metadata, không phụ thuộc model cụ thể.
 - CRUD offline với `sync_status` dành sẵn cho Sync Engine.
 

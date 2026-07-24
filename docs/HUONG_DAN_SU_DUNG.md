@@ -116,6 +116,19 @@ nguồn/đích. Các model POS dùng tên gần Odoo:
 Record đều có local ID, `server_id` và `sync_status`; `uuid` trên `pos.order`
 được dùng làm khóa idempotency khi xây Sync Engine để tránh tạo trùng đơn.
 
+#### Quét QR/mã vạch để nhập và xuất kho
+
+1. Trong màn hình POS, chọn **Quét nhập kho** hoặc **Quét xuất kho**.
+2. Cho phép TDshift dùng camera rồi đưa QR, EAN, Code 128 hoặc Code 39 vào khung.
+3. Nếu không dùng camera, nhập trực tiếp `barcode` hoặc `default_code` của sản phẩm.
+4. Mỗi lần quét cộng một đơn vị; có thể chỉnh số lượng hoặc xóa dòng.
+5. Xác nhận để tạo `stock.picking`, `stock.move` và cập nhật `stock.quant` offline.
+
+Xuất kho kiểm tra tồn khả dụng tại vị trí nguồn trước khi tạo phiếu. Phiếu quét
+dùng các field chuẩn hóa theo Odoo như `picking_type_id`, `location_id`,
+`location_dest_id`, `product_uom_qty`, `quantity` và trạng thái `done` để thuận
+tiện đồng bộ về backend sau này.
+
 ## 4. Thao tác CRUD
 
 ### Xem và tìm kiếm

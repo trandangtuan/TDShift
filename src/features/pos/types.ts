@@ -22,3 +22,10 @@ export interface PosContext {
   session: ModelValues;
   paymentMethods: ModelValues[];
 }
+
+export type InventoryOperation = "incoming" | "outgoing";
+
+export interface InventoryScanLine {
+  product: PosCatalogProduct;
+  qty: number;
+}

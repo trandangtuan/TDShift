@@ -1,0 +1,9 @@
+import { Ionicons } from "@expo/vector-icons";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import type { InventoryScanLine } from "../types";
+
+export function InventoryScanLineItem({ line, onChangeQty, onRemove }: { line: InventoryScanLine; onChangeQty: (qty: number) => void; onRemove: () => void }) {
+  return <View style={styles.row}><View style={styles.info}><Text style={styles.name} numberOfLines={1}>{line.product.name}</Text><Text style={styles.code}>{line.product.barcode || line.product.defaultCode}</Text></View><Pressable style={styles.step} onPress={() => onChangeQty(Math.max(0.01, line.qty - 1))}><Ionicons name="remove" size={16} color="#714B67" /></Pressable><TextInput value={String(line.qty)} onChangeText={(value) => onChangeQty(Number(value.replace(",", ".")) || 0)} keyboardType="decimal-pad" selectTextOnFocus style={styles.qty} /><Pressable style={styles.step} onPress={() => onChangeQty(line.qty + 1)}><Ionicons name="add" size={16} color="#714B67" /></Pressable><Pressable style={styles.remove} onPress={onRemove}><Ionicons name="trash-outline" size={17} color="#B54A50" /></Pressable></View>;
+}
+
+const styles = StyleSheet.create({ row: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#EEE9EC" }, info: { flex: 1 }, name: { color: "#3D353B", fontSize: 12, fontWeight: "800" }, code: { color: "#978B93", fontSize: 9, marginTop: 3 }, step: { width: 30, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 8, backgroundColor: "#EEE8EC" }, qty: { width: 44, height: 32, padding: 0, borderWidth: 1, borderColor: "#D9D0D6", borderRadius: 8, textAlign: "center", color: "#433941", fontSize: 11, fontWeight: "800" }, remove: { width: 30, height: 30, alignItems: "center", justifyContent: "center" } });
