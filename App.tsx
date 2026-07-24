@@ -7,6 +7,7 @@ import { bootstrap, env, moduleManager } from "./src/runtime/runtime";
 import { GenericList } from "./src/ui/GenericList";
 import { ModuleScreen } from "./src/ui/ModuleScreen";
 import { MenuDrawer } from "./src/ui/MenuDrawer";
+import { BottomNavButton } from "./src/ui/navigation/BottomNavButton";
 
 type Section = "data" | "modules";
 
@@ -48,7 +49,7 @@ export default function App() {
           <ModuleScreen manager={moduleManager} onChanged={() => setRevision((value) => value + 1)} /></View>
       }
       <View style={styles.nav}>
-        <NavButton active={section === "data"} icon="server-outline" label="Dữ liệu" onPress={() => setSection("data")} /><NavButton active={section === "modules"} icon="apps-outline" label="Ứng dụng" onPress={() => setSection("modules")} /></View>
+        <BottomNavButton active={section === "data"} icon="server-outline" label="Dữ liệu" onPress={() => setSection("data")} /><BottomNavButton active={section === "modules"} icon="apps-outline" label="Ứng dụng" onPress={() => setSection("modules")} /></View>
       <MenuDrawer
         visible={menuOpen}
         menus={menus}
@@ -61,11 +62,7 @@ export default function App() {
   );
 }
 
-function NavButton({ active, icon, label, onPress }: { active: boolean; icon: React.ComponentProps<typeof Ionicons>["name"]; label: string; onPress: () => void }) {
-  return <Pressable style={styles.navButton} onPress={onPress}><Ionicons name={icon} size={21} color={active ? "#714B67" : "#928990"} /><Text style={[styles.navText, active && styles.navActive]}>{label}</Text></Pressable>;
-}
-
 const styles = StyleSheet.create({
   app: { flex: 1, backgroundColor: "#F7F6F4" }, loading: { flex: 1, alignItems: "center", justifyContent: "center", gap: 14, backgroundColor: "#F7F6F4" }, error: { color: "#B42318", padding: 20 }, topbar: { height: 55, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#FFF", borderBottomWidth: 1, borderBottomColor: "#E8E2E6" }, topbarLeft: { flexDirection: "row", alignItems: "center", gap: 10 }, menuButton: { width: 38, height: 38, borderRadius: 11, alignItems: "center", justifyContent: "center", backgroundColor: "#F1E9EE" }, brand: { color: "#372E35", fontSize: 21, fontWeight: "900" }, brandAccent: { color: "#714B67" }, local: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 9, paddingVertical: 6, borderRadius: 13, backgroundColor: "#EEE5EB" }, dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#714B67" }, localText: { color: "#714B67", fontSize: 8, fontWeight: "900", letterSpacing: 0.7 },
-  models: { gap: 8, padding: 10, backgroundColor: "#FFF", borderBottomWidth: 1, borderBottomColor: "#EEE9EC" }, modelChip: { height: 34, justifyContent: "center", paddingHorizontal: 13, borderRadius: 17, backgroundColor: "#F1EEF0" }, modelChipSelected: { backgroundColor: "#714B67" }, modelText: { color: "#6F666D", fontSize: 11, fontWeight: "700" }, modelTextSelected: { color: "#FFF" }, content: { flex: 1 }, nav: { height: 62, flexDirection: "row", backgroundColor: "#FFF", borderTopWidth: 1, borderTopColor: "#E4DEE2" }, navButton: { flex: 1, alignItems: "center", justifyContent: "center", gap: 3 }, navText: { color: "#928990", fontSize: 10, fontWeight: "700" }, navActive: { color: "#714B67" }, noModule: { flex: 1, alignItems: "center", justifyContent: "center" }, noModuleTitle: { fontSize: 18, fontWeight: "800", color: "#443A42" }, noModuleText: { color: "#81787F", marginTop: 5 },
+  models: { gap: 8, padding: 10, backgroundColor: "#FFF", borderBottomWidth: 1, borderBottomColor: "#EEE9EC" }, modelChip: { height: 34, justifyContent: "center", paddingHorizontal: 13, borderRadius: 17, backgroundColor: "#F1EEF0" }, modelChipSelected: { backgroundColor: "#714B67" }, modelText: { color: "#6F666D", fontSize: 11, fontWeight: "700" }, modelTextSelected: { color: "#FFF" }, content: { flex: 1 }, nav: { height: 62, flexDirection: "row", backgroundColor: "#FFF", borderTopWidth: 1, borderTopColor: "#E4DEE2" }, noModule: { flex: 1, alignItems: "center", justifyContent: "center" }, noModuleTitle: { fontSize: 18, fontWeight: "800", color: "#443A42" }, noModuleText: { color: "#81787F", marginTop: 5 },
 });

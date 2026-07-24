@@ -6,8 +6,8 @@
 
 - SQLite làm cơ sở dữ liệu local.
 - Model được định nghĩa bằng class và có thể kế thừa.
-- Các field `Integer`, `Float`, `Char`, `Text`, `Boolean`, `Date`, `Many2one`,
-  `One2many` và `Many2many`.
+- Các field `Integer`, `Float`, `Char`, `Text`, `Boolean`, `Date`, `Binary`,
+  `Many2one`, `One2many` và `Many2many`.
 - Màn hình List và Form được sinh từ metadata.
 - CRUD: tạo, xem, sửa và xóa bản ghi.
 - Module plugin có thể cài đặt, nâng cấp và gỡ.
@@ -111,6 +111,13 @@ Record mới chỉ tồn tại local sẽ bị xóa khỏi SQLite. Record đã c
 được soft-delete bằng trạng thái `deleted` để Sync Engine gửi thao tác xóa lên
 server sau này.
 
+### Chọn file hoặc hình ảnh
+
+Field `Binary` hiển thị hai nút **Chọn file** và **Chọn ảnh**. File được copy vào
+thư mục documents riêng của ứng dụng, sau đó metadata được lưu trong model
+`ir.attachment`. Hình ảnh có preview ngay trên form. Trong module Product, mở
+form **Mẫu sản phẩm** để sử dụng field `image_1920`.
+
 ## 5. Cấu trúc source code
 
 ```text
@@ -130,10 +137,18 @@ src/
 ├── runtime/
 │   └── runtime.ts         # Đăng ký plugin và bootstrap
 └── ui/
-    ├── GenericList.tsx
-    ├── GenericForm.tsx
-    └── ModuleScreen.tsx
+    ├── GenericList.tsx       # Chỉ điều phối list state/data
+    ├── GenericForm.tsx       # Chỉ điều phối form state/data
+    ├── form/                 # Một component cho mỗi field/widget
+    ├── list/                 # Header, search, card, field value
+    ├── menu/                 # Các component menu
+    ├── module/               # Các component quản lý module
+    └── navigation/           # Các component điều hướng
 ```
+
+Mỗi file trong `src/ui` chỉ export một React component chính. Khi thêm widget
+mới, tạo component riêng trong `src/ui/form` rồi đăng ký nhánh render trong
+`FormFieldRenderer`; không viết trực tiếp widget vào `GenericForm`.
 
 ## 6. Sử dụng ORM trong code
 
@@ -222,6 +237,11 @@ export class SaleOrder extends Model {
     tag_ids: fields.Many2many("sale.tag", {
       string: "Thẻ",
       relation: "sale_order_tag_rel",
+    }),
+    document_file: fields.Binary({
+      string: "Tài liệu",
+      acceptedTypes: ["application/pdf", "image/*"],
+      maxSize: 10 * 1024 * 1024,
     }),
   };
 }

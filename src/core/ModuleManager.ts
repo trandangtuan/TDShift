@@ -13,7 +13,7 @@ export class ModuleManager {
     const db = await database();
     const newlyDiscovered = new Set<string>();
     for (const plugin of this.registry.getPlugins()) {
-      const existing = await db.getFirstAsync<{ state: string }>("SELECT state FROM ir_module_module WHERE name = ?", plugin.manifest.name);
+      const existing = await db.getFirstAsync<{ state: string; installed_version: string | null }>("SELECT state, installed_version FROM ir_module_module WHERE name = ?", plugin.manifest.name);
       if (!existing) {
         newlyDiscovered.add(plugin.manifest.name);
         await db.runAsync(
@@ -23,6 +23,9 @@ export class ModuleManager {
         );
       }
       if (existing?.state === "installed") this.activate(plugin);
+      if (existing?.state === "installed" && existing.installed_version !== plugin.manifest.version) {
+        await this.update(plugin.manifest.name);
+      }
     }
     for (const plugin of this.registry.getPlugins().filter((item) => item.manifest.autoInstall && newlyDiscovered.has(item.manifest.name))) {
       const state = await db.getFirstAsync<{ state: string }>("SELECT state FROM ir_module_module WHERE name = ?", plugin.manifest.name);

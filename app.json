@@ -5,7 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "plugins": ["expo-sqlite"],
+    "plugins": [
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "TDshift cần quyền truy cập thư viện ảnh để chọn hình và lưu vào dữ liệu offline."
+        }
+      ]
+    ],
     "android": {
       "package": "com.tdshift.odooofflineorm"
     },

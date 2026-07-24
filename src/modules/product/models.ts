@@ -30,10 +30,11 @@ export class ProductTemplate extends ProductBase {
   static override modelName = "product.template";
   static override description = "Mẫu sản phẩm";
   static override tableName = "product_template";
-  static override modelVersion = 1;
+  static override modelVersion = 2;
   static override fields = {
     name: fields.Char({ string: "Tên sản phẩm", required: true, index: true }),
     description: fields.Text({ string: "Mô tả" }),
+    image_1920: fields.Binary({ string: "Hình ảnh", acceptedTypes: ["image/*"], maxSize: 10 * 1024 * 1024 }),
     sequence: fields.Integer({ string: "Thứ tự", default: 10 }),
     list_price: fields.Float({ string: "Giá bán", default: 0 }),
     standard_price: fields.Float({ string: "Giá vốn", default: 0 }),

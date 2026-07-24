@@ -5,8 +5,9 @@ export const productModule: ModulePlugin = {
   manifest: {
     name: "product",
     displayName: "Sản phẩm",
-    version: "1.0.0",
+    version: "1.1.0",
     summary: "Quản lý mẫu sản phẩm, biến thể, danh mục và thẻ",
+    depends: ["base"],
     autoInstall: true,
   },
   models: [ProductCategory, ProductTag, ProductTemplate, ProductProduct],
@@ -30,7 +31,7 @@ export const productModule: ModulePlugin = {
     },
     "product.template": {
       list: { type: "list", title: "Mẫu sản phẩm", fields: ["name", "list_price", "standard_price", "active"] },
-      form: { type: "form", title: "Mẫu sản phẩm", fields: ["name", "description", "sequence", "list_price", "standard_price", "available_date", "categ_id", "tag_ids", "product_variant_ids", "active"] },
+      form: { type: "form", title: "Mẫu sản phẩm", fields: ["name", "image_1920", "description", "sequence", "list_price", "standard_price", "available_date", "categ_id", "tag_ids", "product_variant_ids", "active"] },
     },
     "product.product": {
       list: { type: "list", title: "Biến thể", fields: ["name", "default_code", "barcode", "active"] },

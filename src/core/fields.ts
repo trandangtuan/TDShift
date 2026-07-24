@@ -5,6 +5,7 @@ export type FieldKind =
   | "text"
   | "boolean"
   | "date"
+  | "binary"
   | "many2one"
   | "one2many"
   | "many2many";
@@ -90,6 +91,20 @@ export class DateField extends Field<string> {
   sqlType() { return "TEXT"; }
 }
 
+export class BinaryField extends Field<string> {
+  readonly kind = "binary" as const;
+  readonly attachment: boolean;
+  readonly acceptedTypes?: string[];
+  readonly maxSize?: number;
+  constructor(options: FieldOptions<string> & { attachment?: boolean; acceptedTypes?: string[]; maxSize?: number } = {}) {
+    super(options);
+    this.attachment = options.attachment ?? true;
+    this.acceptedTypes = options.acceptedTypes;
+    this.maxSize = options.maxSize;
+  }
+  sqlType() { return "TEXT"; }
+}
+
 interface RelationOptions extends FieldOptions<string> { comodelName: string }
 
 export class Many2oneField extends Field<string> {
@@ -133,6 +148,7 @@ export const fields = {
   Text: (options?: FieldOptions<string>) => new TextField(options),
   Boolean: (options?: FieldOptions<boolean>) => new BooleanField(options),
   Date: (options?: FieldOptions<string>) => new DateField(options),
+  Binary: (options?: FieldOptions<string> & { attachment?: boolean; acceptedTypes?: string[]; maxSize?: number }) => new BinaryField(options),
   Many2one: (comodelName: string, options: Omit<RelationOptions, "comodelName"> = {}) =>
     new Many2oneField({ ...options, comodelName }),
   One2many: (comodelName: string, inverseName: string, options: FieldOptions<string[]> = {}) =>

@@ -3,7 +3,7 @@
 Framework React Native/Expo mô phỏng kiến trúc module của Odoo trên client:
 
 - Model khai báo bằng class, hỗ trợ kế thừa class và mở rộng registry.
-- Field: Integer, Float, Char, Text, Boolean, Date, Many2one, One2many, Many2many.
+- Field: Integer, Float, Char, Text, Boolean, Date, Binary, Many2one, One2many, Many2many.
 - SQLite schema được sinh tự động từ model metadata.
 - Module plugin có manifest, dependencies, models, views, seed và version.
 - Module Manager hỗ trợ install, update và uninstall.
