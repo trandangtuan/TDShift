@@ -129,6 +129,51 @@ dùng các field chuẩn hóa theo Odoo như `picking_type_id`, `location_id`,
 `location_dest_id`, `product_uom_qty`, `quantity` và trạng thái `done` để thuận
 tiện đồng bộ về backend sau này.
 
+### Plugin Đồng bộ Odoo
+
+Mở menu **Đồng bộ Odoo → Kết nối & Đồng bộ**, sau đó:
+
+1. Nhập URL gốc của Odoo, ví dụ `https://company.odoo.com` (không thêm `/web`).
+2. Nhập tên database, tài khoản và API key. Nên tạo API key riêng trong Odoo thay vì dùng mật khẩu đăng nhập.
+3. Chọn các model cần đồng bộ. Mặc định an toàn gồm danh mục, thẻ, mẫu sản phẩm và biến thể.
+4. Nhấn **Kiểm tra** để xác thực kết nối.
+5. Nhấn **Cập nhật schema** để tải module, model, field và view hiện có trên Odoo.
+6. Tìm/chọn model remote hoặc nhập tên model custom như `x_service.order`.
+7. Nhấn **Đồng bộ ngay** để đẩy thay đổi local rồi tải thay đổi từ Odoo.
+
+Sync Engine gọi `fields_get` trước mỗi model nên chỉ gửi các field tồn tại và cho
+phép ghi trên Odoo. `Many2one` và `Many2many` được đổi giữa local ID và Odoo ID;
+`server_id` lưu ID phía Odoo. Trạng thái `created`, `updated`, `deleted`, `synced`
+quyết định bản ghi cần push. Mỗi model có cursor `write_date` riêng để pull tăng dần.
+Lỗi một bản ghi được lưu trong `sync.log` và không làm dừng các model còn lại.
+
+#### Dynamic Schema
+
+TDshift đọc `ir.module.module`, `ir.model`, metadata `fields_get` và `ir.ui.view`.
+Metadata được lưu offline trong `sync.remote.module`, `sync.remote.model`,
+`sync.remote.field` và `sync.remote.view`. Với model chưa có class mobile, ORM tạo
+model runtime cùng bảng SQLite ổn định; field mới được thêm cột bằng schema update.
+List/form generic lấy thứ tự field từ kiến trúc XML của view Odoo. Metadata được
+khôi phục khi mở lại ứng dụng nên field custom vẫn dùng được khi offline.
+
+Các kiểu integer, float/monetary, char, text/html, boolean, date, datetime,
+selection, binary và quan hệ được ánh xạ sang field ORM. Quan hệ tới model chưa
+được chọn được giữ dạng JSON để không mất Odoo ID; sau khi chọn thêm model liên
+quan và cập nhật schema, ORM có thể dùng quan hệ đầy đủ.
+
+Dynamic Schema không tải hoặc chạy mã Python, computed logic, onchange, domain,
+widget JavaScript hay workflow của module Odoo. Những nghiệp vụ này cần adapter
+mobile/plugin riêng; metadata động chỉ cung cấp schema, dữ liệu và giao diện CRUD
+generic.
+
+Lưu ý:
+
+- Đồng bộ cần mạng; CRUD/POS vẫn hoạt động offline khi không có mạng.
+- Web có thể bị chính sách CORS của máy chủ Odoo chặn; nên dùng ứng dụng iOS/Android hoặc reverse proxy đã cấu hình CORS.
+- API key hiện lưu trong SQLite trên thiết bị. Với production nên bổ sung SecureStore/mã hóa.
+- Xóa từ Odoo về thiết bị và xử lý xung đột nâng cao chưa nằm trong phiên bản đầu; khi cùng sửa hai phía, dữ liệu local chờ push được đẩy trước.
+- Các workflow nghiệp vụ Odoo có ràng buộc riêng. Hãy thử với database staging trước khi bật model kho/POS.
+
 ## 4. Thao tác CRUD
 
 ### Xem và tìm kiếm

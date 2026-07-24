@@ -10,7 +10,8 @@ export type FieldKind =
   | "selection"
   | "many2one"
   | "one2many"
-  | "many2many";
+  | "many2many"
+  | "json";
 
 export interface FieldOptions<T> {
   string?: string;
@@ -112,6 +113,22 @@ export class BinaryField extends Field<string> {
   sqlType() { return "TEXT"; }
 }
 
+export class JsonField extends Field<unknown> {
+  readonly kind = "json" as const;
+  sqlType() { return "TEXT"; }
+  override toDatabase(value: unknown) {
+    if (value == null || value === "") return null;
+    if (typeof value === "string") {
+      try { return JSON.stringify(JSON.parse(value)); } catch { return JSON.stringify(value); }
+    }
+    return JSON.stringify(value);
+  }
+  override fromDatabase(value: unknown) {
+    if (typeof value !== "string" || !value) return value;
+    try { return JSON.parse(value); } catch { return value; }
+  }
+}
+
 export type SelectionOption = readonly [value: string, label: string];
 
 export class SelectionField extends Field<string> {
@@ -176,6 +193,7 @@ export const fields = {
   Date: (options?: FieldOptions<string>) => new DateField(options),
   Datetime: (options?: FieldOptions<string>) => new DatetimeField(options),
   Binary: (options?: FieldOptions<string> & { attachment?: boolean; acceptedTypes?: string[]; maxSize?: number }) => new BinaryField(options),
+  Json: (options?: FieldOptions<unknown>) => new JsonField(options),
   Selection: (selection: readonly SelectionOption[], options?: FieldOptions<string>) => new SelectionField(selection, options),
   Many2one: (comodelName: string, options: Omit<RelationOptions, "comodelName"> = {}) =>
     new Many2oneField({ ...options, comodelName }),

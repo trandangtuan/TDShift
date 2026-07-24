@@ -79,6 +79,15 @@ export class Registry {
     this.definitions.set(name, { ...current, fields: { ...current.fields, ...extraFields } });
   }
 
+  setViews(name: string, views: ModelViews): void { this.viewDefinitions.set(name, views); }
+
+  extendFormView(name: string, fieldNames: string[]): void {
+    const current = this.getViews(name);
+    const fields = [...current.form.fields];
+    for (const fieldName of fieldNames) if (!fields.includes(fieldName)) fields.push(fieldName);
+    this.viewDefinitions.set(name, { ...current, form: { ...current.form, fields } });
+  }
+
   getModelClass(name: string): typeof Model {
     const value = this.modelClasses.get(name);
     if (!value) throw new Error(`Model '${name}' chưa được đăng ký`);

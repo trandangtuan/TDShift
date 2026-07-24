@@ -129,6 +129,7 @@ export class ORM {
     if (!current) throw new Error("Bản ghi không tồn tại");
     const normalized = this.normalize(definition, values, false);
     const stored = Object.entries(normalized).filter(([name]) => this.isStored(definition.fields[name]));
+    const hasMany2many = Object.keys(normalized).some((name) => definition.fields[name] instanceof Many2manyField);
     const nextStatus = current.sync_status === "created" ? "created" : "updated";
     await db.withTransactionAsync(async () => {
       if (stored.length) {
@@ -138,7 +139,7 @@ export class ORM {
           `UPDATE ${ident(definition.table)} SET ${set}, sync_status = ?, updated_at = ? WHERE id = ?`,
           ...params, nextStatus, new Date().toISOString(), id,
         );
-      }
+      } else if (hasMany2many) await db.runAsync(`UPDATE ${ident(definition.table)} SET sync_status = ?, updated_at = ? WHERE id = ?`, nextStatus, new Date().toISOString(), id);
       await this.writeMany2many(db, definition, id, normalized);
     });
     return (await this.read(modelName, id))!;
@@ -156,6 +157,60 @@ export class ORM {
     } else {
       await db.runAsync(`UPDATE ${ident(definition.table)} SET sync_status = 'deleted', updated_at = ? WHERE id = ?`, new Date().toISOString(), id);
     }
+  }
+
+  async syncPending(modelName: string, limit = 100): Promise<ModelValues[]> {
+    const definition = this.registry.getDefinition(modelName);
+    const db = await database();
+    const rows = await db.getAllAsync<ModelValues>(
+      `SELECT * FROM ${ident(definition.table)} WHERE sync_status IN ('created', 'updated', 'deleted') ORDER BY updated_at ASC LIMIT ?`, limit,
+    );
+    return Promise.all(rows.map((row) => row.sync_status === "deleted" ? row : this.hydrate(db, definition, row)));
+  }
+
+  async syncFindByServerId(modelName: string, serverId: number): Promise<ModelValues | null> {
+    const definition = this.registry.getDefinition(modelName);
+    const db = await database();
+    const row = await db.getFirstAsync<ModelValues>(`SELECT * FROM ${ident(definition.table)} WHERE server_id = ?`, serverId);
+    return row ? this.hydrate(db, definition, row) : null;
+  }
+
+  async syncApply(modelName: string, serverId: number, values: ModelValues, serverUpdatedAt?: string): Promise<ModelValues> {
+    const definition = this.registry.getDefinition(modelName);
+    const db = await database();
+    const existing = await db.getFirstAsync<ModelValues>(`SELECT * FROM ${ident(definition.table)} WHERE server_id = ?`, serverId);
+    const now = serverUpdatedAt || new Date().toISOString();
+    const normalized: ModelValues = {};
+    for (const [name, value] of Object.entries(values)) if (definition.fields[name] && value !== undefined) normalized[name] = value;
+    const stored = Object.entries(normalized).filter(([name]) => this.isStored(definition.fields[name]));
+    const id = existing?.id as string | undefined ?? localId();
+    await db.withTransactionAsync(async () => {
+      if (existing) {
+        if (stored.length) {
+          const set = stored.map(([name]) => `${ident(name)} = ?`).join(", ");
+          const params = stored.map(([name, value]) => definition.fields[name]!.toDatabase(value) as SQLiteBindValue);
+          await db.runAsync(`UPDATE ${ident(definition.table)} SET ${set}, sync_status = 'synced', updated_at = ? WHERE id = ?`, ...params, now, id);
+        } else await db.runAsync(`UPDATE ${ident(definition.table)} SET sync_status = 'synced', updated_at = ? WHERE id = ?`, now, id);
+      } else {
+        const columns = ["id", "server_id", "sync_status", "created_at", "updated_at", ...stored.map(([name]) => name)];
+        const params: SQLiteBindValue[] = [id, serverId, "synced", now, now, ...stored.map(([name, value]) => definition.fields[name]!.toDatabase(value) as SQLiteBindValue)];
+        await db.runAsync(`INSERT INTO ${ident(definition.table)} (${columns.map(ident).join(",")}) VALUES (${columns.map(() => "?").join(",")})`, ...params);
+      }
+      await this.writeMany2many(db, definition, id, normalized);
+    });
+    return (await this.syncFindByServerId(modelName, serverId))!;
+  }
+
+  async syncMarkPushed(modelName: string, id: RecordId, serverId?: number): Promise<void> {
+    const definition = this.registry.getDefinition(modelName);
+    const db = await database();
+    const row = await db.getFirstAsync<{ sync_status: string }>(`SELECT sync_status FROM ${ident(definition.table)} WHERE id = ?`, id);
+    if (!row) return;
+    if (row.sync_status === "deleted") {
+      await db.runAsync(`DELETE FROM ${ident(definition.table)} WHERE id = ?`, id);
+      return;
+    }
+    await db.runAsync(`UPDATE ${ident(definition.table)} SET server_id = COALESCE(?, server_id), sync_status = 'synced' WHERE id = ?`, serverId ?? null, id);
   }
 
   private normalize(definition: ModelDefinition, values: ModelValues, includeDefaults: boolean): ModelValues {

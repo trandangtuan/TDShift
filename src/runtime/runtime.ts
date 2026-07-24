@@ -5,6 +5,8 @@ import { productModule } from "../modules/product";
 import { baseModule } from "../modules/base";
 import { stockModule } from "../modules/stock";
 import { posModule } from "../modules/pos";
+import { syncModule } from "../modules/sync";
+import { DynamicSchemaService } from "../features/sync/DynamicSchemaService";
 
 export const env = new Environment(registry);
 export const moduleManager = new ModuleManager(registry, env);
@@ -13,7 +15,9 @@ moduleManager.register(baseModule);
 moduleManager.register(productModule);
 moduleManager.register(stockModule);
 moduleManager.register(posModule);
+moduleManager.register(syncModule);
 
 export async function bootstrap(): Promise<void> {
   await moduleManager.bootstrap();
+  await new DynamicSchemaService(env).restore();
 }

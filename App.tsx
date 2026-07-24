@@ -9,6 +9,7 @@ import { ModuleScreen } from "./src/ui/ModuleScreen";
 import { MenuDrawer } from "./src/ui/MenuDrawer";
 import { BottomNavButton } from "./src/ui/navigation/BottomNavButton";
 import { PosScreen } from "./src/features/pos/PosScreen";
+import { SyncScreen } from "./src/features/sync/SyncScreen";
 
 type Section = "data" | "modules";
 
@@ -41,7 +42,7 @@ export default function App() {
       </View>
       {section === "data" ?
           <View style={styles.content}>
-            {screenName === "pos.sale" ? <PosScreen env={env} /> : selected ? <GenericList env={env} modelName={selected} />
+            {screenName === "pos.sale" ? <PosScreen env={env} /> : screenName === "odoo.sync" ? <SyncScreen env={env} /> : selected ? <GenericList env={env} modelName={selected} />
             : <View style={styles.noModule}>
                 <Text style={styles.noModuleTitle}>Chưa có model</Text>
                 <Text style={styles.noModuleText}>Mở Ứng dụng để cài một module plugin.</Text></View>}
