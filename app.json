@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Odoo Offline ORM",
+    "slug": "odoo-offline-orm",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": ["expo-sqlite"],
+    "android": {
+      "package": "com.tdshift.odooofflineorm"
+    },
+    "ios": {
+      "bundleIdentifier": "com.tdshift.odooofflineorm",
+      "supportsTablet": true
+    }
+  }
+}
