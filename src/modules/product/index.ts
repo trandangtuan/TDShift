@@ -10,6 +10,15 @@ export const productModule: ModulePlugin = {
     autoInstall: true,
   },
   models: [ProductCategory, ProductTag, ProductTemplate, ProductProduct],
+  menus: [
+    { id: "product.menu_root", name: "Sản phẩm", sequence: 10, icon: "cube-outline" },
+    { id: "product.menu_catalog", name: "Danh mục sản phẩm", parentId: "product.menu_root", sequence: 10 },
+    { id: "product.menu_templates", name: "Mẫu sản phẩm", parentId: "product.menu_catalog", sequence: 10, modelName: "product.template" },
+    { id: "product.menu_variants", name: "Biến thể sản phẩm", parentId: "product.menu_catalog", sequence: 20, modelName: "product.product" },
+    { id: "product.menu_configuration", name: "Cấu hình", parentId: "product.menu_root", sequence: 20 },
+    { id: "product.menu_categories", name: "Danh mục", parentId: "product.menu_configuration", sequence: 10, modelName: "product.category" },
+    { id: "product.menu_tags", name: "Thẻ sản phẩm", parentId: "product.menu_configuration", sequence: 20, modelName: "product.tag" },
+  ],
   views: {
     "product.category": {
       list: { type: "list", title: "Danh mục", fields: ["name", "active"] },

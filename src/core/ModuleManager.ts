@@ -89,6 +89,7 @@ export class ModuleManager {
       await this.env.orm.dropSchema(ModelClass.definition());
       this.registry.unregisterModel(ModelClass.modelName);
     }
+    this.registry.unregisterMenus(name);
     await db.runAsync("DELETE FROM ir_model WHERE module = ?", name);
     await db.runAsync(
       "UPDATE ir_module_module SET state = 'uninstalled', installed_version = NULL, installed_at = NULL, updated_at = ? WHERE name = ?",
@@ -98,6 +99,7 @@ export class ModuleManager {
 
   private activate(plugin: ModulePlugin): void {
     for (const ModelClass of plugin.models) this.registry.registerModel(ModelClass, plugin.views[ModelClass.modelName]);
+    this.registry.registerMenus(plugin.manifest.name, plugin.menus ?? []);
   }
 
   private requirePlugin(name: string): ModulePlugin {

@@ -1,4 +1,4 @@
-# Hướng dẫn sử dụng Mini Odoo Offline ORM
+# Hướng dẫn sử dụng TDshift
 
 ## 1. Chức năng hiện có
 
@@ -47,6 +47,9 @@ Dự án sử dụng Expo SDK 54 để tương thích với Expo Go trên thiế
 ## 3. Giao diện ứng dụng
 
 Ứng dụng có hai khu vực chính ở thanh điều hướng dưới cùng:
+
+Nút ba gạch trên header mở danh sách menu dạng cây. Menu có thể lồng tối đa 4
+cấp; nhấn menu nhóm để mở/đóng menu con và nhấn menu có model để mở list view.
 
 ### Dữ liệu
 

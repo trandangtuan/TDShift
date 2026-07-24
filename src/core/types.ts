@@ -29,6 +29,21 @@ export interface ModelViews {
   form: FormViewDefinition;
 }
 
+export interface MenuDefinition {
+  id: string;
+  name: string;
+  parentId?: string;
+  sequence?: number;
+  modelName?: string;
+  icon?: string;
+}
+
+export interface RegisteredMenu extends MenuDefinition {
+  moduleName: string;
+  level: number;
+  children: RegisteredMenu[];
+}
+
 export interface ModuleManifest {
   name: string;
   displayName: string;
@@ -42,6 +57,7 @@ export interface ModulePlugin {
   manifest: ModuleManifest;
   models: Array<typeof import("./Model").Model>;
   views: Record<string, ModelViews>;
+  menus?: MenuDefinition[];
   seed?: (env: import("./Environment").Environment) => Promise<void>;
 }
 

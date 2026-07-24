@@ -1,4 +1,4 @@
-# Mini Odoo Offline ORM
+# TDshift Offline ORM
 
 Framework React Native/Expo mô phỏng kiến trúc module của Odoo trên client:
 

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Odoo Offline ORM",
-    "slug": "odoo-offline-orm",
+    "name": "TDshift",
+    "slug": "tdshift",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
