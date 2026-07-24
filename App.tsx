@@ -1,13 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
 
 import { bootstrap, env, moduleManager } from "./src/runtime/runtime";
 import { GenericList } from "./src/ui/GenericList";
 import { ModuleScreen } from "./src/ui/ModuleScreen";
 import { MenuDrawer } from "./src/ui/MenuDrawer";
 import { BottomNavButton } from "./src/ui/navigation/BottomNavButton";
+import { PosScreen } from "./src/features/pos/PosScreen";
 
 type Section = "data" | "modules";
 
@@ -16,6 +17,7 @@ export default function App() {
   const [error, setError] = useState("");
   const [section, setSection] = useState<Section>("data");
   const [modelName, setModelName] = useState("");
+  const [screenName, setScreenName] = useState("");
   const [revision, setRevision] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -39,23 +41,23 @@ export default function App() {
       </View>
       {section === "data" ?
           <View style={styles.content}>
-            {selected ? <GenericList env={env} modelName={selected} />
+            {screenName === "pos.sale" ? <PosScreen env={env} /> : selected ? <GenericList env={env} modelName={selected} />
             : <View style={styles.noModule}>
                 <Text style={styles.noModuleTitle}>Chưa có model</Text>
                 <Text style={styles.noModuleText}>Mở Ứng dụng để cài một module plugin.</Text></View>}
               </View>
         :
         <View style={styles.content}>
-          <ModuleScreen manager={moduleManager} onChanged={() => setRevision((value) => value + 1)} /></View>
+          <ModuleScreen manager={moduleManager} onChanged={() => { setScreenName(""); setRevision((value) => value + 1); }} /></View>
       }
       <View style={styles.nav}>
         <BottomNavButton active={section === "data"} icon="server-outline" label="Dữ liệu" onPress={() => setSection("data")} /><BottomNavButton active={section === "modules"} icon="apps-outline" label="Ứng dụng" onPress={() => setSection("modules")} /></View>
       <MenuDrawer
         visible={menuOpen}
         menus={menus}
-        activeModel={selected}
+        activeTarget={screenName || selected}
         onClose={() => setMenuOpen(false)}
-        onSelect={(nextModel) => { setModelName(nextModel); setSection("data"); }}
+        onSelect={(menu) => { setScreenName(menu.screen ?? ""); if (menu.modelName) setModelName(menu.modelName); setSection("data"); }}
         onOpenModules={() => setSection("modules")}
       />
     </SafeAreaView>

@@ -78,6 +78,7 @@ export class ModuleManager {
       "UPDATE ir_module_module SET state = 'installed', installed_version = ?, updated_at = ? WHERE name = ?",
       plugin.manifest.version, new Date().toISOString(), name,
     );
+    await plugin.seed?.(this.env);
   }
 
   async uninstall(name: string): Promise<void> {

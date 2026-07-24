@@ -23,6 +23,7 @@ export class Registry {
 
     for (const menu of definitions) {
       if (this.menus.has(menu.id)) throw new Error(`Menu '${menu.id}' đã được module khác đăng ký`);
+      if (menu.modelName && menu.screen) throw new Error(`Menu '${menu.name}' không thể vừa mở model vừa mở screen`);
       if (menu.modelName && !this.hasModel(menu.modelName)) throw new Error(`Menu '${menu.name}' tham chiếu model chưa được đăng ký`);
       if (menu.parentId && !incomingIds.has(menu.parentId) && !this.menus.has(menu.parentId)) {
         throw new Error(`Không tìm thấy menu cha '${menu.parentId}'`);

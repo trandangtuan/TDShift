@@ -42,6 +42,7 @@ export interface MenuDefinition {
   parentId?: string;
   sequence?: number;
   modelName?: string;
+  screen?: string;
   icon?: string;
 }
 
@@ -49,6 +50,10 @@ export interface RegisteredMenu extends MenuDefinition {
   moduleName: string;
   level: number;
   children: RegisteredMenu[];
+}
+
+export function menuTarget(menu: MenuDefinition): string {
+  return menu.screen ?? menu.modelName ?? "";
 }
 
 export interface ModuleManifest {

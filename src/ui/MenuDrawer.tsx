@@ -2,19 +2,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import type { RegisteredMenu } from "../core/types";
+import { menuTarget, type RegisteredMenu } from "../core/types";
 import { MenuRow } from "./menu/MenuRow";
 
 interface Props {
   visible: boolean;
   menus: RegisteredMenu[];
-  activeModel: string;
+  activeTarget: string;
   onClose: () => void;
-  onSelect: (modelName: string) => void;
+  onSelect: (menu: RegisteredMenu) => void;
   onOpenModules: () => void;
 }
 
-export function MenuDrawer({ visible, menus, activeModel, onClose, onSelect, onOpenModules }: Props) {
+export function MenuDrawer({ visible, menus, activeTarget, onClose, onSelect, onOpenModules }: Props) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function MenuDrawer({ visible, menus, activeModel, onClose, onSelect, onO
       let found = false;
       for (const item of items) {
         const childActive = visit(item.children, [...ancestors, item.id]);
-        if (item.modelName === activeModel || childActive) {
+        if (menuTarget(item) === activeTarget || childActive) {
           ancestors.forEach((id) => initial.add(id));
           if (item.children.length) initial.add(item.id);
           found = true;
@@ -34,7 +34,7 @@ export function MenuDrawer({ visible, menus, activeModel, onClose, onSelect, onO
     }
     visit(menus, []);
     setExpanded(initial);
-  }, [visible, activeModel, menus]);
+  }, [visible, activeTarget, menus]);
 
   function toggle(id: string) {
     setExpanded((current) => {
@@ -58,7 +58,7 @@ export function MenuDrawer({ visible, menus, activeModel, onClose, onSelect, onO
 
           <ScrollView contentContainerStyle={styles.menuList}>
             {menus.length ? menus.map((menu) => (
-              <MenuRow key={menu.id} menu={menu} activeModel={activeModel} expanded={expanded} onToggle={toggle} onSelect={(model) => { onSelect(model); onClose(); }} />
+              <MenuRow key={menu.id} menu={menu} activeTarget={activeTarget} expanded={expanded} onToggle={toggle} onSelect={(selectedMenu) => { onSelect(selectedMenu); onClose(); }} />
             )) : <Text style={styles.empty}>Chưa có menu. Hãy cài một module.</Text>}
           </ScrollView>
 

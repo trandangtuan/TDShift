@@ -90,6 +90,32 @@ hoạt động, một phiếu nhập mẫu và tồn đầu kỳ. Các field dù
 `picking_type_id`, `location_id`, `location_dest_id`, `product_uom_qty`,
 `reserved_quantity` và `state` để giảm công sức mapping khi viết Sync Engine.
 
+### Plugin Điểm bán hàng
+
+Plugin `point_of_sale` phụ thuộc `base`, `product` và `stock`. Menu **Điểm bán
+hàng → Bán hàng** mở giao diện POS riêng:
+
+1. Tìm sản phẩm theo tên, mã nội bộ hoặc barcode.
+2. Nhấn sản phẩm để thêm vào giỏ.
+3. Mở giỏ để chỉnh số lượng, đơn giá và phần trăm giảm giá.
+4. Nhập tên khách hàng nếu cần.
+5. Chọn Tiền mặt hoặc Chuyển khoản.
+6. Nhấn **Thanh toán**.
+
+Một lần checkout tạo `pos.order`, `pos.order.line`, `pos.payment`, phiếu
+`stock.picking`, các dòng `stock.move` và điều chỉnh `stock.quant` ở cả vị trí
+nguồn/đích. Các model POS dùng tên gần Odoo:
+
+- `pos.config`: cấu hình điểm bán.
+- `pos.session`: ca bán hàng.
+- `pos.order`: đơn POS.
+- `pos.order.line`: dòng hàng, gồm `qty`, `price_unit`, `discount`.
+- `pos.payment.method`: phương thức thanh toán.
+- `pos.payment`: khoản thanh toán.
+
+Record đều có local ID, `server_id` và `sync_status`; `uuid` trên `pos.order`
+được dùng làm khóa idempotency khi xây Sync Engine để tránh tạo trùng đơn.
+
 ## 4. Thao tác CRUD
 
 ### Xem và tìm kiếm
