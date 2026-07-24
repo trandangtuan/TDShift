@@ -6,8 +6,8 @@
 
 - SQLite làm cơ sở dữ liệu local.
 - Model được định nghĩa bằng class và có thể kế thừa.
-- Các field `Integer`, `Float`, `Char`, `Text`, `Boolean`, `Date`, `Binary`,
-  `Many2one`, `One2many` và `Many2many`.
+- Các field `Integer`, `Float`, `Char`, `Text`, `Boolean`, `Date`, `Datetime`,
+  `Selection`, `Binary`, `Many2one`, `One2many` và `Many2many`.
 - Màn hình List và Form được sinh từ metadata.
 - CRUD: tạo, xem, sửa và xóa bản ghi.
 - Module plugin có thể cài đặt, nâng cấp và gỡ.
@@ -73,6 +73,23 @@ Mỗi module hỗ trợ các thao tác:
 Gỡ module là thao tác mất dữ liệu local. Ứng dụng sẽ yêu cầu xác nhận trước khi
 thực hiện.
 
+### Plugin Kho vận
+
+Plugin `stock` phụ thuộc `base` và `product`, cung cấp các model tương thích tên
+kỹ thuật Odoo:
+
+- `stock.warehouse`: kho hàng.
+- `stock.location`: vị trí vật lý và vị trí ảo.
+- `stock.picking.type`: loại hoạt động nhập, xuất, điều chuyển.
+- `stock.picking`: phiếu kho.
+- `stock.move`: từng dòng dịch chuyển sản phẩm.
+- `stock.quant`: số lượng tồn và số lượng giữ theo sản phẩm/vị trí.
+
+Lần cài đầu, plugin tạo kho `WH`, vị trí nhà cung cấp/khách hàng/tồn kho, ba loại
+hoạt động, một phiếu nhập mẫu và tồn đầu kỳ. Các field dùng tên Odoo như
+`picking_type_id`, `location_id`, `location_dest_id`, `product_uom_qty`,
+`reserved_quantity` và `state` để giảm công sức mapping khi viết Sync Engine.
+
 ## 4. Thao tác CRUD
 
 ### Xem và tìm kiếm
@@ -101,6 +118,14 @@ Record mới có trạng thái `created` và được hiển thị là **Chờ �
 
 Record đang ở trạng thái `created` sẽ tiếp tục giữ trạng thái đó. Record đã đồng
 bộ trước đây sẽ chuyển sang `updated`.
+
+### Chỉnh sửa One2many
+
+Field `One2many` hiển thị trực tiếp danh sách record con dựa trên list view của
+comodel. Nhấn **Thêm dòng** để tạo, nhấn một dòng để sửa hoặc nhấn biểu tượng
+thùng rác để xóa. Inverse field được tự động gán về record cha và không bị thay
+đổi khi lưu. Với record cha mới, cần lưu record cha một lần để có local ID trước
+khi thêm dòng chi tiết.
 
 ### Xóa record
 

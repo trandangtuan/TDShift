@@ -3,6 +3,13 @@ import type { FieldMap } from "./fields";
 export type RecordId = string;
 export type ModelValues = Record<string, unknown>;
 
+export interface SearchQuery {
+  search?: string;
+  limit?: number;
+  offset?: number;
+  where?: Record<string, string | number | boolean | null>;
+}
+
 export interface ModelDefinition {
   name: string;
   description: string;

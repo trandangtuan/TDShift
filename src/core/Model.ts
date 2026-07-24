@@ -1,6 +1,6 @@
 import type { Environment } from "./Environment";
 import type { FieldMap } from "./fields";
-import type { ModelDefinition, ModelValues, RecordId } from "./types";
+import type { ModelDefinition, ModelValues, RecordId, SearchQuery } from "./types";
 
 export class Model {
   static modelName = "base";
@@ -29,7 +29,7 @@ export class Model {
     return { ...inherited, ...this.fields };
   }
 
-  searchRead(query?: { search?: string; limit?: number; offset?: number }): Promise<ModelValues[]> {
+  searchRead(query?: SearchQuery): Promise<ModelValues[]> {
     return this.env.orm.searchRead((this.constructor as typeof Model).modelName, query);
   }
 

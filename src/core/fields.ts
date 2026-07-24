@@ -5,7 +5,9 @@ export type FieldKind =
   | "text"
   | "boolean"
   | "date"
+  | "datetime"
   | "binary"
+  | "selection"
   | "many2one"
   | "one2many"
   | "many2many";
@@ -91,6 +93,11 @@ export class DateField extends Field<string> {
   sqlType() { return "TEXT"; }
 }
 
+export class DatetimeField extends Field<string> {
+  readonly kind = "datetime" as const;
+  sqlType() { return "TEXT"; }
+}
+
 export class BinaryField extends Field<string> {
   readonly kind = "binary" as const;
   readonly attachment: boolean;
@@ -103,6 +110,25 @@ export class BinaryField extends Field<string> {
     this.maxSize = options.maxSize;
   }
   sqlType() { return "TEXT"; }
+}
+
+export type SelectionOption = readonly [value: string, label: string];
+
+export class SelectionField extends Field<string> {
+  readonly kind = "selection" as const;
+  readonly selection: readonly SelectionOption[];
+  constructor(selection: readonly SelectionOption[], options: FieldOptions<string> = {}) {
+    super(options);
+    if (!selection.length) throw new Error("Selection field cần ít nhất một lựa chọn");
+    this.selection = selection;
+  }
+  sqlType() { return "TEXT"; }
+  override toDatabase(value: unknown) {
+    if (value != null && value !== "" && !this.selection.some(([key]) => key === value)) {
+      throw new Error(`Giá trị selection không hợp lệ: ${String(value)}`);
+    }
+    return value ?? null;
+  }
 }
 
 interface RelationOptions extends FieldOptions<string> { comodelName: string }
@@ -148,7 +174,9 @@ export const fields = {
   Text: (options?: FieldOptions<string>) => new TextField(options),
   Boolean: (options?: FieldOptions<boolean>) => new BooleanField(options),
   Date: (options?: FieldOptions<string>) => new DateField(options),
+  Datetime: (options?: FieldOptions<string>) => new DatetimeField(options),
   Binary: (options?: FieldOptions<string> & { attachment?: boolean; acceptedTypes?: string[]; maxSize?: number }) => new BinaryField(options),
+  Selection: (selection: readonly SelectionOption[], options?: FieldOptions<string>) => new SelectionField(selection, options),
   Many2one: (comodelName: string, options: Omit<RelationOptions, "comodelName"> = {}) =>
     new Many2oneField({ ...options, comodelName }),
   One2many: (comodelName: string, inverseName: string, options: FieldOptions<string[]> = {}) =>

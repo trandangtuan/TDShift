@@ -15,9 +15,12 @@ interface Props {
   visible: boolean;
   onClose: () => void;
   onSaved: () => void;
+  forcedValues?: ModelValues;
 }
 
-export function GenericForm({ env, modelName, record, visible, onClose, onSaved }: Props) {
+const EMPTY_FORCED_VALUES: ModelValues = {};
+
+export function GenericForm({ env, modelName, record, visible, onClose, onSaved, forcedValues = EMPTY_FORCED_VALUES }: Props) {
   const definition = env.registry.getDefinition(modelName);
   const view = env.registry.getViews(modelName).form;
   const [values, setValues] = useState<ModelValues>({});
@@ -31,6 +34,7 @@ export function GenericForm({ env, modelName, record, visible, onClose, onSaved 
     for (const [name, field] of Object.entries(definition.fields)) {
       initial[name] = record?.[name] ?? field.getDefault() ?? (field.kind === "many2many" || field.kind === "one2many" ? [] : "");
     }
+    Object.assign(initial, forcedValues);
     setValues(initial);
     setError("");
     Promise.all(view.fields.map(async (name) => {
@@ -40,7 +44,7 @@ export function GenericForm({ env, modelName, record, visible, onClose, onSaved 
       }
       return [name, []] as const;
     })).then((entries) => setRelations(Object.fromEntries(entries)));
-  }, [visible, record, modelName]);
+  }, [visible, record, modelName, forcedValues]);
 
   function setValue(name: string, value: unknown) {
     setValues((current) => ({ ...current, [name]: value }));
@@ -57,6 +61,7 @@ export function GenericForm({ env, modelName, record, visible, onClose, onSaved 
         const raw = values[name];
         payload[name] = field.kind === "integer" || field.kind === "float" ? Number(raw) || 0 : raw;
       }
+      Object.assign(payload, forcedValues);
       const saved = record
         ? await env.model(modelName).write(record.id as string, payload)
         : await env.model(modelName).create(payload);

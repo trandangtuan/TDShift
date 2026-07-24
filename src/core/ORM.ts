@@ -3,7 +3,7 @@ import type { SQLiteBindValue, SQLiteDatabase } from "expo-sqlite";
 import { database } from "../database/connection";
 import { Field, Many2manyField, One2manyField } from "./fields";
 import { Registry } from "./Registry";
-import type { ModelDefinition, ModelValues, RecordId } from "./types";
+import type { ModelDefinition, ModelValues, RecordId, SearchQuery } from "./types";
 
 const systemColumns = new Set(["id", "server_id", "sync_status", "created_at", "updated_at"]);
 
@@ -68,7 +68,7 @@ export class ORM {
     await db.execAsync(`DROP TABLE IF EXISTS ${ident(definition.table)};`);
   }
 
-  async searchRead(modelName: string, query: { search?: string; limit?: number; offset?: number } = {}): Promise<ModelValues[]> {
+  async searchRead(modelName: string, query: SearchQuery = {}): Promise<ModelValues[]> {
     const definition = this.registry.getDefinition(modelName);
     const db = await database();
     const searchable = Object.entries(definition.fields)
@@ -79,6 +79,12 @@ export class ORM {
     if (query.search?.trim() && searchable.length) {
       where += ` AND (${searchable.join(" OR ")})`;
       searchable.forEach(() => params.push(`%${query.search!.trim()}%`));
+    }
+    for (const [name, value] of Object.entries(query.where ?? {})) {
+      const field = definition.fields[name];
+      if (!field && !systemColumns.has(name)) throw new Error(`Không thể lọc theo field '${name}'`);
+      where += value === null ? ` AND ${ident(name)} IS NULL` : ` AND ${ident(name)} = ?`;
+      if (value !== null) params.push(field ? field.toDatabase(value) as string | number : value as string | number);
     }
     params.push(query.limit ?? 100, query.offset ?? 0);
     const rows = await db.getAllAsync<ModelValues>(
