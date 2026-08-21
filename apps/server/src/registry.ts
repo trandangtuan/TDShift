@@ -11,6 +11,7 @@ import type {
   ViewNode
 } from "@record-platform/core";
 import { hashPassword } from "./auth";
+import { config } from "./config";
 import { db, quoteIdent } from "./db";
 import { moduleDefinitions } from "./modules";
 
@@ -58,6 +59,8 @@ export function buildRegistry(): RuntimeRegistry {
       name: row.name,
       model: row.model,
       type: row.type,
+      contentType: row.content_type ?? "json",
+      content: row.content ?? row.architecture,
       priority: row.priority,
       architecture: applyViewExtensions(row.technical_name, JSON.parse(row.architecture)),
       module: row.module
@@ -249,7 +252,21 @@ function normalizeValues(model: RuntimeModel, values: Record<string, unknown>) {
     const password = typeof values.password === "string" ? values.password.trim() : "";
     if (password) normalized.password_hash = hashPassword(password);
   }
+  if (model.technicalName === "website.page") {
+    const slug = typeof values.slug === "string" ? values.slug : typeof normalized.slug === "string" ? normalized.slug : "";
+    if (slug) normalized.url = websiteUrl(slug);
+  }
   return normalized;
+}
+
+function websiteUrl(slug: string) {
+  const normalized = normalizeSlug(slug);
+  const path = normalized === "home" ? "" : `/${normalized}`;
+  return `${config.websiteBaseUrl.replace(/\/+$/g, "")}${path || "/"}`;
+}
+
+function normalizeSlug(slug: string) {
+  return slug.trim().replace(/^\/+|\/+$/g, "") || "home";
 }
 
 function withCreateAuditDefaults(model: RuntimeModel, values: Record<string, unknown>, userId: number) {
@@ -316,6 +333,8 @@ function withMetadataDefaults(tableName: string, values: Record<string, unknown>
   }
   if (tableName === "core_view") {
     defaults.priority = 16;
+    defaults.content_type = "json";
+    if ("architecture" in values && !("content" in values)) defaults.content = values.architecture;
   }
   if (tableName === "core_action") {
     defaults.view_modes = JSON.stringify([]);

@@ -38,6 +38,20 @@ All notable changes to this project are documented here.
 - Added transient `core.user.password` handling so admins can create or change users from the Users menu without storing plaintext passwords.
 - Added a prominent Users menu directly under Settings for easier user administration.
 - Added a development guide covering how to create modules, models, views, actions, menus, seed data, methods, extensions, and install/upgrade workflows.
+- Added a `website` module with `website.page`, admin page list/form views, Website menu, sample Home page, and public `/website` routes for published pages.
+- Added a module refresh API and a `Refresh Modules` button on the Modules list so newly added code modules such as `website` can appear before install.
+- Added a generated `url` field to `website.page` and clickable URL rendering in list/form views.
+- Added `core.view.content_type` and `core.view.content` so views can store JSON, HTML, or XML content for future website templates.
+- Changed generated website page URLs to use an absolute `WEBSITE_BASE_URL` so links open the backend public website route instead of the frontend app route.
+- Changed production startup so the backend serves the built web app from `apps/web/dist`, allowing a single backend port after `npm run build`.
+- Changed the production web client to call API routes on the same backend origin while keeping the Vite development fallback pointed at `http://localhost:3100`.
+- Changed the server start command to run through `tsx` so the built web app can be served reliably from the backend port with the current TypeScript ESM setup.
+- Changed public website routing to use direct slugs such as `/` and `/:slug` while keeping backend APIs under `/api`.
+- Added `website.menu` records and admin views so website navigation items such as Home can be managed as data.
+- Changed public website rendering to build navigation from published `website.menu` records.
+- Changed `website.page` content rendering to load HTML from a referenced `core.view` record instead of storing page body HTML directly on the page record.
+- Added a seeded `core.view` HTML page view for the Website Home page.
+- Changed seed handling to backfill missing values on existing seed records without overwriting non-null user data.
 - Changed sidebar menus to start collapsed when the app first opens.
 - Moved the current user and logout action to the bottom of the sidebar and removed the topbar brand text.
 - Removed the global refresh button from the topbar and added contextual refresh actions to list and form views.
@@ -64,6 +78,8 @@ All notable changes to this project are documented here.
 - Restored the `sale_discount` module manifest required by the module registry and install/uninstall POC.
 - Fixed missing technical views for `core.menu`.
 - Fixed manual `core.menu` creation failing because required metadata ownership fields were missing.
+- Fixed public website rendering when existing `website.menu` records have missing `label` or `url` values.
+- Fixed generic form URL rendering so editable URL fields such as `website.menu.url` use an input, while readonly generated URLs remain clickable links.
 
 ### Verification
 
@@ -75,5 +91,14 @@ All notable changes to this project are documented here.
 - Verified fresh bootstrap adds audit columns to every active model table and create/write operations populate audit user and timestamp values.
 - Verified authenticated API behavior on a temporary server: menus return 401 without a token and 200 with a login JWT.
 - Verified public registration and admin-created users can both log in with hashed passwords.
+- Verified the `website` module installs on a temporary server and renders the published Home page through `/website` and `/website/home`.
+- Verified module refresh discovers `website` in `core_module`.
+- Verified `website.page.url` is generated from `slug` on create and write.
+- Verified generated website page URLs use `WEBSITE_BASE_URL` as absolute backend URLs.
+- Verified a production build is served from a single backend port, including `/`, `/assets/...`, `/api/health`, and direct website slugs.
+- Verified direct website routing on a fresh database: `/` renders Home with record-driven navigation, `/web` serves the admin app, `/api/health` stays under API, and `/website/home` returns 404.
+- Verified public Home renders without a 500 after making website menu HTML escaping null-safe.
+- Verified `core.view` metadata exposes `content_type` and `content`, and runtime views return `contentType/content` from the API.
+- Verified Website Home renders HTML from the seeded `core.view` content record on a fresh database.
 - Verified `sale` module upgrade removes stale `sale.order.product_id` metadata and the physical `sale_order.product_id` column while keeping `sale.order.line.product_id` active.
 - Verified menu, view, CRUD, and module lifecycle APIs during POC implementation.

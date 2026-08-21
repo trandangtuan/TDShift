@@ -5,12 +5,14 @@ loadEnvFile(resolve(process.cwd(), ".env"));
 loadEnvFile(resolve(process.cwd(), "..", "..", ".env"));
 
 export const config = {
+  port: Number(process.env.PORT ?? 3100),
   jwtSecret: process.env.JWT_SECRET ?? "dev-secret-change-me",
   jwtExpiresSeconds: Number(process.env.JWT_EXPIRES_SECONDS ?? 60 * 60 * 8),
   adminLogin: process.env.ADMIN_LOGIN ?? "admin",
   adminPassword: process.env.ADMIN_PASSWORD ?? "admin",
   adminName: process.env.ADMIN_NAME ?? "Administrator",
-  adminEmail: process.env.ADMIN_EMAIL ?? "admin@example.local"
+  adminEmail: process.env.ADMIN_EMAIL ?? "admin@example.local",
+  websiteBaseUrl: process.env.WEBSITE_BASE_URL ?? `http://localhost:${Number(process.env.PORT ?? 3100)}`
 };
 
 function loadEnvFile(path: string) {

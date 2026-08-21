@@ -216,6 +216,8 @@ import library from "../../../modules/library/module";
 export const moduleDefinitions: ModuleDefinition[] = [base, contacts, sale, saleDiscount, library];
 ```
 
+See `modules/website` for a simple module with admin metadata plus a public route in `apps/server/src/main.ts`.
+
 ## Install Or Upgrade A Module
 
 Start the app:

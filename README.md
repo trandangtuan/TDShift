@@ -23,6 +23,7 @@ Implemented modules:
 - `contacts`: `res.partner` model with list/form views.
 - `sale`: `sale.order` model with generic CRUD and `confirm`/`cancel` methods.
 - `sale_discount`: extends `sale.order` with discount fields and a form view extension.
+- `website`: public website page records with admin page management and HTML rendering.
 
 Implemented runtime:
 
@@ -63,12 +64,23 @@ npm run server
 npm run web
 ```
 
+After building, run only the backend. It serves both API and the built web app from one port:
+
+```bash
+npm run build
+npm run start
+```
+
 Default URLs:
 
 ```text
 Backend: http://localhost:3100
 Web:     http://localhost:5173
+Built admin app: http://localhost:3100/web
+Website: http://localhost:3100
 ```
+
+In production build mode, the web client calls `/api/...` on the same backend origin. In development mode, Vite still runs separately and defaults API calls to `http://localhost:3100`.
 
 The dev database is created at:
 
@@ -80,6 +92,7 @@ Server environment variables can be set in `apps/server/.env`:
 
 ```text
 PORT=3100
+WEBSITE_BASE_URL=http://localhost:3100
 JWT_SECRET=change-me
 JWT_EXPIRES_SECONDS=28800
 ADMIN_LOGIN=admin
@@ -198,6 +211,13 @@ POST /api/model/create
 POST /api/model/write
 POST /api/model/unlink
 POST /api/model/call
+```
+
+Website:
+
+```text
+GET /
+GET /:slug
 ```
 
 ## Design Rules

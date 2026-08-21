@@ -3,7 +3,7 @@ import { type FormEvent, useEffect, useMemo, useState } from "react";
 import type { ActionDefinition, FieldDefinition, RuntimeMenu, RuntimeView, ViewNode } from "@record-platform/core";
 import "./index.css";
 
-const apiBase = import.meta.env.VITE_API_BASE ?? "http://localhost:3100";
+const apiBase = import.meta.env.VITE_API_BASE ?? (import.meta.env.DEV ? "http://localhost:3100" : "");
 const tokenStorageKey = "record-platform-token";
 let authToken = localStorage.getItem(tokenStorageKey);
 
@@ -150,6 +150,13 @@ export default function App() {
     setMode("form");
   }
 
+  async function refreshModuleList() {
+    await api("/api/modules/refresh", { method: "POST" });
+    await reloadMenus();
+    await loadRecords(action?.model, view, model, 0, pageSize);
+    setPage(0);
+  }
+
   if (!authChecked) {
     return <div className="auth-loading">Loading session...</div>;
   }
@@ -203,6 +210,7 @@ export default function App() {
                       loadRecords(action.model, view, model, 0, pageSize);
                     }} title="Search"><Search size={17} /></button>
                     <button onClick={() => loadRecords(action.model, view, model, page, pageSize)} title="Refresh list"><RefreshCw size={17} /></button>
+                    {model.technicalName === "core.module" ? <button onClick={refreshModuleList} title="Refresh modules from code"><UploadCloud size={17} />Refresh Modules</button> : null}
                     <button onClick={() => openForm(null)} title="Create"><Plus size={17} /></button>
                   </>
                 ) : (
@@ -502,6 +510,15 @@ function FieldRenderer({ field, value, parentId, onChange }: { field: FieldDefin
   if (field.type === "one2many") {
     return <OneToManyRenderer field={field} parentId={parentId} />;
   }
+  if (field.name === "url" && field.readonly) {
+    const href = String(value ?? "");
+    return (
+      <label className="field">
+        <span>{field.label}</span>
+        {href ? <a className="field-link" href={href} target="_blank" rel="noreferrer">{href}</a> : <input readOnly value="" />}
+      </label>
+    );
+  }
   return (
     <label className="field">
       <span className={field.required ? "required" : undefined}>{field.label}</span>
@@ -706,6 +723,10 @@ function formatValue(model: RuntimeModel, fieldName: string, value: unknown) {
   const field = model.fields.find((candidate) => candidate.name === fieldName);
   if (field?.type === "boolean") return value ? "Yes" : "No";
   if (field?.type === "many2one") return <ManyToOneDisplay field={field} value={value} />;
+  if (field?.name === "url" && value) {
+    const href = String(value);
+    return <a className="table-link" href={href} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>{href}</a>;
+  }
   return String(value ?? "");
 }
 

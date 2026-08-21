@@ -11,6 +11,7 @@
     "dev": "concurrently -n server,web -c green,cyan \"npm run dev -w @record-platform/server\" \"npm run dev -w @record-platform/web\"",
     "build": "npm run build -w @record-platform/core && npm run build -w @record-platform/server && npm run build -w @record-platform/web",
     "check": "npm run check -w @record-platform/core && npm run check -w @record-platform/server && npm run check -w @record-platform/web",
+    "start": "npm run start -w @record-platform/server",
     "server": "npm run dev -w @record-platform/server",
     "web": "npm run dev -w @record-platform/web"
   },

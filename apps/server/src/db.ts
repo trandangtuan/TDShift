@@ -80,6 +80,8 @@ const systemTables = [
     name TEXT NOT NULL,
     model TEXT NOT NULL,
     type TEXT NOT NULL,
+    content_type TEXT NOT NULL DEFAULT 'json',
+    content TEXT,
     architecture TEXT NOT NULL,
     priority INTEGER NOT NULL,
     module TEXT NOT NULL,
@@ -165,6 +167,9 @@ const systemTables = [
 
 export function initializeSystemSchema() {
   for (const sql of systemTables) db.prepare(sql).run();
+  ensureColumn("core_view", "content_type", "TEXT NOT NULL DEFAULT 'json'");
+  ensureColumn("core_view", "content", "TEXT");
+  db.prepare("UPDATE core_view SET content_type = COALESCE(content_type, 'json'), content = COALESCE(content, architecture)").run();
   for (const table of systemTableNames) ensureAuditColumns(table);
   for (const table of systemTableNames) backfillAuditColumns(table);
 }
@@ -240,11 +245,12 @@ export function bootstrapModules(modules: ModuleDefinition[], options: { forceIn
       upsertAuditFields(model.technicalName, now);
     }
     for (const view of mod.views ?? []) {
+      const architecture = JSON.stringify(view.architecture);
       db.prepare(`
-        INSERT INTO core_view (technical_name, name, model, type, architecture, priority, module, owner_module, parent_view, is_system, is_custom, is_active, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, 0, 1, ?, ?)
-        ON CONFLICT(technical_name) DO UPDATE SET name=excluded.name, model=excluded.model, type=excluded.type, architecture=excluded.architecture, priority=excluded.priority, module=excluded.module, is_system=excluded.is_system, is_custom=0, is_active=1, updated_at=excluded.updated_at
-      `).run(view.technicalName, view.name, view.model, view.type, JSON.stringify(view.architecture), view.priority ?? 16, mod.technicalName, mod.technicalName, mod.technicalName === "base" ? 1 : 0, now, now);
+        INSERT INTO core_view (technical_name, name, model, type, content_type, content, architecture, priority, module, owner_module, parent_view, is_system, is_custom, is_active, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, 0, 1, ?, ?)
+        ON CONFLICT(technical_name) DO UPDATE SET name=excluded.name, model=excluded.model, type=excluded.type, content_type=excluded.content_type, content=excluded.content, architecture=excluded.architecture, priority=excluded.priority, module=excluded.module, is_system=excluded.is_system, is_custom=0, is_active=1, updated_at=excluded.updated_at
+      `).run(view.technicalName, view.name, view.model, view.type, view.contentType ?? "json", view.content ?? architecture, architecture, view.priority ?? 16, mod.technicalName, mod.technicalName, mod.technicalName === "base" ? 1 : 0, now, now);
     }
     for (const ext of mod.viewExtensions ?? []) {
       db.prepare(`
@@ -431,13 +437,23 @@ function seedData(modelName: string, values: Record<string, unknown>) {
   const uniqueColumns = "name" in normalized && tableColumns.has("name") ? ["name"] : Object.keys(normalized).filter((column) => tableColumns.has(column));
   if (uniqueColumns.length) {
     const where = uniqueColumns.map((column) => `${quoteIdent(column)} = @${column}`).join(" AND ");
-    const existing = db.prepare(`SELECT id FROM ${quoteIdent(model.table_name)} WHERE ${where}`).get(normalized);
-    if (existing) return;
+    const existing = db.prepare(`SELECT id FROM ${quoteIdent(model.table_name)} WHERE ${where}`).get(normalized) as { id: number } | undefined;
+    if (existing) {
+      backfillMissingSeedValues(model.table_name, existing.id, normalized, tableColumns);
+      return;
+    }
   }
   const withAudit = withAuditDefaults(normalized, tableColumns);
   const insertColumns = Object.keys(withAudit);
   const insertParams = insertColumns.map((column) => `@${column}`).join(", ");
   db.prepare(`INSERT INTO ${quoteIdent(model.table_name)} (${insertColumns.map(quoteIdent).join(", ")}) VALUES (${insertParams})`).run(withAudit);
+}
+
+function backfillMissingSeedValues(tableName: string, id: number, values: Record<string, unknown>, tableColumns: Set<string>) {
+  const updateValues = Object.fromEntries(Object.entries(values).filter(([column, value]) => tableColumns.has(column) && value !== null && value !== undefined));
+  const assignments = Object.keys(updateValues).map((column) => `${quoteIdent(column)} = COALESCE(${quoteIdent(column)}, @${column})`);
+  if (!assignments.length) return;
+  db.prepare(`UPDATE ${quoteIdent(tableName)} SET ${assignments.join(", ")} WHERE id = @id`).run({ ...updateValues, id });
 }
 
 export function quoteIdent(value: string) {
@@ -470,6 +486,12 @@ function ensureAuditColumns(tableName: string) {
     if (columns.has(field.name)) continue;
     db.prepare(`ALTER TABLE ${quoteIdent(tableName)} ADD COLUMN ${quoteIdent(field.name)} ${sqliteType(field)}`).run();
   }
+}
+
+function ensureColumn(tableName: string, columnName: string, typeSql: string) {
+  const columns = new Set((db.prepare(`PRAGMA table_info(${quoteIdent(tableName)})`).all() as Array<{ name: string }>).map((column) => column.name));
+  if (columns.has(columnName)) return;
+  db.prepare(`ALTER TABLE ${quoteIdent(tableName)} ADD COLUMN ${quoteIdent(columnName)} ${typeSql}`).run();
 }
 
 function backfillAllAuditColumns() {

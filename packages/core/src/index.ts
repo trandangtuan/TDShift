@@ -19,7 +19,8 @@ export type FieldType =
   | "one2many"
   | "json";
 
-export type ViewType = "list" | "form" | "search";
+export type ViewType = "list" | "form" | "search" | "page";
+export type ViewContentType = "json" | "html" | "xml";
 export type ActionType = "window" | "client";
 export type DomainTerm = [string, "=" | "!=" | ">" | ">=" | "<" | "<=" | "ilike", unknown];
 export type Domain = DomainTerm[];
@@ -75,6 +76,8 @@ export interface ViewDefinition {
   name: string;
   model: string;
   type: ViewType;
+  contentType?: ViewContentType;
+  content?: string;
   priority?: number;
   architecture: ViewNode;
 }

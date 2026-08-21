@@ -306,6 +306,7 @@ button.danger {
 
 .searchbox input,
 .field input,
+.field-link,
 .field select,
 .field textarea {
   background: #fff;
@@ -315,6 +316,23 @@ button.danger {
   min-height: 36px;
   padding: 7px 9px;
   width: 100%;
+}
+
+.field-link {
+  align-items: center;
+  color: #2563eb;
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.field-link:hover,
+.table-link:hover {
+  text-decoration: underline;
+}
+
+.table-link {
+  color: #2563eb;
+  text-decoration: none;
 }
 
 .searchbox input {
