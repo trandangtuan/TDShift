@@ -1,6 +1,7 @@
 import { defineModule } from "@record-platform/core";
 import { pageData, websiteMenuData } from "./data";
 import { pageModel, websiteMenuModel } from "./models";
+import { websiteRoutes } from "./routes";
 import { pageViews, websiteMenuViews } from "./views";
 
 export default defineModule({
@@ -32,5 +33,6 @@ export default defineModule({
     { technicalName: "website.menu_pages", name: "Pages", parent: "website.menu_root", action: "website.action_pages", sequence: 10 },
     { technicalName: "website.menu_menus", name: "Menus", parent: "website.menu_root", action: "website.action_menus", sequence: 20 }
   ],
-  data: [...pageData, ...websiteMenuData]
+  data: [...pageData, ...websiteMenuData],
+  routes: websiteRoutes
 });

@@ -7,7 +7,7 @@ export const pageViews: ViewDefinition[] = [
     model: "website.page",
     type: "page",
     contentType: "html",
-    content: "<h1>Welcome</h1><p>This page is rendered from a core.view HTML record.</p>",
+    content: "<section class=\"mx-auto max-w-4xl px-6 py-16\"><p class=\"mb-3 text-sm font-semibold uppercase tracking-widest text-blue-600\">Record Platform</p><h1 class=\"text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl\">Welcome</h1><p class=\"mt-5 max-w-2xl text-lg leading-8 text-slate-600\">This page is rendered from a core.view HTML record styled with Tailwind CSS classes.</p></section>",
     architecture: {
       type: "form",
       model: "website.page",

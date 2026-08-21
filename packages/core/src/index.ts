@@ -40,6 +40,20 @@ export interface ModuleDefinition {
   actions?: ActionDefinition[];
   menus?: MenuDefinition[];
   data?: DataRecordDefinition[];
+  routes?: ModuleRoute[];
+}
+
+export interface ModuleRouteContext {
+  app: any;
+  db: any;
+  modules: ModuleDefinition[];
+  getRegistry: () => RuntimeRegistry;
+  rebuildRegistry: () => void;
+  createRequestEnvironment: (request: any) => Environment;
+}
+
+export interface ModuleRoute {
+  register(context: ModuleRouteContext): Promise<void> | void;
 }
 
 export interface ModelDefinition {
