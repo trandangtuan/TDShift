@@ -1,0 +1,21 @@
+{
+  "name": "record-platform",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c green,cyan \"npm run dev -w @record-platform/server\" \"npm run dev -w @record-platform/web\"",
+    "build": "npm run build -w @record-platform/core && npm run build -w @record-platform/server && npm run build -w @record-platform/web",
+    "check": "npm run check -w @record-platform/core && npm run check -w @record-platform/server && npm run check -w @record-platform/web",
+    "server": "npm run dev -w @record-platform/server",
+    "web": "npm run dev -w @record-platform/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.2"
+  }
+}

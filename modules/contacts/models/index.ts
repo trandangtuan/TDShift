@@ -1,0 +1,1 @@
+export { partnerModel } from "./partner";

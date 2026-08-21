@@ -1,0 +1,1 @@
+export { partnerData } from "./partners";
