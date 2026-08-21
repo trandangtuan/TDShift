@@ -204,6 +204,8 @@ POST /api/model/call
 
 Project contribution rules are documented in `CONTRIBUTING.md`. Every change request must be analyzed, re-evaluated against the architecture, verified, and recorded in `CHANGELOG.md`.
 
+Programming instructions for creating modules, models, views, actions, menus, seed data, methods, and extensions are documented in `docs/development-guide.md`.
+
 This POC intentionally avoids:
 
 - business-model-specific controllers

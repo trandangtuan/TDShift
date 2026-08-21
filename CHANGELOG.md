@@ -37,6 +37,7 @@ All notable changes to this project are documented here.
 - Added public user registration from the login screen and `POST /api/auth/register`.
 - Added transient `core.user.password` handling so admins can create or change users from the Users menu without storing plaintext passwords.
 - Added a prominent Users menu directly under Settings for easier user administration.
+- Added a development guide covering how to create modules, models, views, actions, menus, seed data, methods, extensions, and install/upgrade workflows.
 - Changed sidebar menus to start collapsed when the app first opens.
 - Moved the current user and logout action to the bottom of the sidebar and removed the topbar brand text.
 - Removed the global refresh button from the topbar and added contextual refresh actions to list and form views.
