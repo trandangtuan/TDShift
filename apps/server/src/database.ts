@@ -60,7 +60,7 @@ class PostgresCliStatement implements StatementLike {
   run(...params: unknown[]) {
     const sql = this.render(params);
     if (isInsertReturningIdCandidate(sql)) {
-      const rows = this.db.query(`${sql} RETURNING id`);
+      const rows = this.db.query(`WITH inserted AS (${sql} RETURNING id) SELECT id FROM inserted`);
       return { lastInsertRowid: Number((rows[0] as any)?.id ?? 0), changes: rows.length };
     }
     this.db.execute(sql);

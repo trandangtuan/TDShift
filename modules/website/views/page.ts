@@ -11,7 +11,7 @@ export const pageViews: ViewDefinition[] = [
 <section class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white px-6 py-12 shadow-sm sm:px-10 lg:px-14">
   <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
     <div>
-      <p class="mb-4 inline-flex rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-800">Record Platform</p>
+      <p class="mb-4 inline-flex rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-800">MetaFlow</p>
       <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">Nền tảng quản trị dữ liệu linh hoạt cho doanh nghiệp hiện đại.</h1>
       <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">Quản lý liên hệ, bán hàng, mua hàng, kho, trang web, người dùng và trợ lý AI trong một giao diện thống nhất, gọn gàng và dễ mở rộng.</p>
       <div class="mt-8 flex flex-wrap gap-3">
@@ -22,7 +22,7 @@ export const pageViews: ViewDefinition[] = [
     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <div class="rounded-xl bg-slate-950 p-4 text-white shadow-xl">
         <div class="mb-4 flex items-center justify-between border-b border-white/10 pb-3">
-          <span class="font-semibold">Bảng điều khiển</span>
+          <span class="font-semibold">MetaFlow Console</span>
           <span class="rounded-full bg-emerald-400/15 px-2 py-1 text-xs font-bold text-emerald-300">Live</span>
         </div>
         <div class="grid gap-3">
@@ -98,7 +98,7 @@ export const pageViews: ViewDefinition[] = [
 <section class="py-14">
   <div class="rounded-3xl border border-teal-200 bg-teal-50 px-6 py-10 text-center sm:px-10">
     <h2 class="text-3xl font-bold tracking-tight text-slate-950">Sẵn sàng quản lý dữ liệu của bạn?</h2>
-    <p class="mx-auto mt-3 max-w-2xl text-slate-600">Mở ứng dụng để làm việc với module, bản ghi, giao diện, trợ lý AI và nội dung website trong cùng một nơi.</p>
+    <p class="mx-auto mt-3 max-w-2xl text-slate-600">Mở MetaFlow để làm việc với module, bản ghi, giao diện, trợ lý AI và nội dung website trong cùng một nơi.</p>
     <a class="mt-7 inline-flex rounded-lg bg-teal-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-teal-800" href="/web">Bắt đầu sử dụng</a>
   </div>
 </section>
