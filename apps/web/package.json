@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@record-platform/core": "*",
+    "antd": "^6.6.1",
     "lucide-react": "^0.542.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

@@ -115,9 +115,12 @@ function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime
     async read(ids, fields) {
       if (ids.length === 0) return [];
       const storedFields = model.fields.filter((field) => field.stored !== false);
-      const selected = fields?.length ? ["id", ...fields.filter((fieldName) => storedFields.some((field) => field.name === fieldName))] : ["id", ...storedFields.map((field) => field.name)];
+      const requestedFields = fields?.length ? fields : model.fields.map((field) => field.name);
+      const selected = unique(["id", ...requestedFields.filter((fieldName) => storedFields.some((field) => field.name === fieldName))]);
       const rows = db.prepare(`SELECT ${selected.map(quoteIdent).join(", ")} FROM ${quoteIdent(model.tableName)} WHERE id IN (${ids.map(() => "?").join(", ")})`).all(...ids);
-      return rows.map((row: any) => deserializeRow(model, row));
+      const records = rows.map((row: any) => deserializeRow(model, row));
+      await applyComputedFields(env, model, records, requestedFields);
+      return records;
     },
     async searchRead(domain: Domain = [], fields, options: { limit?: number; offset?: number } = {}) {
       const ids = await this.search(domain, options);
@@ -154,6 +157,46 @@ function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime
       return dispatch();
     }
   };
+}
+
+async function applyComputedFields(env: Environment, model: RuntimeModel, records: Array<Record<string, unknown>>, requestedFields: string[]) {
+  const ids = records.map((record) => Number(record.id)).filter((id) => Number.isFinite(id));
+  if (!ids.length) return;
+  const requested = new Set(requestedFields);
+  const computedFields = model.fields.filter((field) => field.stored === false && field.computeMethod && requested.has(field.name));
+  for (const field of computedFields) {
+    const result = await env.model(model.technicalName).call(field.computeMethod!, ids, [field.name]);
+    const values = normalizeComputedResult(result, field.name, ids);
+    for (const record of records) {
+      const id = Number(record.id);
+      record[field.name] = values.get(id) ?? null;
+    }
+  }
+}
+
+function normalizeComputedResult(result: unknown, fieldName: string, ids: number[]) {
+  const values = new Map<number, unknown>();
+  if (Array.isArray(result)) {
+    for (const row of result) {
+      if (!row || typeof row !== "object") continue;
+      const id = Number((row as Record<string, unknown>).id);
+      if (Number.isFinite(id)) values.set(id, (row as Record<string, unknown>)[fieldName]);
+    }
+    return values;
+  }
+  if (!result || typeof result !== "object") return values;
+  const objectResult = result as Record<string, unknown>;
+  const nested = objectResult[fieldName];
+  const source = nested && typeof nested === "object" && !Array.isArray(nested) ? nested as Record<string, unknown> : objectResult;
+  for (const id of ids) {
+    const key = String(id);
+    if (key in source) values.set(id, source[key]);
+  }
+  return values;
+}
+
+function unique<T>(values: T[]) {
+  return [...new Set(values)];
 }
 
 function rowToField(row: any): FieldDefinition {

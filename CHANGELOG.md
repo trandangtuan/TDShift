@@ -42,6 +42,9 @@ All notable changes to this project are documented here.
 - Added a module refresh API and a `Refresh Modules` button on the Modules list so newly added code modules such as `website` can appear before install.
 - Added a generated `url` field to `website.page` and clickable URL rendering in list/form views.
 - Added `core.view.content_type` and `core.view.content` so views can store JSON, HTML, or XML content for future website templates.
+- Added backend computed-field runtime support so non-stored fields with `computeMethod` are populated during `read` and `search_read`.
+- Added `sale.order.compute_amount_total` and changed `sale.order.amount_total` to compute from order lines instead of storing a column.
+- Updated sale order seed records to omit computed `amount_total` values.
 - Changed generated website page URLs to use an absolute `WEBSITE_BASE_URL` so links open the backend public website route instead of the frontend app route.
 - Changed production startup so the backend serves the built web app from `apps/web/dist`, allowing a single backend port after `npm run build`.
 - Changed the production web client to call API routes on the same backend origin while keeping the Vite development fallback pointed at `http://localhost:3100`.
@@ -100,5 +103,6 @@ All notable changes to this project are documented here.
 - Verified public Home renders without a 500 after making website menu HTML escaping null-safe.
 - Verified `core.view` metadata exposes `content_type` and `content`, and runtime views return `contentType/content` from the API.
 - Verified Website Home renders HTML from the seeded `core.view` content record on a fresh database.
+- Verified `sale.order.amount_total` is populated by the backend compute method through `search_read` on a fresh database.
 - Verified `sale` module upgrade removes stale `sale.order.product_id` metadata and the physical `sale_order.product_id` column while keeping `sale.order.line.product_id` active.
 - Verified menu, view, CRUD, and module lifecycle APIs during POC implementation.

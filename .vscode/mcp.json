@@ -1,0 +1,21 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "recordPlatformToken",
+      "description": "Record Platform Bearer token",
+      "password": true
+    }
+  ],
+  "servers": {
+    "record-platform": {
+      "type": "stdio",
+      "command": "npm",
+      "args": ["run", "start", "-w", "@record-platform/mcp"],
+      "env": {
+        "RECORD_PLATFORM_API_URL": "http://localhost:3100",
+        "RECORD_PLATFORM_TOKEN": "${input:recordPlatformToken}"
+      }
+    }
+  }
+}

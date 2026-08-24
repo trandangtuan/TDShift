@@ -20,7 +20,7 @@ export const saleOrderModel: ModelDefinition = {
       ],
       sequence: 50
     },
-    { name: "amount_total", label: "Total", type: "decimal", defaultValue: 0, sequence: 60 },
+    { name: "amount_total", label: "Total", type: "decimal", readonly: true, stored: false, computeMethod: "compute_amount_total", sequence: 60 },
     { name: "order_line", label: "Order Lines", type: "one2many", relationModel: "sale.order.line", inverseField: "order_id", stored: false, sequence: 70 }
   ],
   methods: {
@@ -31,6 +31,14 @@ export const saleOrderModel: ModelDefinition = {
     async cancel(ctx) {
       await ctx.env.model("sale.order").write(ctx.ids, { state: "cancelled" });
       return { cancelled: ctx.ids.length };
+    },
+    async compute_amount_total(ctx) {
+      const totals: Record<number, number> = {};
+      for (const id of ctx.ids) {
+        const lines = await ctx.env.model("sale.order.line").searchRead([["order_id", "=", id]], ["price_subtotal"]);
+        totals[id] = lines.reduce((sum, line) => sum + Number(line.price_subtotal ?? 0), 0);
+      }
+      return totals;
     }
   }
 };

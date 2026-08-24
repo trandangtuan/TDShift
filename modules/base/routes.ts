@@ -50,6 +50,7 @@ export const baseRoutes: ModuleRoute[] = [
         if (!view) throw new Error(`View not found: ${request.query.model}/${request.query.type}`);
         return view;
       });
+      app.get("/api/models", async () => [...getRegistry().models.values()].map(({ technicalName, name, tableName, fields }) => ({ technicalName, name, tableName, fields })));
 
       app.get("/api/model/:model/metadata", async (request: any, reply: any) => {
         const model = getRegistry().models.get(request.params.model);

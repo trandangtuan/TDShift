@@ -1,21 +1,19 @@
-import { Check, ChevronDown, Download, List, LogOut, Plus, Power, RefreshCw, Save, Search, Settings, ShoppingCart, Trash2, UploadCloud, Users } from "lucide-react";
-import { type FormEvent, useEffect, useMemo, useState } from "react";
-import type { ActionDefinition, FieldDefinition, RuntimeMenu, RuntimeView, ViewNode } from "@record-platform/core";
+import { List, LogOut, Plus, RefreshCw, Settings, UploadCloud } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Button, ConfigProvider, Input, Layout } from "antd";
+import type { ActionDefinition, RuntimeMenu, RuntimeView } from "@record-platform/core";
+import FormRenderer from "./components/FormRenderer";
+import LoginScreen from "./components/LoginScreen";
+import ListRenderer from "./components/ListRenderer";
+import MenuTree from "./components/MenuTree";
+import type { AuthUser, RuntimeModel } from "./components/types";
 import "./index.css";
 
 const apiBase = import.meta.env.VITE_API_BASE ?? (import.meta.env.DEV ? "http://localhost:3100" : "");
 const tokenStorageKey = "record-platform-token";
 let authToken = localStorage.getItem(tokenStorageKey);
 
-type RuntimeModel = {
-  technicalName: string;
-  name: string;
-  tableName: string;
-  fields: FieldDefinition[];
-};
-
 type Mode = "list" | "form";
-type AuthUser = { id: number; login?: string; name: string };
 
 export default function App() {
   const [token, setToken] = useState<string | null>(() => authToken);
@@ -162,12 +160,14 @@ export default function App() {
   }
 
   if (!token || !user) {
-    return <LoginScreen onLogin={handleLogin} />;
+    return <LoginScreen api={api} onLogin={handleLogin} />;
   }
 
   return (
-    <div className="app">
-      <aside className="sidebar">
+    <ConfigProvider theme={{ token: { colorPrimary: "#0f766e", borderRadius: 6, colorBgLayout: "#f4f7f6", fontFamily: "'DM Sans', sans-serif" } }}>
+      <Layout className="app">
+      <Layout.Sider className="sidebar" width={248} theme="light">
+        <div className="brand"><span className="brand-mark">R</span><div><strong>Record Platform</strong><small>Operations console</small></div></div>
         <div className="sidebar-menu">
           <MenuTree menus={menus} onOpen={openAction} />
         </div>
@@ -176,10 +176,10 @@ export default function App() {
             <span>{user.name}</span>
             {user.login ? <small>{user.login}</small> : null}
           </div>
-          <button className="icon-button" title="Logout" onClick={() => handleLogout()}><LogOut size={17} /></button>
+          <Button type="text" icon={<LogOut size={17} />} title="Logout" onClick={() => handleLogout()} />
         </div>
-      </aside>
-      <main className="workspace">
+      </Layout.Sider>
+      <Layout.Content className="workspace">
         {!action || !model || !view ? (
           <div className="empty-state">
             <Settings size={36} />
@@ -196,30 +196,22 @@ export default function App() {
               <div className="actions">
                 {mode === "list" ? (
                   <>
-                    <div className="searchbox">
-                      <Search size={16} />
-                      <input value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          setPage(0);
-                          loadRecords(action.model, view, model, 0, pageSize);
-                        }
-                      }} placeholder="Search name" />
-                    </div>
-                    <button onClick={() => {
+                    <Input.Search value={query} onChange={(event) => setQuery(event.target.value)} onSearch={() => {
                       setPage(0);
                       loadRecords(action.model, view, model, 0, pageSize);
-                    }} title="Search"><Search size={17} /></button>
-                    <button onClick={() => loadRecords(action.model, view, model, page, pageSize)} title="Refresh list"><RefreshCw size={17} /></button>
-                    {model.technicalName === "core.module" ? <button onClick={refreshModuleList} title="Refresh modules from code"><UploadCloud size={17} />Refresh Modules</button> : null}
-                    <button onClick={() => openForm(null)} title="Create"><Plus size={17} /></button>
+                    }} placeholder="Search name" allowClear />
+                    <Button icon={<RefreshCw size={17} />} onClick={() => loadRecords(action.model, view, model, page, pageSize)} title="Refresh list" />
+                    {model.technicalName === "core.module" ? <Button icon={<UploadCloud size={17} />} onClick={refreshModuleList}>Refresh Modules</Button> : null}
+                    <Button type="primary" icon={<Plus size={17} />} onClick={() => openForm(null)} title="Create" />
                   </>
                 ) : (
-                  <button onClick={backToList} title="Back to list"><List size={17} /></button>
+                  <Button icon={<List size={17} />} onClick={backToList} title="Back to list" />
                 )}
               </div>
             </div>
             {mode === "list" ? (
               <ListRenderer
+                api={api}
                 model={model}
                 view={view}
                 records={records}
@@ -238,6 +230,7 @@ export default function App() {
               />
             ) : (
               <FormRenderer
+                api={api}
                 model={model}
                 view={view}
                 record={selectedRecord}
@@ -252,511 +245,10 @@ export default function App() {
             )}
           </>
         )}
-      </main>
-    </div>
+      </Layout.Content>
+      </Layout>
+    </ConfigProvider>
   );
-}
-
-function LoginScreen({ onLogin }: { onLogin: (token: string, user: AuthUser) => void }) {
-  const [mode, setMode] = useState<"login" | "register">("login");
-  const [login, setLogin] = useState("admin");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("admin");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    setError("");
-    setSubmitting(true);
-    try {
-      const body = mode === "login" ? { login, password } : { login, name, email, password };
-      const result = await api<{ token: string; user: AuthUser }>(mode === "login" ? "/api/auth/login" : "/api/auth/register", { method: "POST", body });
-      onLogin(result.token, result.user);
-    } catch {
-      setError(mode === "login" ? "Invalid login or password." : "Could not create account. Check the values or use another login.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <main className="login-page">
-      <form className="login-panel" onSubmit={submit}>
-        <div>
-          <h1>Record Platform</h1>
-          <p>{mode === "login" ? "Sign in to continue." : "Create an account to start working."}</p>
-        </div>
-        <div className="auth-switch">
-          <button type="button" className={mode === "login" ? "active" : undefined} onClick={() => {
-            setMode("login");
-            setLogin("admin");
-            setPassword("admin");
-            setError("");
-          }}>Login</button>
-          <button type="button" className={mode === "register" ? "active" : undefined} onClick={() => {
-            setMode("register");
-            setLogin("");
-            setPassword("");
-            setError("");
-          }}>Register</button>
-        </div>
-        <label>
-          <span>Login</span>
-          <input value={login} onChange={(event) => setLogin(event.target.value)} autoComplete="username" />
-        </label>
-        {mode === "register" ? (
-          <>
-            <label>
-              <span>Name</span>
-              <input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" />
-            </label>
-            <label>
-              <span>Email</span>
-              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" />
-            </label>
-          </>
-        ) : null}
-        <label>
-          <span>Password</span>
-          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" />
-        </label>
-        {error ? <div className="login-error">{error}</div> : null}
-        <button type="submit" disabled={submitting}>{submitting ? "Please wait..." : mode === "login" ? "Login" : "Register"}</button>
-      </form>
-    </main>
-  );
-}
-
-function MenuTree({ menus, onOpen }: { menus: RuntimeMenu[]; onOpen: (action: string) => void }) {
-  return <nav>{menus.map((menu) => <MenuNode key={menu.technicalName} menu={menu} onOpen={onOpen} level={0} />)}</nav>;
-}
-
-function MenuNode({ menu, onOpen, level }: { menu: RuntimeMenu; onOpen: (action: string) => void; level: number }) {
-  const [open, setOpen] = useState(false);
-  const Icon = menu.icon === "shopping-cart" ? ShoppingCart : menu.icon === "users" ? Users : Settings;
-  return (
-    <div>
-      <button className="menu-item" style={{ paddingLeft: 14 + level * 14 }} onClick={() => (menu.action ? onOpen(menu.action) : setOpen(!open))}>
-        {level === 0 && <Icon size={17} />}
-        <span>{menu.name}</span>
-        {menu.children.length > 0 && <ChevronDown className={open ? "chevron open" : "chevron"} size={15} />}
-      </button>
-      {open && menu.children.map((child) => <MenuNode key={child.technicalName} menu={child} onOpen={onOpen} level={level + 1} />)}
-    </div>
-  );
-}
-
-function ListRenderer({
-  model,
-  view,
-  records,
-  page,
-  pageSize,
-  onOpen,
-  onPageChange,
-  onPageSizeChange
-}: {
-  model: RuntimeModel;
-  view: RuntimeView;
-  records: Record<string, unknown>[];
-  page: number;
-  pageSize: number;
-  onOpen: (id: number) => void;
-  onPageChange: (page: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
-}) {
-  const fields = view.architecture.type === "list" ? view.architecture.fields : [];
-  return (
-    <section className="panel">
-      <table>
-        <thead>
-          <tr>{fields.map((fieldName) => <th key={fieldName}>{fieldLabel(model, fieldName)}</th>)}</tr>
-        </thead>
-        <tbody>
-          {records.map((record) => (
-            <tr
-              className="clickable-row"
-              key={String(record.id)}
-              onClick={() => onOpen(Number(record.id))}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") onOpen(Number(record.id));
-              }}
-              tabIndex={0}
-            >
-              {fields.map((fieldName) => <td key={fieldName}>{formatValue(model, fieldName, record[fieldName])}</td>)}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {records.length === 0 && <div className="table-empty">No records</div>}
-      <div className="pager">
-        <button disabled={page === 0} onClick={() => onPageChange(Math.max(0, page - 1))}>Previous</button>
-        <span>Page {page + 1}</span>
-        <button disabled={records.length < pageSize} onClick={() => onPageChange(page + 1)}>Next</button>
-        <label>
-          Rows
-          <select value={pageSize} onChange={(event) => onPageSizeChange(Number(event.target.value))}>
-            {[10, 30, 50, 100].map((size) => <option key={size} value={size}>{size}</option>)}
-          </select>
-        </label>
-      </div>
-    </section>
-  );
-}
-
-function FormRenderer({
-  model,
-  view,
-  record,
-  onSaved,
-  onRefresh,
-  onDeleted,
-  onRegistryChanged
-}: {
-  model: RuntimeModel;
-  view: RuntimeView;
-  record: Record<string, unknown> | null;
-  onSaved: (id: number) => void;
-  onRefresh: (id: number) => void;
-  onDeleted: () => void;
-  onRegistryChanged: () => void;
-}) {
-  const [values, setValues] = useState<Record<string, unknown>>(() => record ?? {});
-
-  useEffect(() => {
-    setValues(record ?? {});
-  }, [record]);
-
-  async function save() {
-    if (record?.id) {
-      await api("/api/model/write", { method: "POST", body: { model: model.technicalName, ids: [record.id], values } });
-      onSaved(Number(record.id));
-      return;
-    }
-    const created = await api<{ id: number }>("/api/model/create", { method: "POST", body: { model: model.technicalName, values } });
-    onSaved(created.id);
-  }
-
-  async function remove() {
-    if (!record?.id) return;
-    await api("/api/model/unlink", { method: "POST", body: { model: model.technicalName, ids: [record.id] } });
-    onDeleted();
-  }
-
-  async function call(method: string) {
-    if (!record?.id) return;
-    await api("/api/model/call", { method: "POST", body: { model: model.technicalName, method, ids: [record.id] } });
-    onSaved(Number(record.id));
-  }
-
-  async function installModule() {
-    if (!record?.technical_name) return;
-    await api("/api/modules/install", { method: "POST", body: { module: String(record.technical_name) } });
-    onRegistryChanged();
-  }
-
-  async function uninstallModule() {
-    if (!record?.technical_name) return;
-    await api("/api/modules/uninstall", { method: "POST", body: { module: String(record.technical_name) } });
-    onRegistryChanged();
-  }
-
-  async function upgradeModule() {
-    if (!record?.technical_name) return;
-    await api("/api/modules/upgrade", { method: "POST", body: { module: String(record.technical_name) } });
-    onRegistryChanged();
-  }
-
-  return (
-    <section className="form-panel">
-      <div className="form-toolbar">
-        <button onClick={save}><Save size={17} />Save</button>
-        {record?.id ? <button onClick={() => onRefresh(Number(record.id))}><RefreshCw size={17} />Refresh</button> : null}
-        {model.technicalName === "sale.order" && record?.id ? <button onClick={() => call("confirm")}><Check size={17} />Confirm</button> : null}
-        {model.technicalName === "core.module" && record?.state !== "INSTALLED" ? <button onClick={installModule}><Download size={17} />Install</button> : null}
-        {model.technicalName === "core.module" && record?.state === "INSTALLED" ? <button onClick={upgradeModule}><UploadCloud size={17} />Upgrade</button> : null}
-        {model.technicalName === "core.module" && record?.state === "INSTALLED" && record?.technical_name !== "base" ? <button className="danger" onClick={uninstallModule}><Power size={17} />Uninstall</button> : null}
-        {record?.id ? <button className="danger" onClick={remove}><Trash2 size={17} />Delete</button> : null}
-      </div>
-      <ViewNodeRenderer node={view.architecture} model={model} values={values} parentId={record?.id ? Number(record.id) : null} onChange={(name, value) => setValues((current) => ({ ...current, [name]: value }))} />
-    </section>
-  );
-}
-
-function ViewNodeRenderer({
-  node,
-  model,
-  values,
-  parentId,
-  onChange
-}: {
-  node: ViewNode;
-  model: RuntimeModel;
-  values: Record<string, unknown>;
-  parentId: number | null;
-  onChange: (name: string, value: unknown) => void;
-}) {
-  if (node.type === "form") return <>{node.children.map((child, index) => <ViewNodeRenderer key={index} node={child} model={model} values={values} parentId={parentId} onChange={onChange} />)}</>;
-  if (node.type === "group") return <div className="field-grid">{node.children.map((child, index) => <ViewNodeRenderer key={index} node={child} model={model} values={values} parentId={parentId} onChange={onChange} />)}</div>;
-  if (node.type !== "field") return null;
-  const field = model.fields.find((candidate) => candidate.name === node.name);
-  if (!field) return null;
-  return <FieldRenderer field={field} value={values[field.name]} parentId={parentId} onChange={(value) => onChange(field.name, value)} />;
-}
-
-function FieldRenderer({ field, value, parentId, onChange }: { field: FieldDefinition; value: unknown; parentId: number | null; onChange: (value: unknown) => void }) {
-  if (field.type === "one2many") {
-    return <OneToManyRenderer field={field} parentId={parentId} />;
-  }
-  if (field.name === "url" && field.readonly) {
-    const href = String(value ?? "");
-    return (
-      <label className="field">
-        <span>{field.label}</span>
-        {href ? <a className="field-link" href={href} target="_blank" rel="noreferrer">{href}</a> : <input readOnly value="" />}
-      </label>
-    );
-  }
-  return (
-    <label className="field">
-      <span className={field.required ? "required" : undefined}>{field.label}</span>
-      {field.type === "text" && <textarea value={String(value ?? "")} onChange={(event) => onChange(event.target.value)} />}
-      {field.type === "boolean" && <input type="checkbox" checked={Boolean(value)} onChange={(event) => onChange(event.target.checked)} />}
-      {field.type === "date" && <input type="date" value={String(value ?? "")} onChange={(event) => onChange(event.target.value)} />}
-      {field.type === "selection" && (
-        <select value={String(value ?? field.defaultValue ?? "")} onChange={(event) => onChange(event.target.value)}>
-          {(field.selectionOptions ?? []).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-        </select>
-      )}
-      {field.type === "many2one" && <ManyToOneInput field={field} value={value} onChange={onChange} />}
-      {["char", "integer", "decimal", "json"].includes(field.type) && (
-        <input
-          type={field.name === "password" ? "password" : field.type === "integer" || field.type === "decimal" ? "number" : "text"}
-          value={String(value ?? "")}
-          onChange={(event) => onChange(field.type === "integer" ? Number(event.target.value) : field.type === "decimal" ? Number(event.target.value) : event.target.value)}
-          readOnly={field.readonly}
-        />
-      )}
-    </label>
-  );
-}
-
-function OneToManyRenderer({ field, parentId }: { field: FieldDefinition; parentId: number | null }) {
-  const [relatedModel, setRelatedModel] = useState<RuntimeModel | null>(null);
-  const [rows, setRows] = useState<Record<string, unknown>[]>([]);
-  const columns = useMemo(() => relatedModel?.fields.filter((candidate) => candidate.name !== field.inverseField && candidate.stored !== false) ?? [], [field.inverseField, relatedModel]);
-
-  useEffect(() => {
-    if (!field.relationModel) return;
-    api<RuntimeModel>(`/api/model/${field.relationModel}/metadata`).then(setRelatedModel);
-  }, [field.relationModel]);
-
-  useEffect(() => {
-    loadRows();
-  }, [field.relationModel, field.inverseField, parentId]);
-
-  async function loadRows() {
-    if (!field.relationModel || !field.inverseField || !parentId) {
-      setRows([]);
-      return;
-    }
-    const data = await api<{ records: Record<string, unknown>[] }>("/api/model/search_read", { method: "POST", body: { model: field.relationModel, domain: [[field.inverseField, "=", parentId]], fields: columns.map((column) => column.name) } });
-    setRows(data.records);
-  }
-
-  async function addRow() {
-    if (!field.relationModel || !field.inverseField || !parentId || !relatedModel) return;
-    const values: Record<string, unknown> = { [field.inverseField]: parentId };
-    for (const column of columns) {
-      if (column.defaultValue !== undefined && column.defaultValue !== null) values[column.name] = column.defaultValue;
-    }
-    await api("/api/model/create", { method: "POST", body: { model: field.relationModel, values } });
-    await loadRows();
-  }
-
-  async function updateRow(row: Record<string, unknown>, name: string, value: unknown) {
-    if (!field.relationModel) return;
-    const nextRow = { ...row, [name]: value };
-    if (name === "quantity" || name === "price_unit") {
-      nextRow.price_subtotal = Number(nextRow.quantity ?? 0) * Number(nextRow.price_unit ?? 0);
-    }
-    setRows((current) => current.map((candidate) => (candidate.id === row.id ? nextRow : candidate)));
-    await api("/api/model/write", { method: "POST", body: { model: field.relationModel, ids: [Number(row.id)], values: nextRow } });
-    await loadRows();
-  }
-
-  async function removeRow(row: Record<string, unknown>) {
-    if (!field.relationModel) return;
-    await api("/api/model/unlink", { method: "POST", body: { model: field.relationModel, ids: [Number(row.id)] } });
-    await loadRows();
-  }
-
-  return (
-    <div className="one2many">
-      <div className="one2many-header">
-        <span>{field.label}</span>
-        <button type="button" onClick={addRow} disabled={!parentId}><Plus size={16} />Add</button>
-      </div>
-      {!parentId ? <div className="one2many-empty">Save the parent record before adding lines.</div> : null}
-      {parentId ? (
-        <table>
-          <thead>
-            <tr>{columns.map((column) => <th key={column.name}>{column.label}</th>)}<th className="row-action"> </th></tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={String(row.id)}>
-                {columns.map((column) => (
-                  <td key={column.name}>
-                    <InlineField field={column} value={row[column.name]} onChange={(value) => updateRow(row, column.name, value)} />
-                  </td>
-                ))}
-                <td className="row-action"><button className="icon-button" type="button" title="Delete line" onClick={() => removeRow(row)}><Trash2 size={15} /></button></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : null}
-      {parentId && rows.length === 0 ? <div className="one2many-empty">No lines</div> : null}
-    </div>
-  );
-}
-
-function InlineField({ field, value, onChange }: { field: FieldDefinition; value: unknown; onChange: (value: unknown) => void }) {
-  if (field.type === "boolean") return <input type="checkbox" checked={Boolean(value)} onChange={(event) => onChange(event.target.checked)} />;
-  if (field.type === "many2one") return <ManyToOneInput field={field} value={value} onChange={onChange} compact />;
-  if (field.type === "selection") {
-    return (
-      <select value={String(value ?? field.defaultValue ?? "")} onChange={(event) => onChange(event.target.value)}>
-        {(field.selectionOptions ?? []).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-      </select>
-    );
-  }
-  return (
-    <input
-      type={field.name === "password" ? "password" : ["integer", "decimal"].includes(field.type) ? "number" : "text"}
-      value={String(value ?? "")}
-      onChange={(event) => onChange(field.type === "integer" ? Number(event.target.value) : field.type === "decimal" ? Number(event.target.value) : event.target.value)}
-      readOnly={field.readonly}
-    />
-  );
-}
-
-function ManyToOneInput({ field, value, onChange, compact = false }: { field: FieldDefinition; value: unknown; onChange: (value: unknown) => void; compact?: boolean }) {
-  const [options, setOptions] = useState<Array<{ id: number; label: string }>>([]);
-  const [query, setQuery] = useState("");
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    loadSelectedLabel();
-  }, [field.relationModel, value]);
-
-  useEffect(() => {
-    if (!open) return;
-    loadOptions(query);
-  }, [open, query, field.relationModel]);
-
-  async function loadOptions(searchText: string) {
-    if (!field.relationModel) {
-      setOptions([]);
-      return;
-    }
-    const relatedModel = await api<RuntimeModel>(`/api/model/${field.relationModel}/metadata`);
-    const displayField = getDisplayField(relatedModel);
-    const domain = searchText.trim() ? [[displayField, "ilike", searchText.trim()]] : [];
-    const data = await api<{ records: Record<string, unknown>[] }>("/api/model/search_read", { method: "POST", body: { model: field.relationModel, domain, fields: [displayField], limit: 8 } });
-    setOptions(data.records.map((record) => ({ id: Number(record.id), label: String(record[displayField] ?? record.id) })));
-  }
-
-  async function loadSelectedLabel() {
-    if (!field.relationModel || value == null || value === "") {
-      setQuery("");
-      return;
-    }
-    const relatedModel = await api<RuntimeModel>(`/api/model/${field.relationModel}/metadata`);
-    const displayField = getDisplayField(relatedModel);
-    const data = await api<{ records: Record<string, unknown>[] }>("/api/model/read", { method: "POST", body: { model: field.relationModel, ids: [Number(value)], fields: [displayField] } });
-    setQuery(String(data.records[0]?.[displayField] ?? value));
-  }
-
-  function selectOption(option: { id: number; label: string }) {
-    onChange(option.id);
-    setQuery(option.label);
-    setOpen(false);
-  }
-
-  return (
-    <div className={compact ? "many2one-picker compact" : "many2one-picker"}>
-      <input
-        value={query}
-        onBlur={() => window.setTimeout(() => setOpen(false), 120)}
-        onChange={(event) => {
-          setQuery(event.target.value);
-          setOpen(true);
-          if (!event.target.value) onChange(null);
-        }}
-        onFocus={() => setOpen(true)}
-        placeholder="Search..."
-        readOnly={field.readonly}
-      />
-      {open && !field.readonly ? (
-        <div className="many2one-options">
-          {options.map((option) => (
-            <button type="button" key={option.id} onMouseDown={(event) => event.preventDefault()} onClick={() => selectOption(option)}>
-              {option.label}
-            </button>
-          ))}
-          {options.length === 0 ? <div className="many2one-empty">No records</div> : null}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function fieldLabel(model: RuntimeModel, fieldName: string) {
-  return model.fields.find((field) => field.name === fieldName)?.label ?? fieldName;
-}
-
-function formatValue(model: RuntimeModel, fieldName: string, value: unknown) {
-  const field = model.fields.find((candidate) => candidate.name === fieldName);
-  if (field?.type === "boolean") return value ? "Yes" : "No";
-  if (field?.type === "many2one") return <ManyToOneDisplay field={field} value={value} />;
-  if (field?.name === "url" && value) {
-    const href = String(value);
-    return <a className="table-link" href={href} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>{href}</a>;
-  }
-  return String(value ?? "");
-}
-
-function ManyToOneDisplay({ field, value }: { field: FieldDefinition; value: unknown }) {
-  const [label, setLabel] = useState("");
-
-  useEffect(() => {
-    loadLabel();
-  }, [field.relationModel, value]);
-
-  async function loadLabel() {
-    if (!field.relationModel || value == null || value === "") {
-      setLabel("");
-      return;
-    }
-    const relatedModel = await api<RuntimeModel>(`/api/model/${field.relationModel}/metadata`);
-    const displayField = getDisplayField(relatedModel);
-    const data = await api<{ records: Record<string, unknown>[] }>("/api/model/read", { method: "POST", body: { model: field.relationModel, ids: [Number(value)], fields: [displayField] } });
-    setLabel(String(data.records[0]?.[displayField] ?? value));
-  }
-
-  return <span>{label || String(value ?? "")}</span>;
-}
-
-function getDisplayField(model: RuntimeModel) {
-  return model.fields.find((field) => field.name === "name")?.name
-    ?? model.fields.find((field) => field.name === "display_name")?.name
-    ?? model.fields.find((field) => field.name === "technical_name")?.name
-    ?? model.fields[0]?.name
-    ?? "id";
 }
 
 async function api<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
