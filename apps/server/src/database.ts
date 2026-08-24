@@ -47,7 +47,11 @@ class PostgresCliDatabase implements DatabaseLike {
 
   query(sql: string) {
     const wrapped = `SELECT COALESCE(json_agg(row_to_json(t)), '[]'::json) FROM (${sql}) t`;
-    const result = spawnSync("psql", [this.url!, "-X", "-q", "-t", "-A", "-v", "ON_ERROR_STOP=1", "-c", wrapped], { encoding: "utf8", maxBuffer: 1024 * 1024 * 20 });
+    return this.queryJson(wrapped);
+  }
+
+  queryJson(sql: string) {
+    const result = spawnSync("psql", [this.url!, "-X", "-q", "-t", "-A", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8", maxBuffer: 1024 * 1024 * 20 });
     if (result.status !== 0) throw new Error(result.stderr || result.stdout || `psql exited with ${result.status}`);
     const text = result.stdout.trim() || "[]";
     return JSON.parse(text) as unknown[];
@@ -60,7 +64,7 @@ class PostgresCliStatement implements StatementLike {
   run(...params: unknown[]) {
     const sql = this.render(params);
     if (isInsertReturningIdCandidate(sql)) {
-      const rows = this.db.query(`WITH inserted AS (${sql} RETURNING id) SELECT id FROM inserted`);
+      const rows = this.db.queryJson(`WITH inserted AS (${sql} RETURNING id) SELECT COALESCE(json_agg(row_to_json(inserted)), '[]'::json) FROM inserted`);
       return { lastInsertRowid: Number((rows[0] as any)?.id ?? 0), changes: rows.length };
     }
     this.db.execute(sql);
