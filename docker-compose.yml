@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-record_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-record_platform}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-record_platform}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-record_platform} -d ${POSTGRES_DB:-record_platform}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: 3100
+      WEBSITE_BASE_URL: ${WEBSITE_BASE_URL:-http://localhost:3100}
+      DATABASE_CLIENT: postgres
+      DATABASE_URL: postgres://${POSTGRES_USER:-record_platform}:${POSTGRES_PASSWORD:-record_platform}@db:5432/${POSTGRES_DB:-record_platform}
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      JWT_EXPIRES_SECONDS: ${JWT_EXPIRES_SECONDS:-28800}
+      ADMIN_LOGIN: ${ADMIN_LOGIN:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrator}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@example.local}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+    ports:
+      - "${APP_PORT:-3100}:3100"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

@@ -1,7 +1,7 @@
-import Database from "better-sqlite3";
 import type { FieldDefinition, ModuleDefinition } from "@record-platform/core";
+import { createDatabase } from "./database";
 
-export const db = new Database("record-platform.sqlite");
+export const db = createDatabase();
 db.pragma("journal_mode = WAL");
 
 export const auditFields: FieldDefinition[] = [

@@ -74,6 +74,8 @@ All notable changes to this project are documented here.
 - Added a Vietnamese public Features page with detailed feature sections and a right-side sticky table of contents, plus a Website menu entry for `/features`.
 - Added a standalone `product` module for shared product master data, moved `product.product` model/views/data out of `sale`, and updated Sales, Purchases, and Inventory to depend on the shared product module.
 - Added model ownership transfer support for code-defined full models so existing `product.product` metadata can move from `sale` to `product` during module upgrades without breaking extension-owned fields.
+- Added configurable database backend support with SQLite as the default and a PostgreSQL adapter enabled by `DATABASE_CLIENT=postgres` and `DATABASE_URL`.
+- Added a production Dockerfile and Docker Compose setup for running the app with PostgreSQL, including a Postgres service, healthcheck, persistent volume, and app environment wiring.
 
 ### Changed
 

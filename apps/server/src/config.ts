@@ -6,6 +6,9 @@ loadEnvFile(resolve(process.cwd(), "..", "..", ".env"));
 
 export const config = {
   port: Number(process.env.PORT ?? 3100),
+  databaseClient: process.env.DATABASE_CLIENT ?? "sqlite",
+  databaseUrl: process.env.DATABASE_URL,
+  sqliteDatabasePath: process.env.SQLITE_DATABASE_PATH ?? "record-platform.sqlite",
   jwtSecret: process.env.JWT_SECRET ?? "dev-secret-change-me",
   jwtExpiresSeconds: Number(process.env.JWT_EXPIRES_SECONDS ?? 60 * 60 * 8),
   adminLogin: process.env.ADMIN_LOGIN ?? "admin",

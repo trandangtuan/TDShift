@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+apps/*/dist
+packages/*/dist
+record-platform.sqlite
+.git
+.env
+.vscode

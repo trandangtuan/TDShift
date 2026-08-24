@@ -82,17 +82,46 @@ Website: http://localhost:3100
 
 In production build mode, the web client calls `/api/...` on the same backend origin. In development mode, Vite still runs separately and defaults API calls to `http://localhost:3100`.
 
-The dev database is created at:
+## Docker Compose with PostgreSQL
+
+The repository includes a production-oriented `Dockerfile` and `docker-compose.yml` that run the app with PostgreSQL.
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+Default services:
+
+```text
+App:        http://localhost:3100
+PostgreSQL: db:5432 inside the compose network
+```
+
+The app container sets:
+
+```text
+DATABASE_CLIENT=postgres
+DATABASE_URL=postgres://record_platform:record_platform@db:5432/record_platform
+```
+
+The app image installs `postgresql-client` because the current PostgreSQL adapter uses the `psql` CLI while preserving the existing synchronous database API.
+
+By default, the dev database is SQLite and is created at:
 
 ```text
 record-platform.sqlite
 ```
 
-Server environment variables can be set in `apps/server/.env`:
+PostgreSQL can be enabled with `DATABASE_CLIENT=postgres` and `DATABASE_URL`. The current adapter keeps the existing synchronous runtime API and uses the `psql` CLI, so the `psql` executable must be available to the server process.
+
+Example:
 
 ```text
 PORT=3100
 WEBSITE_BASE_URL=http://localhost:3100
+DATABASE_CLIENT=postgres
+DATABASE_URL=postgres://record_platform:record_platform@localhost:5432/record_platform
 JWT_SECRET=change-me
 JWT_EXPIRES_SECONDS=28800
 ADMIN_LOGIN=admin
@@ -294,4 +323,4 @@ Phase 5:
 
 ## Notes
 
-SQLite is used only to make the POC easy to run locally. The intended production direction is PostgreSQL with a schema reconciliation engine that compares `core_model_field` records against the physical database schema.
+SQLite remains the easiest local development option. PostgreSQL support is available for deployments that need a server database, stronger JSON/search capabilities, and a production-oriented storage engine.
