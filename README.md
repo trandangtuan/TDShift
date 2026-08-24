@@ -224,6 +224,12 @@ GET /:slug
 
 Project contribution rules are documented in `CONTRIBUTING.md`. Every change request must be analyzed, re-evaluated against the architecture, verified, and recorded in `CHANGELOG.md`.
 
+Reusable Codex skill instructions for this project are stored in:
+
+```text
+skills/record-driven-module/SKILL.md
+```
+
 Programming instructions for creating modules, models, views, actions, menus, seed data, methods, and extensions are documented in `docs/development-guide.md`.
 
 This POC intentionally avoids:

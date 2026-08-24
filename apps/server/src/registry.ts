@@ -125,6 +125,7 @@ function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime
     async searchRead(domain: Domain = [], fields, options: { limit?: number; offset?: number } = {}) {
       const ids = await this.search(domain, options);
       const rows = await this.read(ids, fields);
+      await enrichManyToOneValues(env, model, rows, fields);
       const order = new Map(ids.map((id, index) => [id, index]));
       return rows.sort((left, right) => (order.get(Number(left.id)) ?? 0) - (order.get(Number(right.id)) ?? 0));
     },
@@ -172,6 +173,33 @@ async function applyComputedFields(env: Environment, model: RuntimeModel, record
       record[field.name] = values.get(id) ?? null;
     }
   }
+}
+
+async function enrichManyToOneValues(env: Environment, model: RuntimeModel, records: Array<Record<string, unknown>>, requestedFields: string[] | undefined) {
+  if (!records.length) return;
+  const requested = new Set(requestedFields?.length ? requestedFields : model.fields.map((field) => field.name));
+  const fields = model.fields.filter((field) => field.type === "many2one" && field.relationModel && requested.has(field.name));
+  for (const field of fields) {
+    const ids = unique(records.map((record) => Number(record[field.name])).filter((id) => Number.isFinite(id) && id > 0));
+    if (!ids.length) continue;
+    const relatedModel = env.registry.models.get(field.relationModel!);
+    if (!relatedModel) continue;
+    const displayField = getDisplayField(relatedModel);
+    const relatedRows = await env.model(field.relationModel!).read(ids, [displayField]);
+    const labels = new Map(relatedRows.map((row) => [Number(row.id), String(row[displayField] ?? row.id)]));
+    for (const record of records) {
+      const id = Number(record[field.name]);
+      if (Number.isFinite(id) && labels.has(id)) record[field.name] = [id, labels.get(id)];
+    }
+  }
+}
+
+function getDisplayField(model: RuntimeModel) {
+  return model.fields.find((field) => field.name === "name")?.name
+    ?? model.fields.find((field) => field.name === "display_name")?.name
+    ?? model.fields.find((field) => field.name === "technical_name")?.name
+    ?? model.fields[0]?.name
+    ?? "id";
 }
 
 function normalizeComputedResult(result: unknown, fieldName: string, ids: number[]) {
@@ -274,13 +302,20 @@ function domainToSql(domain: Domain) {
   for (const [field, op, value] of domain) {
     if (op === "ilike") {
       clauses.push(`${quoteIdent(field)} LIKE ?`);
-      params.push(`%${value}%`);
+      params.push(`%${normalizeDomainValue(value)}%`);
     } else {
       clauses.push(`${quoteIdent(field)} ${op} ?`);
-      params.push(value);
+      params.push(normalizeDomainValue(value));
     }
   }
   return { sql: `WHERE ${clauses.join(" AND ")}`, params };
+}
+
+function normalizeDomainValue(value: unknown) {
+  if (typeof value === "boolean") return value ? 1 : 0;
+  if (value === undefined) return null;
+  if (value && typeof value === "object" && !Buffer.isBuffer(value)) return JSON.stringify(value);
+  return value;
 }
 
 function normalizeValues(model: RuntimeModel, values: Record<string, unknown>) {

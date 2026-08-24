@@ -45,6 +45,11 @@ All notable changes to this project are documented here.
 - Added backend computed-field runtime support so non-stored fields with `computeMethod` are populated during `read` and `search_read`.
 - Added `sale.order.compute_amount_total` and changed `sale.order.amount_total` to compute from order lines instead of storing a column.
 - Updated sale order seed records to omit computed `amount_total` values.
+- Added a basic `stock` module with stock locations, stock moves, inventory menus, stock move actions, seeded locations/moves, and computed `product.product.qty_available`.
+- Added a basic `purchase` module with purchase orders, purchase order lines, menus, computed totals, seeded purchase data, and confirmation that creates done stock moves.
+- Added form action buttons for confirming purchase orders and marking stock moves done.
+- Restyled the list search control so the input and search button render as a compact aligned control.
+- Added the `record-driven-module` Codex skill instructions to the source tree under `skills/record-driven-module/SKILL.md`.
 - Changed generated website page URLs to use an absolute `WEBSITE_BASE_URL` so links open the backend public website route instead of the frontend app route.
 - Changed production startup so the backend serves the built web app from `apps/web/dist`, allowing a single backend port after `npm run build`.
 - Changed the production web client to call API routes on the same backend origin while keeping the Vite development fallback pointed at `http://localhost:3100`.
@@ -58,6 +63,17 @@ All notable changes to this project are documented here.
 - Changed sidebar menus to start collapsed when the app first opens.
 - Moved the current user and logout action to the bottom of the sidebar and removed the topbar brand text.
 - Removed the global refresh button from the topbar and added contextual refresh actions to list and form views.
+- Added an `ai` module with OpenAI/ChatGPT, Claude, and OpenRouter provider configuration, MCP server configuration, AI request logs, and `POST /api/ai/chat` for record-aware LLM answers through MCP tools.
+- Added an AI MCP Client model/view/menu and an AI Chat client action so users can chat through a configured OpenRouter-backed MCP client from the web app.
+- Removed the standalone Sales and Purchases `Order Lines` menu entries while keeping order-line models available inside order forms.
+- Added per-column list-view filters for stored fields, with type-aware search operators for text, numeric, boolean, and relation fields.
+- Added vertical and horizontal scrolling to list tables and made the left sidebar stay fixed while the workspace scrolls.
+- Updated `search_read` to return many2one values as `[id, display_name]` and taught list views to render those labels without per-cell lookup requests.
+- Reworked the seeded Website Home page into a modern product overview with feature sections for modules, AI/MCP, search, authentication, and module lifecycle capabilities.
+- Updated the Website Home copy to Vietnamese and removed references to Odoo-style positioning.
+- Added a Vietnamese public Features page with detailed feature sections and a right-side sticky table of contents, plus a Website menu entry for `/features`.
+- Added a standalone `product` module for shared product master data, moved `product.product` model/views/data out of `sale`, and updated Sales, Purchases, and Inventory to depend on the shared product module.
+- Added model ownership transfer support for code-defined full models so existing `product.product` metadata can move from `sale` to `product` during module upgrades without breaking extension-owned fields.
 
 ### Changed
 
@@ -104,5 +120,6 @@ All notable changes to this project are documented here.
 - Verified `core.view` metadata exposes `content_type` and `content`, and runtime views return `contentType/content` from the API.
 - Verified Website Home renders HTML from the seeded `core.view` content record on a fresh database.
 - Verified `sale.order.amount_total` is populated by the backend compute method through `search_read` on a fresh database.
+- Verified fresh bootstrap exposes Sales, Purchases, and Inventory menus; purchase totals compute from lines; confirming a purchase order creates stock moves and increases computed product on-hand quantity.
 - Verified `sale` module upgrade removes stale `sale.order.product_id` metadata and the physical `sale_order.product_id` column while keeping `sale.order.line.product_id` active.
 - Verified menu, view, CRUD, and module lifecycle APIs during POC implementation.

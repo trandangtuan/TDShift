@@ -1,7 +1,8 @@
 import { List, LogOut, Plus, RefreshCw, Settings, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button, ConfigProvider, Input, Layout } from "antd";
-import type { ActionDefinition, RuntimeMenu, RuntimeView } from "@record-platform/core";
+import type { ActionDefinition, Domain, RuntimeMenu, RuntimeView } from "@record-platform/core";
+import AiChat from "./components/AiChat";
 import FormRenderer from "./components/FormRenderer";
 import LoginScreen from "./components/LoginScreen";
 import ListRenderer from "./components/ListRenderer";
@@ -27,6 +28,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [mode, setMode] = useState<Mode>("list");
   const [query, setQuery] = useState("");
+  const [columnDomain, setColumnDomain] = useState<Domain>([]);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(30);
 
@@ -94,7 +96,15 @@ export default function App() {
 
   async function openAction(externalId: string) {
     const nextAction = await api<ActionDefinition>(`/api/ui/actions/${externalId}`);
-    if (!nextAction.model) return;
+    if (!nextAction.model) {
+      setAction(nextAction);
+      setModel(null);
+      setView(null);
+      setRecords([]);
+      setSelectedId(null);
+      setMode("list");
+      return;
+    }
     const [nextModel, nextView] = await Promise.all([
       api<RuntimeModel>(`/api/model/${nextAction.model}/metadata`),
       api<RuntimeView>(`/api/ui/views?model=${nextAction.model}&type=list`)
@@ -105,14 +115,17 @@ export default function App() {
     setMode("list");
     setSelectedId(null);
     setPage(0);
+    setQuery("");
+    setColumnDomain([]);
     await loadRecords(nextAction.model, nextView, nextModel, 0, pageSize);
   }
 
-  async function loadRecords(modelName = action?.model, activeView = view, activeModel = model, activePage = page, activePageSize = pageSize) {
+  async function loadRecords(modelName = action?.model, activeView = view, activeModel = model, activePage = page, activePageSize = pageSize, activeColumnDomain = columnDomain) {
     if (!modelName || !activeView) return;
     const searchField = activeModel?.fields.find((field) => field.name === "name")?.name ?? activeModel?.fields.find((field) => field.name === "technical_name")?.name;
     const fields = activeView.architecture.type === "list" ? activeView.architecture.fields : undefined;
-    const data = await api<{ records: Record<string, unknown>[] }>("/api/model/search_read", { method: "POST", body: { model: modelName, domain: query && searchField ? [[searchField, "ilike", query]] : [], fields, limit: activePageSize, offset: activePage * activePageSize } });
+    const quickDomain: Domain = query && searchField ? [[searchField, "ilike", query]] : [];
+    const data = await api<{ records: Record<string, unknown>[] }>("/api/model/search_read", { method: "POST", body: { model: modelName, domain: [...quickDomain, ...activeColumnDomain], fields, limit: activePageSize, offset: activePage * activePageSize } });
     setRecords(data.records);
   }
 
@@ -130,6 +143,7 @@ export default function App() {
     setView(nextView);
     setMode("list");
     setSelectedId(null);
+    setColumnDomain([]);
     await loadRecords(action.model, nextView);
   }
 
@@ -180,11 +194,27 @@ export default function App() {
         </div>
       </Layout.Sider>
       <Layout.Content className="workspace">
-        {!action || !model || !view ? (
+        {!action ? (
           <div className="empty-state">
             <Settings size={36} />
             <h1>Metadata runtime is ready</h1>
             <p>Choose a menu record. The sidebar, action, view, fields, and records are all resolved from runtime metadata.</p>
+          </div>
+        ) : action.technicalName === "ai.action_chat" ? (
+          <>
+            <div className="actionbar">
+              <div>
+                <h1>{action.name}</h1>
+                <span>AI MCP client</span>
+              </div>
+            </div>
+            <AiChat api={api} streamApi={streamApi} />
+          </>
+        ) : !model || !view ? (
+          <div className="empty-state">
+            <Settings size={36} />
+            <h1>Unsupported action</h1>
+            <p>This client action does not have a renderer yet.</p>
           </div>
         ) : (
           <>
@@ -196,7 +226,7 @@ export default function App() {
               <div className="actions">
                 {mode === "list" ? (
                   <>
-                    <Input.Search value={query} onChange={(event) => setQuery(event.target.value)} onSearch={() => {
+                    <Input.Search className="record-search" value={query} onChange={(event) => setQuery(event.target.value)} onSearch={() => {
                       setPage(0);
                       loadRecords(action.model, view, model, 0, pageSize);
                     }} placeholder="Search name" allowClear />
@@ -226,6 +256,11 @@ export default function App() {
                   setPageSize(nextPageSize);
                   setPage(0);
                   await loadRecords(action.model, view, model, 0, nextPageSize);
+                }}
+                onFilterChange={async (nextDomain) => {
+                  setColumnDomain(nextDomain);
+                  setPage(0);
+                  await loadRecords(action.model, view, model, 0, pageSize, nextDomain);
                 }}
               />
             ) : (
@@ -267,4 +302,36 @@ async function api<T>(path: string, init?: { method?: string; body?: unknown }):
   }
   if (!response.ok) throw new Error(await response.text());
   return response.json();
+}
+
+async function streamApi(path: string, init: { method?: string; body?: unknown; onEvent: (event: Record<string, unknown>) => void }) {
+  const response = await fetch(`${apiBase}${path}`, {
+    method: init.method ?? "GET",
+    headers: {
+      ...(init.body ? { "Content-Type": "application/json" } : {}),
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+    },
+    body: init.body ? JSON.stringify(init.body) : undefined
+  });
+  if (response.status === 401) {
+    localStorage.removeItem(tokenStorageKey);
+    authToken = null;
+    window.dispatchEvent(new Event("auth:expired"));
+  }
+  if (!response.ok || !response.body) throw new Error(await response.text());
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      init.onEvent(JSON.parse(line));
+    }
+  }
+  if (buffer.trim()) init.onEvent(JSON.parse(buffer));
 }

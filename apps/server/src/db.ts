@@ -225,7 +225,7 @@ export function bootstrapModules(modules: ModuleDefinition[], options: { forceIn
           INSERT INTO core_model (technical_name, name, table_name, module, owner_module, is_abstract, is_transient, is_system, is_custom, is_active, created_at, updated_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 1, ?, ?)
         `).run(model.technicalName, model.name, model.tableName, mod.technicalName, mod.technicalName, model.isAbstract ? 1 : 0, model.isTransient ? 1 : 0, mod.technicalName === "base" ? 1 : 0, now, now);
-      } else if (existing.owner_module === mod.technicalName) {
+      } else if (existing.owner_module === mod.technicalName || shouldTransferModelOwnership(model)) {
         db.prepare(`
           UPDATE core_model
           SET name = ?,
@@ -400,6 +400,10 @@ function upsertField(mod: ModuleDefinition, model: string, field: FieldDefinitio
 
 function upsertAuditFields(model: string, now: string) {
   for (const field of auditFields) upsertField({ technicalName: "base", displayName: "Base", version: "1.0.0" }, model, field, now);
+}
+
+function shouldTransferModelOwnership(model: { fields: FieldDefinition[] }) {
+  return model.fields.some((field) => field.stored !== false && !auditFieldNames.has(field.name) && (field.required || field.name === "name"));
 }
 
 function insertExternalIds(now: string) {

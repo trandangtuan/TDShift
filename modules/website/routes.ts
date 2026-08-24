@@ -56,10 +56,11 @@ function renderPage(db: any, page: { title: string; meta_description: string | n
     <meta name="description" content="${escapeHtml(page.meta_description ?? "")}">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body { color: #222832; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; margin: 0; }
-      nav { align-items: center; border-bottom: 1px solid #e5e7eb; display: flex; gap: 24px; padding: 16px 20px; }
-      nav a { color: #111827; font-weight: 600; text-decoration: none; }
-      main { margin: 0 auto; max-width: 920px; padding: 48px 20px; }
+      body { background: #f6f8fb; color: #222832; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; margin: 0; }
+      body > nav { align-items: center; background: rgba(255,255,255,0.86); backdrop-filter: blur(16px); border-bottom: 1px solid #e5e7eb; display: flex; gap: 24px; justify-content: center; padding: 14px 20px; position: sticky; top: 0; z-index: 20; }
+      body > nav a { color: #111827; font-weight: 700; text-decoration: none; }
+      body > nav a:hover { color: #0f766e; }
+      main { margin: 0 auto; max-width: 1180px; padding: 28px 20px 54px; }
       h1 { font-size: 40px; line-height: 1.15; margin: 0 0 18px; }
       a { color: #2563eb; }
     </style>

@@ -9,7 +9,10 @@ export function fieldLabel(model: RuntimeModel, fieldName: string) {
 export function formatValue(model: RuntimeModel, fieldName: string, value: unknown, api?: ApiClient) {
   const field = model.fields.find((candidate) => candidate.name === fieldName);
   if (field?.type === "boolean") return value ? "Yes" : "No";
-  if (field?.type === "many2one" && api) return <ManyToOneDisplay api={api} field={field} value={value} />;
+  if (field?.type === "many2one") {
+    if (Array.isArray(value)) return <span>{String(value[1] ?? value[0] ?? "")}</span>;
+    return api ? <ManyToOneDisplay api={api} field={field} value={value} /> : String(value ?? "");
+  }
   if (field?.name === "url" && value) {
     const href = String(value);
     return <a className="table-link" href={href} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()}>{href}</a>;
@@ -20,6 +23,10 @@ export function formatValue(model: RuntimeModel, fieldName: string, value: unkno
 function ManyToOneDisplay({ api, field, value }: { api: ApiClient; field: FieldDefinition; value: unknown }) {
   const [label, setLabel] = useState("");
   useEffect(() => {
+    if (Array.isArray(value)) {
+      setLabel(String(value[1] ?? value[0] ?? ""));
+      return;
+    }
     if (!field.relationModel || value == null || value === "") {
       setLabel("");
       return;

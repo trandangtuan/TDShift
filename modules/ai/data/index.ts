@@ -1,0 +1,1 @@
+export { aiConfigData } from "./config";

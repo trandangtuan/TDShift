@@ -39,7 +39,8 @@ export default function FormRenderer({ api, model, view, record, onSaved, onRefr
     <div className="form-toolbar">
       <Button type="primary" icon={<Save size={17} />} onClick={save}>Save</Button>
       {record?.id ? <Button icon={<RefreshCw size={17} />} onClick={() => onRefresh(Number(record.id))}>Refresh</Button> : null}
-      {model.technicalName === "sale.order" && record?.id ? <Button icon={<Check size={17} />} onClick={() => call("confirm")}>Confirm</Button> : null}
+      {["sale.order", "purchase.order"].includes(model.technicalName) && record?.id ? <Button icon={<Check size={17} />} onClick={() => call("confirm")}>Confirm</Button> : null}
+      {model.technicalName === "stock.move" && record?.id ? <Button icon={<Check size={17} />} onClick={() => call("done")}>Mark Done</Button> : null}
       {model.technicalName === "core.module" && record?.state !== "INSTALLED" ? <Button icon={<Download size={17} />} onClick={() => moduleAction("/api/modules/install")}>Install</Button> : null}
       {model.technicalName === "core.module" && record?.state === "INSTALLED" ? <Button icon={<UploadCloud size={17} />} onClick={() => moduleAction("/api/modules/upgrade")}>Upgrade</Button> : null}
       {model.technicalName === "core.module" && record?.state === "INSTALLED" && record?.technical_name !== "base" ? <Button danger icon={<Power size={17} />} onClick={() => moduleAction("/api/modules/uninstall")}>Uninstall</Button> : null}
