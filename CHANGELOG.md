@@ -87,6 +87,8 @@ All notable changes to this project are documented here.
 - Added an upload control for `ir.attachment` forms so users can choose a local file, auto-fill attachment metadata, convert the file to base64, and submit it through the MinIO attachment pipeline.
 - Changed attachment uploads to stream multipart file data directly to MinIO through `/api/attachments/upload`, avoiding large base64 JSON payloads and Fastify body-size failures.
 - Updated module-local skills with user workflows, feature maps, extension guidance, and verification notes for each module.
+- Added a public Website module guide page at `/module-guide` with a left-side module menu and Vietnamese usage instructions for each module.
+- Updated the public Website Home page to introduce MetaFlow as a downloadable/editable business app, highlight current modules, and add download/edit guidance with CTAs to the app and module guide.
 
 ### Changed
 

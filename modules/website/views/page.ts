@@ -11,34 +11,35 @@ export const pageViews: ViewDefinition[] = [
 <section class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white px-6 py-12 shadow-sm sm:px-10 lg:px-14">
   <div class="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
     <div>
-      <p class="mb-4 inline-flex rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-800">MetaFlow</p>
-      <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">Nền tảng quản trị dữ liệu linh hoạt cho doanh nghiệp hiện đại.</h1>
-      <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">Quản lý liên hệ, bán hàng, mua hàng, kho, trang web, người dùng và trợ lý AI trong một giao diện thống nhất, gọn gàng và dễ mở rộng.</p>
+      <p class="mb-4 inline-flex rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-800">MetaFlow Business Suite</p>
+      <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">Ứng dụng quản trị doanh nghiệp có thể tải về, chỉnh sửa và mở rộng theo quy trình riêng.</h1>
+      <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">MetaFlow gom bán hàng, mua hàng, kho, kế toán, website, lưu trữ tệp và trợ lý AI vào một nền tảng record-driven. Doanh nghiệp có thể dùng ngay, sửa giao diện trong app hoặc phát triển thêm module bằng TypeScript.</p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a class="rounded-lg bg-teal-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-teal-800" href="/web">Mở ứng dụng</a>
-        <a class="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:border-teal-500 hover:text-teal-800" href="/features">Xem tính năng</a>
+        <a class="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:border-teal-500 hover:text-teal-800" href="#download">Tải về & chỉnh sửa</a>
+        <a class="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:border-teal-500 hover:text-teal-800" href="/module-guide">Hướng dẫn module</a>
       </div>
     </div>
     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <div class="rounded-xl bg-slate-950 p-4 text-white shadow-xl">
         <div class="mb-4 flex items-center justify-between border-b border-white/10 pb-3">
-          <span class="font-semibold">MetaFlow Console</span>
+          <span class="font-semibold">MetaFlow Workspace</span>
           <span class="rounded-full bg-emerald-400/15 px-2 py-1 text-xs font-bold text-emerald-300">Live</span>
         </div>
         <div class="grid gap-3">
           <div class="rounded-lg bg-white/8 p-3">
-            <div class="text-xs uppercase text-slate-400">Dữ liệu</div>
-            <div class="mt-1 font-mono text-sm">sale.order</div>
+            <div class="text-xs uppercase text-slate-400">Quy trình</div>
+            <div class="mt-1 font-mono text-sm">Sale -> Delivery -> Invoice</div>
           </div>
           <div class="grid grid-cols-3 gap-2 text-sm">
-            <div class="rounded-lg bg-teal-500/15 p-3"><b>30</b><br><span class="text-slate-300">Bản ghi</span></div>
-            <div class="rounded-lg bg-blue-500/15 p-3"><b>4</b><br><span class="text-slate-300">Giao diện</span></div>
+            <div class="rounded-lg bg-teal-500/15 p-3"><b>TT99</b><br><span class="text-slate-300">Kế toán</span></div>
+            <div class="rounded-lg bg-blue-500/15 p-3"><b>MinIO</b><br><span class="text-slate-300">Tệp tin</span></div>
             <div class="rounded-lg bg-violet-500/15 p-3"><b>AI</b><br><span class="text-slate-300">MCP</span></div>
           </div>
           <div class="rounded-lg bg-white p-3 text-slate-900">
-            <div class="mb-2 text-xs font-bold uppercase text-slate-500">Bản ghi gần đây</div>
-            <div class="flex items-center justify-between border-b border-slate-100 py-2"><span>Zenith Consulting</span><b>Active</b></div>
-            <div class="flex items-center justify-between py-2"><span>SO0007</span><b>1,240,000 vnd</b></div>
+            <div class="mb-2 text-xs font-bold uppercase text-slate-500">Tùy biến nhanh</div>
+            <div class="flex items-center justify-between border-b border-slate-100 py-2"><span>Views & Menus</span><b>Editable</b></div>
+            <div class="flex items-center justify-between py-2"><span>Modules & Skills</span><b>Extend</b></div>
           </div>
         </div>
       </div>
@@ -48,58 +49,241 @@ export const pageViews: ViewDefinition[] = [
 
 <section id="features" class="py-14">
   <div class="mb-8">
-    <p class="text-sm font-bold uppercase tracking-wide text-teal-700">Tính năng hiện có</p>
-    <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">Một ứng dụng quản trị có thể thay đổi theo cấu trúc dữ liệu của bạn.</h2>
+    <p class="text-sm font-bold uppercase tracking-wide text-teal-700">Tổng quan ứng dụng</p>
+    <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">Các module cốt lõi đã sẵn sàng cho vận hành nội bộ.</h2>
   </div>
   <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="text-lg font-bold text-slate-950">Mô hình dữ liệu linh hoạt</h3>
-      <p class="mt-3 text-slate-600">Danh sách, biểu mẫu, trang, hành động, menu và trường dữ liệu được cấu hình bằng metadata, giúp ứng dụng dễ mở rộng theo nhu cầu.</p>
+      <h3 class="text-lg font-bold text-slate-950">Bán hàng tự động</h3>
+      <p class="mt-3 text-slate-600">Tạo báo giá, xác nhận đơn bán, sinh phiếu giao hàng và tạo hóa đơn sau khi hoàn tất giao hàng.</p>
     </article>
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="text-lg font-bold text-slate-950">Bán hàng & liên hệ</h3>
-      <p class="mt-3 text-slate-600">Quản lý khách hàng, sản phẩm, đơn bán hàng, dòng đơn hàng, tổng tiền tự tính và các quan hệ dữ liệu hiển thị rõ ràng.</p>
+      <h3 class="text-lg font-bold text-slate-950">Mua hàng khép kín</h3>
+      <p class="mt-3 text-slate-600">Quản lý nhà cung cấp, đơn mua, phiếu nhập kho và hóa đơn mua hàng sau khi nhận hàng.</p>
     </article>
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="text-lg font-bold text-slate-950">Mua hàng & kho</h3>
-      <p class="mt-3 text-slate-600">Theo dõi đơn mua, xác nhận nhập hàng, quản lý vị trí kho, lịch sử dịch chuyển và số lượng tồn theo từng sản phẩm.</p>
+      <h3 class="text-lg font-bold text-slate-950">Kế toán theo TT99</h3>
+      <p class="mt-3 text-slate-600">Có tài khoản, nhật ký, bút toán, hóa đơn bán, hóa đơn mua và kiểm tra cân đối trước khi vào sổ.</p>
     </article>
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="text-lg font-bold text-slate-950">Trợ lý AI kết nối dữ liệu</h3>
-      <p class="mt-3 text-slate-600">Kết nối OpenRouter, OpenAI hoặc Claude để hỏi đáp trên dữ liệu thật, xem quá trình gọi công cụ và lưu lại lịch sử yêu cầu.</p>
+      <h3 class="text-lg font-bold text-slate-950">Kho và sản phẩm</h3>
+      <p class="mt-3 text-slate-600">Theo dõi sản phẩm dùng chung, vị trí kho, dịch chuyển hàng hóa và số lượng tồn tính từ stock moves.</p>
     </article>
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="text-lg font-bold text-slate-950">Danh sách dễ tìm kiếm</h3>
-      <p class="mt-3 text-slate-600">Tìm kiếm nhanh, lọc theo từng cột, phân trang, cuộn bảng và hiển thị tên quan hệ mà không cần tải lại quá nhiều dữ liệu.</p>
+      <h3 class="text-lg font-bold text-slate-950">Tệp tin MinIO</h3>
+      <p class="mt-3 text-slate-600">Upload tệp lớn qua multipart, lưu object trên MinIO và tải xuống từ hồ sơ attachment.</p>
     </article>
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="text-lg font-bold text-slate-950">Quản lý website</h3>
-      <p class="mt-3 text-slate-600">Xuất bản trang công khai, chỉnh nội dung HTML và quản lý menu website trực tiếp từ khu vực quản trị.</p>
+      <h3 class="text-lg font-bold text-slate-950">AI và MCP</h3>
+      <p class="mt-3 text-slate-600">Kết nối nhà cung cấp LLM, cấu hình MCP server và cho AI đọc dữ liệu vận hành có kiểm soát.</p>
     </article>
   </div>
 </section>
 
-<section class="rounded-3xl bg-slate-950 px-6 py-10 text-white sm:px-10">
+<section id="download" class="rounded-3xl bg-slate-950 px-6 py-10 text-white sm:px-10">
   <div class="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
     <div>
-      <p class="text-sm font-bold uppercase tracking-wide text-teal-300">Thiết kế cho vận hành</p>
-      <h2 class="mt-2 text-3xl font-bold tracking-tight">Giao diện rõ ràng, tập trung và phù hợp cho công việc hằng ngày.</h2>
-      <p class="mt-4 leading-7 text-slate-300">Ứng dụng hỗ trợ cài đặt, nâng cấp module, đồng bộ cấu trúc dữ liệu và bảo toàn cấu hình tùy chỉnh của người dùng.</p>
+      <p class="text-sm font-bold uppercase tracking-wide text-teal-300">Tải về & chỉnh sửa</p>
+      <h2 class="mt-2 text-3xl font-bold tracking-tight">Dùng qua giao diện, chỉnh nội dung trực tiếp hoặc mở rộng bằng module.</h2>
+      <p class="mt-4 leading-7 text-slate-300">Người dùng nghiệp vụ có thể chỉnh trang website, menu, attachment và bản ghi trong <code>/web</code>. Đội kỹ thuật có thể tải mã nguồn từ workspace, sửa file module, chạy kiểm tra và Upgrade module để áp dụng thay đổi.</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a class="rounded-lg bg-teal-500 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-teal-400" href="/web">Chỉnh sửa trong app</a>
+        <a class="rounded-lg border border-white/20 px-5 py-3 text-sm font-bold text-white transition hover:border-teal-300 hover:text-teal-200" href="/module-guide">Xem cách mở rộng</a>
+      </div>
     </div>
     <div class="grid gap-3 sm:grid-cols-2">
-      <div class="rounded-2xl border border-white/10 bg-white/8 p-5"><b>Đăng nhập an toàn</b><p class="mt-2 text-sm text-slate-300">Hỗ trợ đăng nhập, đăng ký, quản lý người dùng và đặt lại token.</p></div>
-      <div class="rounded-2xl border border-white/10 bg-white/8 p-5"><b>Nhật ký tạo/sửa</b><p class="mt-2 text-sm text-slate-300">Lưu người tạo, người cập nhật và thời gian thay đổi trên từng bảng dữ liệu.</p></div>
-      <div class="rounded-2xl border border-white/10 bg-white/8 p-5"><b>Trường tự tính</b><p class="mt-2 text-sm text-slate-300">Tự tính tổng tiền, đường dẫn trang web và số lượng tồn kho từ dữ liệu nguồn.</p></div>
-      <div class="rounded-2xl border border-white/10 bg-white/8 p-5"><b>Vòng đời module</b><p class="mt-2 text-sm text-slate-300">Làm mới, cài đặt, nâng cấp, gỡ module và đồng bộ schema một cách có kiểm soát.</p></div>
+      <div class="rounded-2xl border border-white/10 bg-white/8 p-5"><b>Chỉnh nội dung</b><p class="mt-2 text-sm text-slate-300">Vào Website > Pages để sửa tiêu đề, trạng thái xuất bản và view HTML của trang.</p></div>
+      <div class="rounded-2xl border border-white/10 bg-white/8 p-5"><b>Chỉnh menu</b><p class="mt-2 text-sm text-slate-300">Vào Website > Menus để đổi nhãn, thứ tự, URL và trạng thái hiển thị.</p></div>
+      <div class="rounded-2xl border border-white/10 bg-white/8 p-5"><b>Mở rộng module</b><p class="mt-2 text-sm text-slate-300">Thêm model, view, data và skill riêng trong thư mục module để AI khác cũng hiểu tính năng.</p></div>
+      <div class="rounded-2xl border border-white/10 bg-white/8 p-5"><b>Triển khai lại</b><p class="mt-2 text-sm text-slate-300">Chạy kiểm tra, build, sau đó Upgrade module để đồng bộ metadata và database.</p></div>
     </div>
   </div>
 </section>
 
 <section class="py-14">
+  <div class="grid gap-5 lg:grid-cols-3">
+    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <p class="text-sm font-bold uppercase tracking-wide text-teal-700">Bước 1</p>
+      <h3 class="mt-2 text-xl font-bold text-slate-950">Tải hoặc mở mã nguồn</h3>
+      <p class="mt-3 text-slate-600">Dự án chạy theo monorepo TypeScript. Sau khi tải source, cấu hình <code>.env</code>, Docker Compose và MinIO nếu cần lưu file.</p>
+    </article>
+    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <p class="text-sm font-bold uppercase tracking-wide text-teal-700">Bước 2</p>
+      <h3 class="mt-2 text-xl font-bold text-slate-950">Chỉnh module hoặc giao diện</h3>
+      <p class="mt-3 text-slate-600">Sửa metadata trong <code>modules/*</code>, cập nhật <code>SKILL.md</code>, hoặc chỉnh trang/menu trực tiếp trong khu vực quản trị.</p>
+    </article>
+    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <p class="text-sm font-bold uppercase tracking-wide text-teal-700">Bước 3</p>
+      <h3 class="mt-2 text-xl font-bold text-slate-950">Kiểm tra và nâng cấp</h3>
+      <p class="mt-3 text-slate-600">Chạy <code>npm run check</code>, <code>npm run build</code>, rồi Upgrade module trong Settings để áp dụng schema, menu, view và dữ liệu seed.</p>
+    </article>
+  </div>
+</section>
+
+<section class="py-14">
   <div class="rounded-3xl border border-teal-200 bg-teal-50 px-6 py-10 text-center sm:px-10">
-    <h2 class="text-3xl font-bold tracking-tight text-slate-950">Sẵn sàng quản lý dữ liệu của bạn?</h2>
-    <p class="mx-auto mt-3 max-w-2xl text-slate-600">Mở MetaFlow để làm việc với module, bản ghi, giao diện, trợ lý AI và nội dung website trong cùng một nơi.</p>
-    <a class="mt-7 inline-flex rounded-lg bg-teal-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-teal-800" href="/web">Bắt đầu sử dụng</a>
+    <h2 class="text-3xl font-bold tracking-tight text-slate-950">Sẵn sàng tùy biến MetaFlow cho quy trình của bạn?</h2>
+    <p class="mx-auto mt-3 max-w-2xl text-slate-600">Bắt đầu từ app quản trị, sau đó dùng trang hướng dẫn module để đào tạo người dùng hoặc giao việc mở rộng cho AI/đội kỹ thuật.</p>
+    <div class="mt-7 flex flex-wrap justify-center gap-3">
+      <a class="rounded-lg bg-teal-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-teal-800" href="/web">Bắt đầu sử dụng</a>
+      <a class="rounded-lg border border-teal-300 bg-white px-5 py-3 text-sm font-bold text-teal-800 transition hover:border-teal-600" href="/features">Xem tính năng</a>
+    </div>
+  </div>
+</section>
+`,
+    architecture: {
+      type: "form",
+      model: "website.page",
+      children: []
+    }
+  },
+  {
+    technicalName: "website.page_module_guide.view",
+    name: "Module Guide Page Content",
+    model: "website.page",
+    type: "page",
+    contentType: "html",
+    content: `
+<section class="rounded-3xl border border-slate-200 bg-white px-6 py-10 shadow-sm sm:px-10">
+  <p class="text-sm font-bold uppercase tracking-wide text-teal-700">Hướng dẫn vận hành</p>
+  <h1 class="mt-3 max-w-4xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">Cách sử dụng từng module trong MetaFlow.</h1>
+  <p class="mt-5 max-w-3xl text-lg leading-8 text-slate-600">Trang này tóm tắt mục đích, luồng thao tác chính và điểm cần chú ý của từng module. Menu bên trái giúp chuyển nhanh giữa các phần khi đào tạo người dùng hoặc mở rộng hệ thống.</p>
+</section>
+
+<section class="grid gap-8 py-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
+  <aside class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-24">
+    <p class="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500">Module</p>
+    <nav class="grid gap-1">
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#base">Base</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#contacts">Contacts</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#product">Product</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#sale">Sale</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#purchase">Purchase</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#stock">Stock</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#accounting">Accounting</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#attachments">Attachments</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#website">Website</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#ai">AI</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#mcp">MCP</a>
+    </nav>
+  </aside>
+
+  <div class="grid gap-6">
+    <article id="base" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">Base - nền tảng hệ thống</h2>
+      <p class="mt-3 text-slate-600">Dùng để quản lý người dùng, metadata, module lifecycle và các API CRUD chung.</p>
+      <ol class="mt-4 grid gap-2 text-slate-700">
+        <li><b>Người dùng:</b> vào Settings > Users để tạo tài khoản, đặt mật khẩu, kích hoạt hoặc vô hiệu hóa.</li>
+        <li><b>Module:</b> vào Settings > Technical > Modules, bấm Refresh Modules, sau đó Install hoặc Upgrade module cần dùng.</li>
+        <li><b>Metadata:</b> dùng Models, Fields, Views, Menus để kiểm tra cấu trúc runtime.</li>
+      </ol>
+      <p class="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">Lưu ý: sau khi thay đổi code module, hãy Upgrade module tương ứng để đồng bộ metadata và schema.</p>
+    </article>
+
+    <article id="contacts" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">Contacts - khách hàng và nhà cung cấp</h2>
+      <p class="mt-3 text-slate-600">Lưu thông tin đối tác dùng chung cho bán hàng, mua hàng và kế toán.</p>
+      <ul class="mt-4 grid gap-2 text-slate-700">
+        <li>Tạo liên hệ với tên, email, điện thoại và trạng thái hoạt động.</li>
+        <li>Chọn liên hệ làm Customer trong đơn bán hàng.</li>
+        <li>Chọn liên hệ làm Vendor trong đơn mua hàng.</li>
+        <li>Dùng partner trên bút toán hoặc dòng kế toán khi cần theo dõi công nợ.</li>
+      </ul>
+    </article>
+
+    <article id="product" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">Product - danh mục sản phẩm</h2>
+      <p class="mt-3 text-slate-600">Quản lý sản phẩm dùng chung trong bán hàng, mua hàng và kho.</p>
+      <ul class="mt-4 grid gap-2 text-slate-700">
+        <li>Tạo sản phẩm với tên, mã nội bộ và giá bán.</li>
+        <li>Chọn sản phẩm trong dòng đơn bán hoặc dòng đơn mua.</li>
+        <li>Theo dõi số lượng tồn nếu module Stock đã được cài và có stock moves.</li>
+      </ul>
+    </article>
+
+    <article id="sale" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">Sale - bán hàng</h2>
+      <p class="mt-3 text-slate-600">Tạo đơn bán, thêm dòng hàng, xác nhận và sinh phiếu giao hàng.</p>
+      <ol class="mt-4 grid gap-2 text-slate-700">
+        <li>Vào Sales > Orders và tạo đơn mới.</li>
+        <li>Chọn Customer, ngày đặt hàng và thêm Order Lines.</li>
+        <li>Bấm Confirm để chuyển trạng thái và tạo draft delivery stock moves.</li>
+        <li>Hoàn tất giao hàng trong Inventory > Stock Moves để tạo customer invoice draft.</li>
+      </ol>
+    </article>
+
+    <article id="purchase" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">Purchase - mua hàng</h2>
+      <p class="mt-3 text-slate-600">Tạo đơn mua, xác nhận và sinh phiếu nhận hàng từ nhà cung cấp.</p>
+      <ol class="mt-4 grid gap-2 text-slate-700">
+        <li>Vào Purchases > Orders và tạo đơn mua.</li>
+        <li>Chọn Vendor, ngày đặt hàng và thêm Order Lines.</li>
+        <li>Bấm Confirm để tạo draft receipt stock moves.</li>
+        <li>Hoàn tất nhận hàng trong Inventory > Stock Moves để tạo vendor bill draft.</li>
+      </ol>
+    </article>
+
+    <article id="stock" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">Stock - kho vận</h2>
+      <p class="mt-3 text-slate-600">Theo dõi vị trí kho và dịch chuyển hàng hóa.</p>
+      <ul class="mt-4 grid gap-2 text-slate-700">
+        <li>Locations gồm Vendor, Stock, Customer hoặc Inventory.</li>
+        <li>Stock Moves ghi nhận sản phẩm, số lượng, nguồn, đích, trạng thái và chứng từ gốc.</li>
+        <li>Bấm Mark Done để hoàn tất dịch chuyển. Sale/Purchase sẽ bắt sự kiện này để tạo invoice/bill.</li>
+      </ul>
+    </article>
+
+    <article id="accounting" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">Accounting - kế toán</h2>
+      <p class="mt-3 text-slate-600">Quản lý tài khoản, sổ nhật ký, bút toán, hóa đơn khách hàng và hóa đơn nhà cung cấp.</p>
+      <ul class="mt-4 grid gap-2 text-slate-700">
+        <li>Chart of Accounts có bộ tài khoản nền tảng theo hướng TT99.</li>
+        <li>Journals gồm General, Sales, Purchase, Cash và Bank.</li>
+        <li>Journal Entries có dòng Nợ/Có và chỉ post khi cân bằng.</li>
+        <li>Sale delivery tạo invoice: Nợ 131, Có 511. Purchase receipt tạo bill: Nợ 156, Có 331.</li>
+      </ul>
+    </article>
+
+    <article id="attachments" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">Attachments - tệp đính kèm MinIO</h2>
+      <p class="mt-3 text-slate-600">Lưu metadata trong DB và lưu file thật trong MinIO.</p>
+      <ol class="mt-4 grid gap-2 text-slate-700">
+        <li>Vào Settings > Technical > Attachments.</li>
+        <li>Bấm Create, chọn file ở Upload File.</li>
+        <li>UI upload multipart trực tiếp qua <code>/api/attachments/upload</code>, không gửi base64 JSON.</li>
+        <li>Record lưu bucket, object name, file size và checksum. Tải xuống qua <code>/api/attachments/:id/download</code>.</li>
+      </ol>
+    </article>
+
+    <article id="website" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">Website - trang công khai</h2>
+      <p class="mt-3 text-slate-600">Tạo page, menu và nội dung HTML được render public.</p>
+      <ul class="mt-4 grid gap-2 text-slate-700">
+        <li>Pages quản lý slug, title, meta description, published flag và linked view.</li>
+        <li>Menus quản lý nhãn, URL, thứ tự và trạng thái xuất bản.</li>
+        <li>Nội dung page nằm trong <code>core.view</code> có <code>content_type = html</code>.</li>
+      </ul>
+    </article>
+
+    <article id="ai" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">AI - trợ lý dữ liệu</h2>
+      <p class="mt-3 text-slate-600">Kết nối provider AI và MCP để hỏi đáp trên dữ liệu trong hệ thống.</p>
+      <ul class="mt-4 grid gap-2 text-slate-700">
+        <li>Cấu hình provider như OpenRouter, OpenAI hoặc Claude.</li>
+        <li>Cấu hình MCP client/server để AI có thể dùng công cụ đọc dữ liệu.</li>
+        <li>Mở AI Chat để hỏi dữ liệu và xem trace/tool calls ở sidebar.</li>
+      </ul>
+    </article>
+
+    <article id="mcp" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">MCP - công cụ cho AI bên ngoài</h2>
+      <p class="mt-3 text-slate-600">Cung cấp công cụ metadata-aware để AI client bên ngoài đọc và thao tác dữ liệu có kiểm soát.</p>
+      <ul class="mt-4 grid gap-2 text-slate-700">
+        <li>Dùng MCP tools để inspect models, fields và records.</li>
+        <li>Ưu tiên read/search trước khi write.</li>
+        <li>Không bypass registry hoặc truy cập trực tiếp DB từ tool mới.</li>
+      </ul>
+    </article>
   </div>
 </section>
 `,

@@ -26,5 +26,18 @@ export const websiteMenuData: DataRecordDefinition[] = [
       is_published: true,
       active: true
     }
+  },
+  {
+    externalId: "website.menu_module_guide",
+    model: "website.menu",
+    values: {
+      name: "Module Guide",
+      label: "Hướng dẫn",
+      url: "/module-guide",
+      page_slug: "module-guide",
+      sequence: 30,
+      is_published: true,
+      active: true
+    }
   }
 ];
