@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 
 ## Unreleased
 
+### Changed
+
+- Changed `sale.order.amount_total` to a stored field and added Sale Order Line write hooks to refresh stored totals when order lines change.
+- Changed Sale Order list totals to read from stored `amount_total`, so `search_read` no longer computes totals or queries `sale_order_line` for list rows.
+
 ### Added
 
 - Added contribution rules requiring every change request to be analyzed, re-evaluated against the architecture, verified, and recorded in this changelog.

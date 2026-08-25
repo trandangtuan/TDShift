@@ -141,18 +141,24 @@ function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime
       const normalized = withCreateAuditDefaults(model, withTableDefaults(model, withMetadataDefaults(model.tableName, normalizeValues(model, values)), true), env.user.id);
       const columns = Object.keys(normalized);
       const result = db.prepare(`INSERT INTO ${quoteIdent(model.tableName)} (${columns.map(quoteIdent).join(", ")}) VALUES (${columns.map((column) => `@${column}`).join(", ")})`).run(normalized);
-      return Number(result.lastInsertRowid);
+      const id = Number(result.lastInsertRowid);
+      await callOptionalModelMethod(env, model, "after_create", [id], { values });
+      return id;
     },
     async write(ids, values) {
       if (ids.length === 0) return;
       if (model.technicalName === "ir.attachment") values = await storeAttachmentPayload(values);
+      const previousRecords = hasMethod(model, "after_write") ? await this.read(ids) : [];
       const normalized = withWriteAuditDefaults(model, withTableDefaults(model, normalizeValues(model, values), false), env.user.id);
       const assignments = Object.keys(normalized).map((column) => `${quoteIdent(column)} = @${column}`).join(", ");
       db.prepare(`UPDATE ${quoteIdent(model.tableName)} SET ${assignments} WHERE id IN (${ids.map((_, index) => `@id${index}`).join(", ")})`).run({ ...normalized, ...Object.fromEntries(ids.map((id, index) => [`id${index}`, id])) });
+      await callOptionalModelMethod(env, model, "after_write", ids, { values, args: [previousRecords] });
     },
     async unlink(ids) {
       if (ids.length === 0) return;
+      const previousRecords = hasMethod(model, "after_unlink") ? await this.read(ids) : [];
       db.prepare(`DELETE FROM ${quoteIdent(model.tableName)} WHERE id IN (${ids.map(() => "?").join(", ")})`).run(...ids);
+      await callOptionalModelMethod(env, model, "after_unlink", ids, { args: [previousRecords] });
     },
     async call(method, ids, args = []) {
       const chain = model.methods.get(method);
@@ -167,6 +173,19 @@ function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime
       return dispatch();
     }
   };
+}
+
+async function callOptionalModelMethod(env: Environment, model: RuntimeModel, method: string, ids: number[], options: { values?: Record<string, unknown>; args?: unknown[] } = {}) {
+  const chain = model.methods.get(method);
+  if (!chain?.length) return;
+  let index = -1;
+  const dispatch = async (): Promise<unknown> => {
+    index += 1;
+    const fn = chain[index];
+    if (!fn) return undefined;
+    return fn({ env, model: model.technicalName, ids, values: options.values, args: options.args ?? [] }, dispatch);
+  };
+  await dispatch();
 }
 
 async function applyComputedFields(env: Environment, model: RuntimeModel, records: Array<Record<string, unknown>>, requestedFields: string[]) {
@@ -403,6 +422,10 @@ function withWriteAuditDefaults(model: RuntimeModel, values: Record<string, unkn
 
 function hasField(model: RuntimeModel, name: string) {
   return model.fields.some((field) => field.name === name);
+}
+
+function hasMethod(model: RuntimeModel, name: string) {
+  return Boolean(model.methods.get(name)?.length);
 }
 
 function withTableDefaults(model: RuntimeModel, values: Record<string, unknown>, creating: boolean) {

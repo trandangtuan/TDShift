@@ -20,7 +20,7 @@ export const saleOrderModel: ModelDefinition = {
       ],
       sequence: 50
     },
-    { name: "amount_total", label: "Total", type: "decimal", readonly: true, stored: false, computeMethod: "compute_amount_total", sequence: 60 },
+    { name: "amount_total", label: "Total", type: "decimal", readonly: true, computeMethod: "compute_amount_total", defaultValue: 0, sequence: 60 },
     { name: "order_line", label: "Order Lines", type: "one2many", relationModel: "sale.order.line", inverseField: "order_id", stored: false, sequence: 70 }
   ],
   methods: {
