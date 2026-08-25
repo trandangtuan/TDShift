@@ -99,6 +99,8 @@ All notable changes to this project are documented here.
 - Batched many2one label enrichment in backend `read` responses and stopped form many2one controls from issuing per-field label API calls on render.
 - Changed notebook tabs to lazy-render only the active tab content so fields in inactive tabs do not trigger relation or line-data loading until selected.
 - Moved the generic form Save action to the top actionbar beside Back/Reset/Delete and made those form actionbar buttons icon-only.
+- Added CRM highlights to the public Website Home and Features pages, including pipeline, activities, quotation handoff, breadcrumbs, and lazy tab loading notes.
+- Added the GitHub source repository link to the public Website Home download/edit section so users can clone, fork, customize, and run MetaFlow.
 
 ### Changed
 

@@ -13,7 +13,7 @@ export const pageViews: ViewDefinition[] = [
     <div>
       <p class="mb-4 inline-flex rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-800">MetaFlow Business Suite</p>
       <h1 class="max-w-3xl text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">Ứng dụng quản trị doanh nghiệp có thể tải về, chỉnh sửa và mở rộng theo quy trình riêng.</h1>
-      <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">MetaFlow gom bán hàng, mua hàng, kho, kế toán, website, lưu trữ tệp và trợ lý AI vào một nền tảng record-driven. Doanh nghiệp có thể dùng ngay, sửa giao diện trong app hoặc phát triển thêm module bằng TypeScript.</p>
+      <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">MetaFlow gom CRM, bán hàng, mua hàng, kho, kế toán, website, lưu trữ tệp và trợ lý AI vào một nền tảng record-driven. Doanh nghiệp có thể dùng ngay, sửa giao diện trong app hoặc phát triển thêm module bằng TypeScript.</p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a class="rounded-lg bg-teal-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-teal-800" href="/web">Mở ứng dụng</a>
         <a class="rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:border-teal-500 hover:text-teal-800" href="#download">Tải về & chỉnh sửa</a>
@@ -29,10 +29,10 @@ export const pageViews: ViewDefinition[] = [
         <div class="grid gap-3">
           <div class="rounded-lg bg-white/8 p-3">
             <div class="text-xs uppercase text-slate-400">Quy trình</div>
-            <div class="mt-1 font-mono text-sm">Sale -> Delivery -> Invoice</div>
+            <div class="mt-1 font-mono text-sm">CRM -> Quotation -> Delivery -> Invoice</div>
           </div>
           <div class="grid grid-cols-3 gap-2 text-sm">
-            <div class="rounded-lg bg-teal-500/15 p-3"><b>TT99</b><br><span class="text-slate-300">Kế toán</span></div>
+            <div class="rounded-lg bg-teal-500/15 p-3"><b>CRM</b><br><span class="text-slate-300">Pipeline</span></div>
             <div class="rounded-lg bg-blue-500/15 p-3"><b>MinIO</b><br><span class="text-slate-300">Tệp tin</span></div>
             <div class="rounded-lg bg-violet-500/15 p-3"><b>AI</b><br><span class="text-slate-300">MCP</span></div>
           </div>
@@ -54,8 +54,12 @@ export const pageViews: ViewDefinition[] = [
   </div>
   <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 class="text-lg font-bold text-slate-950">CRM và pipeline</h3>
+      <p class="mt-3 text-slate-600">Quản lý lead, opportunity, stage, activity, nguồn marketing, lost reason và tạo báo giá trực tiếp từ cơ hội.</p>
+    </article>
+    <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h3 class="text-lg font-bold text-slate-950">Bán hàng tự động</h3>
-      <p class="mt-3 text-slate-600">Tạo báo giá, xác nhận đơn bán, sinh phiếu giao hàng và tạo hóa đơn sau khi hoàn tất giao hàng.</p>
+      <p class="mt-3 text-slate-600">Tạo báo giá từ CRM hoặc nhập đơn bán, xác nhận đơn, sinh phiếu giao hàng và tạo hóa đơn sau khi giao hàng.</p>
     </article>
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h3 class="text-lg font-bold text-slate-950">Mua hàng khép kín</h3>
@@ -85,9 +89,10 @@ export const pageViews: ViewDefinition[] = [
     <div>
       <p class="text-sm font-bold uppercase tracking-wide text-teal-300">Tải về & chỉnh sửa</p>
       <h2 class="mt-2 text-3xl font-bold tracking-tight">Dùng qua giao diện, chỉnh nội dung trực tiếp hoặc mở rộng bằng module.</h2>
-      <p class="mt-4 leading-7 text-slate-300">Người dùng nghiệp vụ có thể chỉnh trang website, menu, attachment và bản ghi trong <code>/web</code>. Đội kỹ thuật có thể tải mã nguồn từ workspace, sửa file module, chạy kiểm tra và Upgrade module để áp dụng thay đổi.</p>
+      <p class="mt-4 leading-7 text-slate-300">Người dùng nghiệp vụ có thể chỉnh trang website, menu, attachment và bản ghi trong <code>/web</code>. Đội kỹ thuật có thể lấy mã nguồn từ GitHub, sửa file module, chạy kiểm tra và Upgrade module để áp dụng thay đổi.</p>
       <div class="mt-6 flex flex-wrap gap-3">
         <a class="rounded-lg bg-teal-500 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-teal-400" href="/web">Chỉnh sửa trong app</a>
+        <a class="rounded-lg border border-white/20 px-5 py-3 text-sm font-bold text-white transition hover:border-teal-300 hover:text-teal-200" href="https://github.com/trandangtuan/TDShift" target="_blank" rel="noreferrer">Lấy source trên GitHub</a>
         <a class="rounded-lg border border-white/20 px-5 py-3 text-sm font-bold text-white transition hover:border-teal-300 hover:text-teal-200" href="/module-guide">Xem cách mở rộng</a>
       </div>
     </div>
@@ -105,7 +110,7 @@ export const pageViews: ViewDefinition[] = [
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <p class="text-sm font-bold uppercase tracking-wide text-teal-700">Bước 1</p>
       <h3 class="mt-2 text-xl font-bold text-slate-950">Tải hoặc mở mã nguồn</h3>
-      <p class="mt-3 text-slate-600">Dự án chạy theo monorepo TypeScript. Sau khi tải source, cấu hình <code>.env</code>, Docker Compose và MinIO nếu cần lưu file.</p>
+      <p class="mt-3 text-slate-600">Clone hoặc fork source tại <a class="font-bold text-teal-700 hover:text-teal-900" href="https://github.com/trandangtuan/TDShift" target="_blank" rel="noreferrer">github.com/trandangtuan/TDShift</a>. Dự án chạy theo monorepo TypeScript; sau đó cấu hình <code>.env</code>, Docker Compose và MinIO nếu cần lưu file.</p>
     </article>
     <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <p class="text-sm font-bold uppercase tracking-wide text-teal-700">Bước 2</p>
@@ -334,10 +339,22 @@ export const pageViews: ViewDefinition[] = [
       </ul>
     </article>
 
-    <article id="ban-hang" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <article id="crm" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <span class="rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-blue-800">02</span>
+      <h2 class="mt-4 text-2xl font-bold text-slate-950">CRM, pipeline và chăm sóc cơ hội</h2>
+      <p class="mt-3 leading-7 text-slate-600">Module CRM hỗ trợ quy trình tiền bán hàng theo kiểu Odoo: tạo lead, convert thành opportunity, theo dõi stage, lên lịch activity, tạo báo giá, đánh dấu won/lost và ghi nhận lý do mất cơ hội.</p>
+      <ul class="mt-4 grid gap-2 text-slate-700">
+        <li>Lead và opportunity dùng chung model để dễ chuyển đổi trạng thái.</li>
+        <li>Pipeline có sales team, salesperson, expected revenue, probability và expected closing.</li>
+        <li>Create Quotation mở thẳng form Sales Order vừa tạo, có breadcrumb quay lại cơ hội CRM.</li>
+        <li>Activity được lazy-load trong tab khi người dùng mở tab, giúp form nhiều dữ liệu nhẹ hơn.</li>
+      </ul>
+    </article>
+
+    <article id="ban-hang" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <span class="rounded-full bg-indigo-50 px-3 py-1 text-sm font-bold text-indigo-800">03</span>
       <h2 class="mt-4 text-2xl font-bold text-slate-950">Liên hệ, sản phẩm và bán hàng</h2>
-      <p class="mt-3 leading-7 text-slate-600">Các module hiện có hỗ trợ quản lý danh bạ khách hàng, sản phẩm và đơn bán hàng. Dòng đơn hàng được nhập ngay trong form đơn, tổng tiền có thể tự tính từ dữ liệu dòng.</p>
+      <p class="mt-3 leading-7 text-slate-600">Các module hiện có hỗ trợ quản lý danh bạ khách hàng, sản phẩm và đơn bán hàng. Đơn bán có thể được tạo từ CRM hoặc nhập trực tiếp, dòng đơn hàng được nhập ngay trong form và tổng tiền có thể tự tính từ dữ liệu dòng.</p>
       <ul class="mt-4 grid gap-2 text-slate-700">
         <li>Danh sách liên hệ với email, điện thoại và trạng thái hoạt động.</li>
         <li>Sản phẩm có mã, giá bán và số lượng tồn tính toán.</li>
@@ -346,7 +363,7 @@ export const pageViews: ViewDefinition[] = [
     </article>
 
     <article id="mua-hang-kho" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <span class="rounded-full bg-violet-50 px-3 py-1 text-sm font-bold text-violet-800">03</span>
+      <span class="rounded-full bg-violet-50 px-3 py-1 text-sm font-bold text-violet-800">04</span>
       <h2 class="mt-4 text-2xl font-bold text-slate-950">Mua hàng và quản lý kho</h2>
       <p class="mt-3 leading-7 text-slate-600">Module mua hàng và kho giúp theo dõi luồng nhập hàng, vị trí kho và dịch chuyển tồn kho. Khi xác nhận đơn mua, hệ thống có thể tạo stock move để cập nhật số lượng sản phẩm.</p>
       <ul class="mt-4 grid gap-2 text-slate-700">
@@ -357,7 +374,7 @@ export const pageViews: ViewDefinition[] = [
     </article>
 
     <article id="ai" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <span class="rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-800">04</span>
+      <span class="rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-800">05</span>
       <h2 class="mt-4 text-2xl font-bold text-slate-950">Trợ lý AI kết nối dữ liệu</h2>
       <p class="mt-3 leading-7 text-slate-600">Ứng dụng có giao diện chat AI, hỗ trợ cấu hình OpenRouter, OpenAI hoặc Claude. AI có thể gọi công cụ MCP để đọc model, tìm bản ghi và trả lời dựa trên dữ liệu thật trong hệ thống.</p>
       <ul class="mt-4 grid gap-2 text-slate-700">
@@ -368,7 +385,7 @@ export const pageViews: ViewDefinition[] = [
     </article>
 
     <article id="tim-kiem" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <span class="rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-800">05</span>
+      <span class="rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-800">06</span>
       <h2 class="mt-4 text-2xl font-bold text-slate-950">Danh sách, tìm kiếm và phân trang</h2>
       <p class="mt-3 leading-7 text-slate-600">List view được tối ưu để dùng hằng ngày: có tìm kiếm nhanh, lọc theo từng cột, phân trang, cuộn bảng và hiển thị nhãn của trường quan hệ ngay từ search_read để giảm số lượng request.</p>
       <ul class="mt-4 grid gap-2 text-slate-700">
@@ -379,7 +396,7 @@ export const pageViews: ViewDefinition[] = [
     </article>
 
     <article id="website" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <span class="rounded-full bg-sky-50 px-3 py-1 text-sm font-bold text-sky-800">06</span>
+      <span class="rounded-full bg-sky-50 px-3 py-1 text-sm font-bold text-sky-800">07</span>
       <h2 class="mt-4 text-2xl font-bold text-slate-950">Website và trang công khai</h2>
       <p class="mt-3 leading-7 text-slate-600">Module website cho phép xuất bản trang công khai từ nội dung HTML lưu trong view. Menu website cũng được quản lý bằng dữ liệu, giúp việc thêm trang giới thiệu hoặc trang tính năng rất nhanh.</p>
       <ul class="mt-4 grid gap-2 text-slate-700">
@@ -390,7 +407,7 @@ export const pageViews: ViewDefinition[] = [
     </article>
 
     <article id="bao-mat" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <span class="rounded-full bg-rose-50 px-3 py-1 text-sm font-bold text-rose-800">07</span>
+      <span class="rounded-full bg-rose-50 px-3 py-1 text-sm font-bold text-rose-800">08</span>
       <h2 class="mt-4 text-2xl font-bold text-slate-950">Người dùng, audit và vòng đời module</h2>
       <p class="mt-3 leading-7 text-slate-600">Ứng dụng có đăng nhập, đăng ký, quản lý người dùng, audit fields và quy trình cài đặt/nâng cấp/gỡ module. Các thay đổi metadata từ code được đưa vào hệ thống thông qua thao tác module rõ ràng.</p>
       <ul class="mt-4 grid gap-2 text-slate-700">
@@ -405,6 +422,7 @@ export const pageViews: ViewDefinition[] = [
     <p class="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500">Mục lục tính năng</p>
     <nav class="grid gap-1">
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#du-lieu">Mô hình dữ liệu</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#crm">CRM & pipeline</a>
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#ban-hang">Bán hàng & liên hệ</a>
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#mua-hang-kho">Mua hàng & kho</a>
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#ai">Trợ lý AI</a>
