@@ -1,15 +1,30 @@
-import { Check, Download, Plus, Power, Save, Trash2, UploadCloud } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Check, Download, Plus, Power, Trash2, UploadCloud } from "lucide-react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from "react";
 import type { RcFile } from "antd/es/upload";
-import { Button, Checkbox, DatePicker, Input, InputNumber, Select, Upload } from "antd";
+import { Button, Checkbox, DatePicker, Input, InputNumber, Select, Tabs, Upload } from "antd";
 import type { UploadProps } from "antd";
 import dayjs from "dayjs";
 import type { ApiClient, FieldDefinition, RuntimeModel, RuntimeView, ViewNode } from "./types";
 import { getDisplayField } from "./fieldHelpers";
 
-type Props = { api: ApiClient; model: RuntimeModel; view: RuntimeView; record: Record<string, unknown> | null; onSaved: (id: number) => void; onRegistryChanged: () => void };
+const relationModelCache = new Map<string, RuntimeModel>();
+const relationOptionsCache = new Map<string, Array<{ id: number; label: string }>>();
 
-export default function FormRenderer({ api, model, view, record, onSaved, onRegistryChanged }: Props) {
+type Props = {
+  api: ApiClient;
+  model: RuntimeModel;
+  view: RuntimeView;
+  record: Record<string, unknown> | null;
+  onSaved: (id: number) => void;
+  onRegistryChanged: () => void;
+  onOpenRecord: (actionExternalId: string, id: number, label?: string) => void;
+};
+
+export type FormRendererHandle = {
+  save: () => Promise<void>;
+};
+
+const FormRenderer = forwardRef<FormRendererHandle, Props>(function FormRenderer({ api, model, view, record, onSaved, onRegistryChanged, onOpenRecord }, ref) {
   const [values, setValues] = useState<Record<string, unknown>>(() => record ?? {});
   useEffect(() => setValues(record ?? {}), [record]);
 
@@ -22,9 +37,21 @@ export default function FormRenderer({ api, model, view, record, onSaved, onRegi
     const created = await api<{ id: number }>("/api/model/create", { method: "POST", body: { model: model.technicalName, values } });
     onSaved(created.id);
   }
+  useImperativeHandle(ref, () => ({ save }), [record, values, model.technicalName]);
+
   async function call(method: string) {
     if (!record?.id) return;
     await api("/api/model/call", { method: "POST", body: { model: model.technicalName, method, ids: [record.id] } });
+    onSaved(Number(record.id));
+  }
+  async function createQuotation() {
+    if (!record?.id) return;
+    const result = await api<{ quotations?: number[] }>("/api/model/call", { method: "POST", body: { model: model.technicalName, method: "create_quotation", ids: [record.id] } });
+    const quotationId = result.quotations?.[0];
+    if (quotationId) {
+      onOpenRecord("sale.action_orders", quotationId, String(record.name ?? "Opportunity"));
+      return;
+    }
     onSaved(Number(record.id));
   }
   async function moduleAction(path: string) {
@@ -34,18 +61,28 @@ export default function FormRenderer({ api, model, view, record, onSaved, onRegi
   }
 
   return <section className="form-panel">
-    <div className="form-toolbar">
-      <Button type="primary" icon={<Save size={17} />} onClick={save}>Save</Button>
-      {["sale.order", "purchase.order"].includes(model.technicalName) && record?.id ? <Button icon={<Check size={17} />} onClick={() => call("confirm")}>Confirm</Button> : null}
-      {model.technicalName === "stock.move" && record?.id ? <Button icon={<Check size={17} />} onClick={() => call("done")}>Mark Done</Button> : null}
-      {model.technicalName === "core.module" && record?.state !== "INSTALLED" ? <Button icon={<Download size={17} />} onClick={() => moduleAction("/api/modules/install")}>Install</Button> : null}
-      {model.technicalName === "core.module" && record?.state === "INSTALLED" ? <Button icon={<UploadCloud size={17} />} onClick={() => moduleAction("/api/modules/upgrade")}>Upgrade</Button> : null}
-      {model.technicalName === "core.module" && record?.state === "INSTALLED" && record?.technical_name !== "base" ? <Button danger icon={<Power size={17} />} onClick={() => moduleAction("/api/modules/uninstall")}>Uninstall</Button> : null}
+    <div className="form-commandbar">
+      <div className="form-toolbar">
+        {["sale.order", "purchase.order"].includes(model.technicalName) && record?.id ? <Button icon={<Check size={17} />} onClick={() => call("confirm")}>Confirm</Button> : null}
+        {model.technicalName === "stock.move" && record?.id ? <Button icon={<Check size={17} />} onClick={() => call("done")}>Mark Done</Button> : null}
+        {model.technicalName === "crm.lead" && record?.id && record.type === "lead" ? <Button icon={<Check size={17} />} onClick={() => call("convert")}>Convert</Button> : null}
+        {model.technicalName === "crm.lead" && record?.id ? <Button icon={<Plus size={17} />} onClick={createQuotation}>Create Quotation</Button> : null}
+        {model.technicalName === "crm.lead" && record?.id && record.state !== "won" ? <Button icon={<Check size={17} />} onClick={() => call("won")}>Won</Button> : null}
+        {model.technicalName === "crm.lead" && record?.id && record.state !== "lost" ? <Button danger onClick={() => call("lost")}>Lost</Button> : null}
+        {model.technicalName === "crm.lead" && record?.id && record.state === "lost" ? <Button onClick={() => call("restore")}>Restore</Button> : null}
+        {model.technicalName === "crm.activity" && record?.id && record.state !== "done" ? <Button icon={<Check size={17} />} onClick={() => call("done")}>Mark Done</Button> : null}
+        {model.technicalName === "crm.activity" && record?.id && record.state !== "cancelled" ? <Button danger onClick={() => call("cancel")}>Cancel</Button> : null}
+        {model.technicalName === "core.module" && record?.state !== "INSTALLED" ? <Button icon={<Download size={17} />} onClick={() => moduleAction("/api/modules/install")}>Install</Button> : null}
+        {model.technicalName === "core.module" && record?.state === "INSTALLED" ? <Button icon={<UploadCloud size={17} />} onClick={() => moduleAction("/api/modules/upgrade")}>Upgrade</Button> : null}
+        {model.technicalName === "core.module" && record?.state === "INSTALLED" && record?.technical_name !== "base" ? <Button danger icon={<Power size={17} />} onClick={() => moduleAction("/api/modules/uninstall")}>Uninstall</Button> : null}
+      </div>
+      <StatusBar model={model} values={values} />
     </div>
-    <StatusBar model={model} values={values} />
     <ViewNodeRenderer api={api} node={view.architecture} model={model} values={values} parentId={record?.id ? Number(record.id) : null} onUploaded={onSaved} onChange={(name, value) => setValues((current) => ({ ...current, [name]: value }))} />
   </section>;
-}
+});
+
+export default FormRenderer;
 
 function StatusBar({ model, values }: { model: RuntimeModel; values: Record<string, unknown> }) {
   const field = model.fields.find((candidate) => ["state", "status"].includes(candidate.name) && candidate.type === "selection");
@@ -58,10 +95,27 @@ function StatusBar({ model, values }: { model: RuntimeModel; values: Record<stri
 function ViewNodeRenderer({ api, node, model, values, parentId, onUploaded, onChange }: { api: ApiClient; node: ViewNode; model: RuntimeModel; values: Record<string, unknown>; parentId: number | null; onUploaded: (id: number) => void; onChange: (name: string, value: unknown) => void }) {
   if (node.type === "form") return <>{node.children.map((child, index) => <ViewNodeRenderer key={index} api={api} node={child} model={model} values={values} parentId={parentId} onUploaded={onUploaded} onChange={onChange} />)}</>;
   if (node.type === "group") return <div className="field-grid">{node.children.map((child, index) => <ViewNodeRenderer key={index} api={api} node={child} model={model} values={values} parentId={parentId} onUploaded={onUploaded} onChange={onChange} />)}</div>;
+  if (node.type === "notebook") return <NotebookRenderer api={api} node={node} model={model} values={values} parentId={parentId} onUploaded={onUploaded} onChange={onChange} />;
+  if (node.type === "page") return <>{node.children.map((child, index) => <ViewNodeRenderer key={index} api={api} node={child} model={model} values={values} parentId={parentId} onUploaded={onUploaded} onChange={onChange} />)}</>;
   if (node.type !== "field") return null;
   const field = model.fields.find((candidate) => candidate.name === node.name);
   if (field && ["state", "status"].includes(field.name) && field.type === "selection") return null;
   return field ? <FieldRenderer api={api} model={model} field={field} value={values[field.name]} values={values} parentId={parentId} onUploaded={onUploaded} onChange={(value) => onChange(field.name, value)} onBulkChange={(nextValues) => Object.entries(nextValues).forEach(([name, nextValue]) => onChange(name, nextValue))} /> : null;
+}
+
+function NotebookRenderer({ api, node, model, values, parentId, onUploaded, onChange }: { api: ApiClient; node: Extract<ViewNode, { type: "notebook" }>; model: RuntimeModel; values: Record<string, unknown>; parentId: number | null; onUploaded: (id: number) => void; onChange: (name: string, value: unknown) => void }) {
+  const pages = node.children.filter((child): child is Extract<ViewNode, { type: "page" }> => child.type === "page");
+  const [activeKey, setActiveKey] = useState("0");
+  useEffect(() => setActiveKey("0"), [node]);
+  const activeIndex = Math.min(Number(activeKey) || 0, Math.max(pages.length - 1, 0));
+  const activePage = pages[activeIndex];
+  if (!activePage) return null;
+  return <div className="form-tabs">
+    <Tabs activeKey={String(activeIndex)} onChange={setActiveKey} items={pages.map((page, index) => ({ key: String(index), label: page.label }))} />
+    <div className="form-tab-panel">
+      <ViewNodeRenderer api={api} node={activePage} model={model} values={values} parentId={parentId} onUploaded={onUploaded} onChange={onChange} />
+    </div>
+  </div>;
 }
 
 function FieldRenderer({ api, model, field, value, values, parentId, onUploaded, onChange, onBulkChange }: { api: ApiClient; model: RuntimeModel; field: FieldDefinition; value: unknown; values: Record<string, unknown>; parentId: number | null; onUploaded: (id: number) => void; onChange: (value: unknown) => void; onBulkChange: (values: Record<string, unknown>) => void }) {
@@ -165,14 +219,38 @@ function InlineField({ api, field, value, onChange }: { api: ApiClient; field: F
 
 function ManyToOneInput({ api, field, value, onChange, compact = false }: { api: ApiClient; field: FieldDefinition; value: unknown; onChange: (value: unknown) => void; compact?: boolean }) {
   const [options, setOptions] = useState<Array<{ id: number; label: string }>>([]);
-  const [selectedLabel, setSelectedLabel] = useState("");
-  useEffect(() => { loadSelectedLabel(); }, [api, field.relationModel, value]);
-  useEffect(() => { loadOptions(""); }, [api, field.relationModel]);
-  async function loadOptions(searchText: string) { if (!field.relationModel) return setOptions([]); const relatedModel = await api<RuntimeModel>(`/api/model/${field.relationModel}/metadata`); const displayField = getDisplayField(relatedModel); const data = await api<{ records: Record<string, unknown>[] }>("/api/model/search_read", { method: "POST", body: { model: field.relationModel, domain: searchText.trim() ? [[displayField, "ilike", searchText.trim()]] : [], fields: [displayField], limit: 8 } }); setOptions(data.records.map((record) => ({ id: Number(record.id), label: String(record[displayField] ?? record.id) }))); }
-  async function loadSelectedLabel() { const id = relationId(value); if (!field.relationModel || id == null || id === "") return setSelectedLabel(""); const relatedModel = await api<RuntimeModel>(`/api/model/${field.relationModel}/metadata`); const displayField = getDisplayField(relatedModel); const data = await api<{ records: Record<string, unknown>[] }>("/api/model/read", { method: "POST", body: { model: field.relationModel, ids: [Number(id)], fields: [displayField] } }); setSelectedLabel(String(data.records[0]?.[displayField] ?? id)); }
+  useEffect(() => {
+    if (!field.relationModel) return;
+    setOptions(relationOptionsCache.get(optionCacheKey(field.relationModel, "")) ?? []);
+  }, [field.relationModel]);
+  async function loadOptions(searchText: string) {
+    if (!field.relationModel) return setOptions([]);
+    const cacheKey = optionCacheKey(field.relationModel, searchText);
+    const cached = relationOptionsCache.get(cacheKey);
+    if (cached) return setOptions(cached);
+    const relatedModel = await getRelationModel(api, field.relationModel);
+    const displayField = getDisplayField(relatedModel);
+    const data = await api<{ records: Record<string, unknown>[] }>("/api/model/search_read", { method: "POST", body: { model: field.relationModel, domain: searchText.trim() ? [[displayField, "ilike", searchText.trim()]] : [], fields: [displayField], limit: 8 } });
+    const loaded = data.records.map((record) => ({ id: Number(record.id), label: displayLabel(record[displayField]) || String(record.id) }));
+    relationOptionsCache.set(cacheKey, loaded);
+    setOptions(loaded);
+  }
   const selectedId = relationId(value);
+  const selectedLabel = relationLabel(value);
   const selectOptions = selectedId && selectedLabel && !options.some((option) => option.id === Number(selectedId)) ? [{ id: Number(selectedId), label: selectedLabel }, ...options] : options;
   return <Select className={compact ? "many2one-picker compact" : "many2one-picker"} value={selectedId == null || selectedId === "" ? undefined : Number(selectedId)} showSearch allowClear placeholder="Search..." filterOption={false} onSearch={loadOptions} onFocus={() => loadOptions("")} onClear={() => onChange(null)} onChange={(nextValue) => onChange(nextValue ?? null)} options={selectOptions.map((option) => ({ label: option.label, value: option.id }))} disabled={field.readonly} />;
+}
+
+async function getRelationModel(api: ApiClient, relationModel: string) {
+  const cached = relationModelCache.get(relationModel);
+  if (cached) return cached;
+  const loaded = await api<RuntimeModel>(`/api/model/${relationModel}/metadata`);
+  relationModelCache.set(relationModel, loaded);
+  return loaded;
+}
+
+function optionCacheKey(relationModel: string, searchText: string) {
+  return `${relationModel}:${searchText.trim().toLowerCase()}`;
 }
 
 function dateValue(value: unknown) {
@@ -190,6 +268,15 @@ function numberValue(value: unknown) {
 function relationId(value: unknown) {
   if (Array.isArray(value)) return value[0];
   return value;
+}
+
+function relationLabel(value: unknown) {
+  return Array.isArray(value) && value[1] !== undefined && value[1] !== null ? String(value[1]) : "";
+}
+
+function displayLabel(value: unknown) {
+  if (Array.isArray(value)) return value[1] === undefined || value[1] === null ? "" : String(value[1]);
+  return value === undefined || value === null ? "" : String(value);
 }
 
 function isLineColumn(field: FieldDefinition, inverseField?: string) {

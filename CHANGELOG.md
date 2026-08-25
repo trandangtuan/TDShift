@@ -89,6 +89,16 @@ All notable changes to this project are documented here.
 - Updated module-local skills with user workflows, feature maps, extension guidance, and verification notes for each module.
 - Added a public Website module guide page at `/module-guide` with a left-side module menu and Vietnamese usage instructions for each module.
 - Updated the public Website Home page to introduce MetaFlow as a downloadable/editable business app, highlight current modules, and add download/edit guidance with CTAs to the app and module guide.
+- Added a complete CRM module inspired by the Odoo CRM workflow, including leads/opportunities, sales teams, stages, tags, activities, activity types, lead sources, marketing media, campaigns, lost reasons, CRM-to-sales quotation creation, and CRM-owned `sale.order.opportunity_id`.
+- Added generic notebook tab rendering and CRM form action buttons for Convert, Create Quotation, Won, Lost, Restore, and activity completion.
+- Updated the public module guide with CRM usage instructions and left-menu navigation.
+- Added CRM demo data with Vietnamese sample leads, opportunities, lost opportunity, and follow-up activities across the seeded pipeline stages.
+- Restyled form notebook tabs and moved the form status bar into the same command row as action buttons.
+- Changed CRM `Create Quotation` to open the created Sales Order form, added workspace URLs for list/form screens, and added breadcrumbs for returning to the previous CRM record.
+- Added client-side action/model/view metadata caching so opening forms, breadcrumbs, and CRM quotation navigation no longer refetch unchanged metadata.
+- Batched many2one label enrichment in backend `read` responses and stopped form many2one controls from issuing per-field label API calls on render.
+- Changed notebook tabs to lazy-render only the active tab content so fields in inactive tabs do not trigger relation or line-data loading until selected.
+- Moved the generic form Save action to the top actionbar beside Back/Reset/Delete and made those form actionbar buttons icon-only.
 
 ### Changed
 

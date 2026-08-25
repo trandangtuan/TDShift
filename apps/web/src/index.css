@@ -304,6 +304,36 @@ button.danger { color: var(--danger); }
   margin-top: 1px;
 }
 
+.breadcrumbs {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.breadcrumb-item {
+  align-items: center;
+  display: inline-flex;
+  gap: 3px;
+}
+
+.breadcrumb-item button {
+  background: transparent;
+  border: 0;
+  color: #0f766e;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0;
+}
+
+.breadcrumb-item button:hover {
+  text-decoration: underline;
+}
+
 .actions,
 .form-toolbar {
   align-items: center;
@@ -592,32 +622,40 @@ td {
   max-width: 560px;
 }
 
-.form-toolbar {
+.form-commandbar {
+  align-items: center;
   background: var(--surface-muted);
   border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
   padding: 7px;
+}
+
+.form-toolbar {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .statusbar {
   align-items: center;
-  background: #fbfcfd;
-  border-bottom: 1px solid var(--border);
   display: flex;
+  flex: 0 1 auto;
   justify-content: flex-end;
-  min-height: 34px;
+  min-height: 28px;
   overflow-x: auto;
-  padding: 6px 10px;
+  padding: 0;
 }
 
 .statusbar span {
   background: #edf1f5;
   border: 1px solid var(--border);
   color: #536173;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1;
   margin-left: -1px;
-  padding: 7px 12px;
+  padding: 6px 10px;
   position: relative;
   white-space: nowrap;
 }
@@ -636,6 +674,44 @@ td {
   border-color: #0f766e;
   color: #fff;
   z-index: 1;
+}
+
+.form-tabs {
+  border-top: 1px solid var(--border);
+  padding: 0 10px 10px;
+}
+
+.form-tabs .ant-tabs-nav {
+  margin: 0 0 8px;
+}
+
+.form-tabs .ant-tabs-nav::before {
+  border-bottom-color: var(--border);
+}
+
+.form-tabs .ant-tabs-tab {
+  border-radius: 5px 5px 0 0;
+  margin: 0 2px 0 0;
+  padding: 7px 10px;
+}
+
+.form-tabs .ant-tabs-tab-btn {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.form-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #0f766e;
+}
+
+.form-tabs .ant-tabs-ink-bar {
+  background: #0f766e;
+  height: 2px;
+}
+
+.form-tab-panel {
+  min-height: 0;
 }
 
 .field-grid {
@@ -1169,6 +1245,20 @@ td {
   .actions,
   .record-search {
     width: 100%;
+  }
+
+  .form-commandbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .form-toolbar,
+  .statusbar {
+    width: 100%;
+  }
+
+  .statusbar {
+    justify-content: flex-start;
   }
 
   .field-grid {

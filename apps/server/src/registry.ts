@@ -127,12 +127,12 @@ function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime
       const rows = db.prepare(`SELECT ${selected.map(quoteIdent).join(", ")} FROM ${quoteIdent(model.tableName)} WHERE id IN (${ids.map(() => "?").join(", ")})`).all(...ids);
       const records = rows.map((row: any) => deserializeRow(model, row));
       await applyComputedFields(env, model, records, requestedFields);
+      await enrichManyToOneValues(env, model, records, requestedFields);
       return records;
     },
     async searchRead(domain: Domain = [], fields, options: { limit?: number; offset?: number } = {}) {
       const ids = await this.search(domain, options);
       const rows = await this.read(ids, fields);
-      await enrichManyToOneValues(env, model, rows, fields);
       const order = new Map(ids.map((id, index) => [id, index]));
       return rows.sort((left, right) => (order.get(Number(left.id)) ?? 0) - (order.get(Number(right.id)) ?? 0));
     },
@@ -195,12 +195,17 @@ async function enrichManyToOneValues(env: Environment, model: RuntimeModel, reco
     if (!relatedModel) continue;
     const displayField = getDisplayField(relatedModel);
     const relatedRows = await env.model(field.relationModel!).read(ids, [displayField]);
-    const labels = new Map(relatedRows.map((row) => [Number(row.id), String(row[displayField] ?? row.id)]));
+    const labels = new Map(relatedRows.map((row) => [Number(row.id), displayValue(row[displayField]) || String(row.id)]));
     for (const record of records) {
       const id = Number(record[field.name]);
       if (Number.isFinite(id) && labels.has(id)) record[field.name] = [id, labels.get(id)];
     }
   }
+}
+
+function displayValue(value: unknown) {
+  if (Array.isArray(value)) return value[1] === undefined || value[1] === null ? "" : String(value[1]);
+  return value === undefined || value === null ? "" : String(value);
 }
 
 function getDisplayField(model: RuntimeModel) {

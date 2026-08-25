@@ -17,7 +17,7 @@ Use this module when changing public website pages, website navigation, HTML pag
 - Go to Website > Menus to control public navigation.
 - Visit public routes such as `/`, `/features`, `/module-guide`, or the page slug to render published pages.
 - Use `/` as the public product overview with CTAs to `/web`, `/features`, `/module-guide`, and the download/edit guidance section.
-- Use `/module-guide` as the public user guide for module-by-module usage. It has a left-side sticky module menu and detailed usage cards.
+- Use `/module-guide` as the public user guide for module-by-module usage. It has a left-side sticky module menu and detailed usage cards, including CRM lead/opportunity workflows.
 
 ## Feature Map
 

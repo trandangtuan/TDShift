@@ -1,9 +1,10 @@
-import { List, LogOut, Plus, RefreshCw, Settings, Trash2, UploadCloud } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { ChevronRight, List, LogOut, Plus, RefreshCw, Save, Settings, Trash2, UploadCloud } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, ConfigProvider, Input, Layout } from "antd";
 import type { ActionDefinition, Domain, RuntimeMenu, RuntimeView } from "@record-platform/core";
 import AiChat from "./components/AiChat";
 import FormRenderer from "./components/FormRenderer";
+import type { FormRendererHandle } from "./components/FormRenderer";
 import LoginScreen from "./components/LoginScreen";
 import ListRenderer from "./components/ListRenderer";
 import MenuTree from "./components/MenuTree";
@@ -15,6 +16,7 @@ const tokenStorageKey = "record-platform-token";
 let authToken = localStorage.getItem(tokenStorageKey);
 
 type Mode = "list" | "form";
+type BreadcrumbItem = { actionExternalId: string; id?: number | null; mode: Mode; label: string };
 
 export default function App() {
   const [token, setToken] = useState<string | null>(() => authToken);
@@ -31,6 +33,13 @@ export default function App() {
   const [columnDomain, setColumnDomain] = useState<Domain>([]);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(30);
+  const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([]);
+  const metadataCache = useRef({
+    actions: new Map<string, ActionDefinition>(),
+    models: new Map<string, RuntimeModel>(),
+    views: new Map<string, RuntimeView>()
+  });
+  const formRef = useRef<FormRendererHandle | null>(null);
 
   useEffect(() => {
     authToken = token;
@@ -52,11 +61,18 @@ export default function App() {
     bootstrapSession();
   }, [token]);
 
+  useEffect(() => {
+    const onPopState = () => openLocationRoute(false);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [pageSize]);
+
   async function bootstrapSession() {
     try {
       const session = await api<{ user: AuthUser }>("/api/auth/me");
       setUser(session.user);
       await reloadMenus();
+      await openLocationRoute(false);
     } catch {
       handleLogout(false);
     } finally {
@@ -87,6 +103,7 @@ export default function App() {
     setRecords([]);
     setSelectedId(null);
     setMode("list");
+    clearMetadataCache();
     setAuthChecked(true);
   }
 
@@ -94,8 +111,39 @@ export default function App() {
     setMenus(await api<RuntimeMenu[]>("/api/ui/menus"));
   }
 
-  async function openAction(externalId: string) {
-    const nextAction = await api<ActionDefinition>(`/api/ui/actions/${externalId}`);
+  function clearMetadataCache() {
+    metadataCache.current.actions.clear();
+    metadataCache.current.models.clear();
+    metadataCache.current.views.clear();
+  }
+
+  async function getAction(externalId: string) {
+    const cached = metadataCache.current.actions.get(externalId);
+    if (cached) return cached;
+    const loaded = await api<ActionDefinition>(`/api/ui/actions/${externalId}`);
+    metadataCache.current.actions.set(externalId, loaded);
+    return loaded;
+  }
+
+  async function getModel(modelName: string) {
+    const cached = metadataCache.current.models.get(modelName);
+    if (cached) return cached;
+    const loaded = await api<RuntimeModel>(`/api/model/${modelName}/metadata`);
+    metadataCache.current.models.set(modelName, loaded);
+    return loaded;
+  }
+
+  async function getView(modelName: string, type: "list" | "form") {
+    const key = `${modelName}:${type}`;
+    const cached = metadataCache.current.views.get(key);
+    if (cached) return cached;
+    const loaded = await api<RuntimeView>(`/api/ui/views?model=${modelName}&type=${type}`);
+    metadataCache.current.views.set(key, loaded);
+    return loaded;
+  }
+
+  async function openAction(externalId: string, options: { push?: boolean; crumb?: BreadcrumbItem | null } = {}) {
+    const nextAction = await getAction(externalId);
     if (!nextAction.model) {
       setAction(nextAction);
       setModel(null);
@@ -103,11 +151,12 @@ export default function App() {
       setRecords([]);
       setSelectedId(null);
       setMode("list");
+      if (options.push !== false) pushWorkspaceUrl(externalId, "list");
       return;
     }
     const [nextModel, nextView] = await Promise.all([
-      api<RuntimeModel>(`/api/model/${nextAction.model}/metadata`),
-      api<RuntimeView>(`/api/ui/views?model=${nextAction.model}&type=list`)
+      getModel(nextAction.model),
+      getView(nextAction.model, "list")
     ]);
     setAction(nextAction);
     setModel(nextModel);
@@ -118,6 +167,9 @@ export default function App() {
     setQuery("");
     setColumnDomain([]);
     await loadRecords(nextAction.model, nextView, nextModel, 0, pageSize);
+    if (options.crumb !== undefined) setBreadcrumbs(options.crumb ? [options.crumb] : []);
+    else setBreadcrumbs([]);
+    if (options.push !== false) pushWorkspaceUrl(externalId, "list");
   }
 
   async function loadRecords(modelName = action?.model, activeView = view, activeModel = model, activePage = page, activePageSize = pageSize, activeColumnDomain = columnDomain) {
@@ -129,22 +181,24 @@ export default function App() {
     setRecords(data.records);
   }
 
-  async function openForm(id: number | null) {
+  async function openForm(id: number | null, options: { push?: boolean } = {}) {
     if (!action?.model) return;
-    const nextView = await api<RuntimeView>(`/api/ui/views?model=${action.model}&type=form`);
+    const nextView = await getView(action.model, "form");
     setView(nextView);
     setSelectedId(id);
     setMode("form");
+    if (options.push !== false) pushWorkspaceUrl(action.technicalName, "form", id);
   }
 
-  async function backToList() {
+  async function backToList(options: { push?: boolean } = {}) {
     if (!action?.model) return;
-    const nextView = await api<RuntimeView>(`/api/ui/views?model=${action.model}&type=list`);
+    const nextView = await getView(action.model, "list");
     setView(nextView);
     setMode("list");
     setSelectedId(null);
     setColumnDomain([]);
     await loadRecords(action.model, nextView);
+    if (options.push !== false) pushWorkspaceUrl(action.technicalName, "list");
   }
 
   async function removeSelectedRecord() {
@@ -166,10 +220,52 @@ export default function App() {
     });
     setSelectedId(id);
     setMode("form");
+    if (action?.technicalName) pushWorkspaceUrl(action.technicalName, "form", id);
+  }
+
+  async function openRecord(actionExternalId: string, id: number, label?: string, options: { push?: boolean; crumb?: BreadcrumbItem | null } = {}) {
+    const nextAction = await getAction(actionExternalId);
+    if (!nextAction.model) return;
+    const [nextModel, nextView, data] = await Promise.all([
+      getModel(nextAction.model),
+      getView(nextAction.model, "form"),
+      api<{ records: Record<string, unknown>[] }>("/api/model/read", { method: "POST", body: { model: nextAction.model, ids: [id] } })
+    ]);
+    setAction(nextAction);
+    setModel(nextModel);
+    setView(nextView);
+    setRecords(data.records);
+    setSelectedId(id);
+    setMode("form");
+    setPage(0);
+    setQuery("");
+    setColumnDomain([]);
+    if (options.crumb !== undefined) setBreadcrumbs(options.crumb ? [options.crumb] : []);
+    else if (action?.technicalName && selectedId) setBreadcrumbs([{ actionExternalId: action.technicalName, id: selectedId, mode, label: label ?? action.name }]);
+    if (options.push !== false) pushWorkspaceUrl(actionExternalId, "form", id);
+  }
+
+  async function openBreadcrumb(item: BreadcrumbItem) {
+    if (item.mode === "form" && item.id) {
+      await openRecord(item.actionExternalId, item.id, item.label, { crumb: null });
+      return;
+    }
+    await openAction(item.actionExternalId, { crumb: null });
+  }
+
+  async function openLocationRoute(push = false) {
+    const route = workspaceRoute();
+    if (!route) return;
+    if (route.mode === "form" && route.id) {
+      await openRecord(route.actionExternalId, route.id, undefined, { push, crumb: null });
+      return;
+    }
+    await openAction(route.actionExternalId, { push, crumb: null });
   }
 
   async function refreshModuleList() {
     await api("/api/modules/refresh", { method: "POST" });
+    clearMetadataCache();
     await reloadMenus();
     await loadRecords(action?.model, view, model, 0, pageSize);
     setPage(0);
@@ -228,6 +324,7 @@ export default function App() {
               <div>
                 <h1>{action.name}</h1>
                 <span>{model.technicalName}</span>
+                <Breadcrumbs items={breadcrumbs} current={mode === "form" && selectedRecord ? String(selectedRecord.name ?? selectedRecord.id) : action.name} onOpen={openBreadcrumb} />
               </div>
               <div className="actions">
                 {mode === "list" ? (
@@ -242,9 +339,10 @@ export default function App() {
                   </>
                 ) : (
                   <>
-                    <Button icon={<List size={17} />} onClick={backToList} title="Back to list">Back</Button>
-                    {selectedId ? <Button icon={<RefreshCw size={17} />} onClick={() => stayOnFormAfterSave(selectedId)} title="Refresh">Reset</Button> : null}
-                    {selectedId ? <Button danger icon={<Trash2 size={17} />} onClick={removeSelectedRecord} title="Delete">Delete</Button> : null}
+                    <Button className="icon-button" icon={<List size={17} />} onClick={() => backToList()} title="Back to list" />
+                    <Button className="icon-button" type="primary" icon={<Save size={17} />} onClick={() => formRef.current?.save()} title="Save" />
+                    {selectedId ? <Button className="icon-button" icon={<RefreshCw size={17} />} onClick={() => stayOnFormAfterSave(selectedId)} title="Reset" /> : null}
+                    {selectedId ? <Button className="icon-button" danger icon={<Trash2 size={17} />} onClick={removeSelectedRecord} title="Delete" /> : null}
                   </>
                 )}
               </div>
@@ -275,15 +373,18 @@ export default function App() {
               />
             ) : (
               <FormRenderer
+                ref={formRef}
                 api={api}
                 model={model}
                 view={view}
                 record={selectedRecord}
                 onSaved={stayOnFormAfterSave}
                 onRegistryChanged={async () => {
+                  clearMetadataCache();
                   await reloadMenus();
                   await backToList();
                 }}
+                onOpenRecord={(actionExternalId, id, label) => openRecord(actionExternalId, id, label)}
               />
             )}
           </>
@@ -292,6 +393,31 @@ export default function App() {
       </Layout>
     </ConfigProvider>
   );
+}
+
+function Breadcrumbs({ items, current, onOpen }: { items: BreadcrumbItem[]; current: string; onOpen: (item: BreadcrumbItem) => void }) {
+  if (!items.length) return null;
+  return <div className="breadcrumbs">
+    {items.map((item, index) => <span key={`${item.actionExternalId}-${item.id ?? "list"}-${index}`} className="breadcrumb-item">
+      <button onClick={() => onOpen(item)}>{item.label}</button>
+      <ChevronRight size={12} />
+    </span>)}
+    <span>{current}</span>
+  </div>;
+}
+
+function workspaceRoute() {
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  if (parts[0] !== "web" || !parts[1]) return null;
+  const actionExternalId = decodeURIComponent(parts[1]);
+  const mode = parts[2] === "form" ? "form" : "list";
+  const id = mode === "form" && parts[3] ? Number(parts[3]) : null;
+  return { actionExternalId, mode: mode as Mode, id: Number.isFinite(id) ? id : null };
+}
+
+function pushWorkspaceUrl(actionExternalId: string, mode: Mode, id?: number | null) {
+  const nextPath = `/web/${encodeURIComponent(actionExternalId)}/${mode}${mode === "form" && id ? `/${id}` : ""}`;
+  if (window.location.pathname !== nextPath) window.history.pushState({}, "", nextPath);
 }
 
 async function api<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {

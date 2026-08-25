@@ -157,6 +157,7 @@ export const pageViews: ViewDefinition[] = [
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#base">Base</a>
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#contacts">Contacts</a>
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#product">Product</a>
+      <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#crm">CRM</a>
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#sale">Sale</a>
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#purchase">Purchase</a>
       <a class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-teal-50 hover:text-teal-800" href="#stock">Stock</a>
@@ -199,6 +200,20 @@ export const pageViews: ViewDefinition[] = [
         <li>Chọn sản phẩm trong dòng đơn bán hoặc dòng đơn mua.</li>
         <li>Theo dõi số lượng tồn nếu module Stock đã được cài và có stock moves.</li>
       </ul>
+    </article>
+
+    <article id="crm" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 class="text-2xl font-bold text-slate-950">CRM - lead, opportunity và pipeline</h2>
+      <p class="mt-3 text-slate-600">Quản lý quy trình tiền bán hàng theo phong cách Odoo CRM: thu lead, qualify, chăm sóc, tạo báo giá, won/lost và phân tích doanh thu kỳ vọng.</p>
+      <ol class="mt-4 grid gap-2 text-slate-700">
+        <li>Vào CRM > Leads để nhập lead mới từ website, email, điện thoại hoặc nhập tay.</li>
+        <li>Bấm Convert để chuyển lead thành opportunity và đưa vào pipeline.</li>
+        <li>Dùng CRM > Pipeline để theo dõi stage, sales team, salesperson, expected revenue, probability và expected closing.</li>
+        <li>Thêm Activities để lên lịch call, email, meeting hoặc follow-up; sau khi xong thì Mark Done.</li>
+        <li>Bấm Create Quotation để tạo báo giá nháp trong Sales và tự tạo activity follow-up.</li>
+        <li>Kết thúc cơ hội bằng Won, Lost hoặc Restore nếu cần mở lại.</li>
+      </ol>
+      <p class="mt-4 rounded-xl bg-teal-50 p-4 text-sm text-teal-900">Cấu hình pipeline tại CRM > Configuration: Stages, Sales Teams, Activity Types, Sources, Media, Campaigns, Tags và Lost Reasons.</p>
     </article>
 
     <article id="sale" class="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
