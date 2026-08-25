@@ -107,18 +107,26 @@ export const baseRoutes: ModuleRoute[] = [
       });
 
       app.post("/api/modules/refresh", async () => {
+        app.log.info({ event: "module-refresh-start" }, "Refreshing code modules");
         bootstrapModules(modules);
         rebuildRegistry();
+        app.log.info({ event: "module-refresh-done", modules: modules.length }, "Code modules refreshed");
         return { ok: true, modules: db.prepare("SELECT technical_name, state FROM core_module ORDER BY sequence, technical_name").all() };
       });
       app.post("/api/modules/install", async (request: any) => {
+        const user = getUserFromRequest(request);
+        app.log.info({ event: "module-install-start", module: request.body.module, user: user?.login }, "Installing module");
         const installSet = resolveInstallSet(modules, request.body.module);
+        app.log.info({ event: "module-install-dependencies", module: request.body.module, installSet: installSet.map((mod) => mod.technicalName) }, "Resolved module install set");
         bootstrapModules(installSet, { forceInstall: true });
         for (const mod of installSet) installModuleRecords(mod.technicalName);
         rebuildRegistry();
+        app.log.info({ event: "module-install-done", module: request.body.module, installed: installSet.map((mod) => mod.technicalName) }, "Module installed");
         return { ok: true, installed: db.prepare("SELECT technical_name FROM core_module WHERE state = 'INSTALLED'").all() };
       });
       app.post("/api/modules/upgrade", async (request: any, reply: any) => {
+        const user = getUserFromRequest(request);
+        app.log.info({ event: "module-upgrade-start", module: request.body.module, user: user?.login }, "Upgrading module");
         const mod = modules.find((candidate) => candidate.technicalName === request.body.module);
         if (!mod) return reply.code(404).send({ error: `Unknown module: ${request.body.module}` });
         const row = db.prepare("SELECT state FROM core_module WHERE technical_name = ?").get(mod.technicalName) as { state: string } | undefined;
@@ -126,6 +134,7 @@ export const baseRoutes: ModuleRoute[] = [
         bootstrapModules([mod], { applyMetadata: true });
         installModuleRecords(mod.technicalName);
         rebuildRegistry();
+        app.log.info({ event: "module-upgrade-done", module: mod.technicalName }, "Module upgraded");
         return { ok: true, module: mod.technicalName };
       });
       app.post("/api/modules/uninstall", async (request: any) => {

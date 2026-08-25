@@ -4,6 +4,18 @@ import { createDatabase } from "./database";
 export const db = createDatabase();
 db.pragma("journal_mode = WAL");
 
+type BootstrapModuleOptions = { forceInstall?: boolean; applyMetadata?: boolean };
+type ModuleSyncCounts = {
+  dependencies: number;
+  models: number;
+  fields: number;
+  views: number;
+  viewExtensions: number;
+  actions: number;
+  menus: number;
+  data: number;
+};
+
 export const auditFields: FieldDefinition[] = [
   { name: "create_uid", label: "Created By", type: "many2one", relationModel: "core.user", readonly: true, sequence: 900 },
   { name: "write_uid", label: "Last Updated By", type: "many2one", relationModel: "core.user", readonly: true, sequence: 910 },
@@ -184,8 +196,10 @@ export function syncBusinessTable(model: { tableName: string; fields: FieldDefin
   ensureAuditColumns(model.tableName);
 }
 
-export function bootstrapModules(modules: ModuleDefinition[], options: { forceInstall?: boolean; applyMetadata?: boolean } = {}) {
+export function bootstrapModules(modules: ModuleDefinition[], options: BootstrapModuleOptions = {}) {
   const shouldApplyMetadata = Boolean(options.forceInstall || options.applyMetadata);
+  const mode = options.forceInstall ? "install" : options.applyMetadata ? "upgrade" : "discover";
+  logModuleLifecycle("start", { mode, modules: modules.map((mod) => mod.technicalName), applyMetadata: shouldApplyMetadata });
   initializeSystemSchema({ backfillAudit: shouldApplyMetadata });
   const now = new Date().toISOString();
   const discoverModule = db.prepare(`
@@ -206,15 +220,23 @@ export function bootstrapModules(modules: ModuleDefinition[], options: { forceIn
   `);
   for (const mod of modules) {
     const moduleParams = { ...mod, description: mod.description ?? null, installable: mod.installable === false ? 0 : 1, autoInstall: mod.autoInstall ? 1 : 0, sequence: mod.sequence ?? 100, now };
+    const counts = getModuleSyncCounts(mod);
+    logModuleLifecycle("module", { mode, module: mod.technicalName, counts });
     discoverModule.run(moduleParams);
     if (shouldApplyMetadata) updateModuleFromCode.run(moduleParams);
     if (options.forceInstall) {
       db.prepare("UPDATE core_module SET state = 'INSTALLED', updated_at = ? WHERE technical_name = ?").run(now, mod.technicalName);
       setModuleRecordsActive(mod.technicalName, true);
     }
-    if (!shouldApplyMetadata) continue;
+    if (!shouldApplyMetadata) {
+      logModuleLifecycle("module-discovered", { module: mod.technicalName });
+      continue;
+    }
     const moduleRow = db.prepare("SELECT state FROM core_module WHERE technical_name = ?").get(mod.technicalName) as { state: string };
-    if (moduleRow.state !== "INSTALLED") continue;
+    if (moduleRow.state !== "INSTALLED") {
+      logModuleLifecycle("module-skipped", { module: mod.technicalName, reason: `state=${moduleRow.state}` });
+      continue;
+    }
     for (const dep of mod.depends ?? []) {
       db.prepare("INSERT OR IGNORE INTO core_module_dependency (module, depends_on) VALUES (?, ?)").run(mod.technicalName, dep);
     }
@@ -274,18 +296,29 @@ export function bootstrapModules(modules: ModuleDefinition[], options: { forceIn
       `).run(menu.technicalName, menu.name, menu.parent ?? null, menu.action ?? null, menu.icon ?? null, menu.sequence ?? 100, mod.technicalName, mod.technicalName, mod.technicalName === "base" ? 1 : 0, now, now);
     }
     reconcileModuleMetadata(mod, now);
+    logModuleLifecycle("module-synced", { mode, module: mod.technicalName, counts });
   }
-  if (shouldApplyMetadata) insertExternalIds(now, modules.map((mod) => mod.technicalName));
   if (shouldApplyMetadata) {
-    for (const mod of modules) for (const record of mod.data ?? []) seedData(record.model, record.values);
-    backfillModuleAuditColumns(modules);
+    insertExternalIds(now, modules.map((mod) => mod.technicalName));
+    logModuleLifecycle("external-ids-synced", { modules: modules.map((mod) => mod.technicalName) });
   }
+  if (shouldApplyMetadata) {
+    for (const mod of modules) {
+      for (const record of mod.data ?? []) seedData(record.model, record.values);
+      logModuleLifecycle("seed-data-synced", { module: mod.technicalName, records: mod.data?.length ?? 0 });
+    }
+    backfillModuleAuditColumns(modules);
+    logModuleLifecycle("audit-backfilled", { modules: modules.map((mod) => mod.technicalName) });
+  }
+  logModuleLifecycle("done", { mode, modules: modules.map((mod) => mod.technicalName) });
 }
 
 export function installModuleRecords(moduleName: string) {
   const now = new Date().toISOString();
+  logModuleLifecycle("records-activate-start", { module: moduleName });
   db.prepare("UPDATE core_module SET state = 'INSTALLED', updated_at = ? WHERE technical_name = ?").run(now, moduleName);
   setModuleRecordsActive(moduleName, true);
+  logModuleLifecycle("records-activate-done", { module: moduleName });
 }
 
 export function uninstallModuleAndDropOwnedFields(moduleName: string) {
@@ -351,6 +384,7 @@ function reconcileModuleMetadata(mod: ModuleDefinition, now: string) {
         SET is_active = 0, updated_at = ?
         WHERE owner_module = ? AND model = ? AND name = ? AND is_custom = 0
       `).run(now, moduleName, field.model, field.name);
+      logModuleLifecycle("field-deactivated", { module: moduleName, model: field.model, field: field.name, stored: Boolean(field.stored) });
     }
   }
 
@@ -376,6 +410,7 @@ function deactivateMissing(table: string, keyColumn: string, moduleName: string,
       SET is_active = 0, updated_at = ?
       WHERE owner_module = ? AND ${quoteIdent(keyColumn)} = ? ${customFilter}
     `).run(now, moduleName, row.key);
+    logModuleLifecycle("metadata-deactivated", { module: moduleName, table, key: row.key });
   }
 }
 
@@ -383,6 +418,7 @@ function dropColumnIfExists(tableName: string, columnName: string) {
   const columns = new Set((db.prepare(`PRAGMA table_info(${quoteIdent(tableName)})`).all() as Array<{ name: string }>).map((column) => column.name));
   if (!columns.has(columnName)) return;
   db.prepare(`ALTER TABLE ${quoteIdent(tableName)} DROP COLUMN ${quoteIdent(columnName)}`).run();
+  logModuleLifecycle("column-dropped", { table: tableName, column: columnName });
 }
 
 function setModuleRecordsActive(moduleName: string, active: boolean) {
@@ -539,4 +575,21 @@ function withAuditDefaults(values: Record<string, unknown>, tableColumns: Set<st
     ...(tableColumns.has("create_date") && !("create_date" in values) ? { create_date: now } : {}),
     ...(tableColumns.has("write_date") && !("write_date" in values) ? { write_date: now } : {})
   };
+}
+
+function getModuleSyncCounts(mod: ModuleDefinition): ModuleSyncCounts {
+  return {
+    dependencies: mod.depends?.length ?? 0,
+    models: mod.models?.length ?? 0,
+    fields: (mod.models ?? []).reduce((total, model) => total + model.fields.length + auditFields.length, 0),
+    views: mod.views?.length ?? 0,
+    viewExtensions: mod.viewExtensions?.length ?? 0,
+    actions: mod.actions?.length ?? 0,
+    menus: mod.menus?.length ?? 0,
+    data: mod.data?.length ?? 0
+  };
+}
+
+function logModuleLifecycle(event: string, details: Record<string, unknown>) {
+  console.info(`[module-lifecycle] ${event} ${JSON.stringify(details)}`);
 }

@@ -78,6 +78,7 @@ All notable changes to this project are documented here.
 - Added configurable database backend support with SQLite as the default and a PostgreSQL adapter enabled by `DATABASE_CLIENT=postgres` and `DATABASE_URL`.
 - Added a production Dockerfile and Docker Compose setup for running the app with PostgreSQL, including a Postgres service, healthcheck, persistent volume, and app environment wiring.
 - Updated the public Home page branding to MetaFlow.
+- Added server-side module lifecycle logging for refresh, install, upgrade, metadata sync, seed data, audit backfill, deactivated metadata, and dropped columns.
 - Added an `accounting` module with TT99-oriented Vietnamese enterprise accounting basics: chart of accounts, journals, journal entries, journal items, Accounting menus, seed accounts, seed journals, and journal entry posting validation for balanced debit and credit totals.
 - Added sales fulfillment automation so confirming a sale order creates draft customer delivery stock moves, and marking those delivery moves done creates one draft customer invoice backed by receivable and revenue journal items.
 - Added purchase receipt automation so confirming a purchase order creates draft vendor receipt stock moves, and marking those receipt moves done creates one draft vendor bill backed by inventory and payable journal items.
