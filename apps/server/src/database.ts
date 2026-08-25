@@ -1,5 +1,6 @@
 import SQLite from "better-sqlite3";
 import { spawnSync } from "node:child_process";
+import { config } from "./config";
 
 type Params = unknown[] | Record<string, unknown>;
 
@@ -17,9 +18,54 @@ export type StatementLike = {
 
 export function createDatabase(): DatabaseLike {
   const client = (process.env.DATABASE_CLIENT ?? "sqlite").toLowerCase();
-  if (client === "postgres" || client === "postgresql") return new PostgresCliDatabase(process.env.DATABASE_URL);
-  const sqlite = new SQLite(process.env.SQLITE_DATABASE_PATH ?? "record-platform.sqlite");
-  return sqlite as unknown as DatabaseLike;
+  const database = client === "postgres" || client === "postgresql" ? new PostgresCliDatabase(process.env.DATABASE_URL) : (new SQLite(process.env.SQLITE_DATABASE_PATH ?? "record-platform.sqlite") as unknown as DatabaseLike);
+  return config.sqlLog ? new LoggingDatabase(database) : database;
+}
+
+class LoggingDatabase implements DatabaseLike {
+  constructor(private readonly inner: DatabaseLike) {}
+
+  pragma(sql: string) {
+    const started = performance.now();
+    try {
+      return this.inner.pragma(sql);
+    } finally {
+      logSql({ operation: "pragma", sql, durationMs: performance.now() - started });
+    }
+  }
+
+  prepare(sql: string): StatementLike {
+    return new LoggingStatement(this.inner.prepare(sql), sql);
+  }
+
+  transaction<T extends (...args: any[]) => any>(fn: T): T {
+    return this.inner.transaction(fn);
+  }
+}
+
+class LoggingStatement implements StatementLike {
+  constructor(private readonly inner: StatementLike, private readonly sql: string) {}
+
+  run(...params: unknown[]) {
+    const started = performance.now();
+    const result = this.inner.run(...params);
+    logSql({ operation: "run", sql: this.sql, durationMs: performance.now() - started, params, changes: result.changes });
+    return result;
+  }
+
+  get(...params: unknown[]) {
+    const started = performance.now();
+    const result = this.inner.get(...params);
+    logSql({ operation: "get", sql: this.sql, durationMs: performance.now() - started, params, rows: result === undefined ? 0 : 1 });
+    return result;
+  }
+
+  all(...params: unknown[]) {
+    const started = performance.now();
+    const result = this.inner.all(...params);
+    logSql({ operation: "all", sql: this.sql, durationMs: performance.now() - started, params, rows: result.length });
+    return result;
+  }
 }
 
 class PostgresCliDatabase implements DatabaseLike {
@@ -142,4 +188,20 @@ function literal(value: unknown): string {
 
 function unquoteIdent(value: string) {
   return value.replace(/^"|"$/g, "").replaceAll('""', '"');
+}
+
+function logSql(input: { operation: string; sql: string; durationMs: number; params?: unknown[]; rows?: number; changes?: number }) {
+  const payload = {
+    operation: input.operation,
+    durationMs: Number(input.durationMs.toFixed(3)),
+    params: input.params?.length ?? 0,
+    rows: input.rows,
+    changes: input.changes,
+    sql: normalizeSqlForLog(input.sql)
+  };
+  console.info(`[sql] ${JSON.stringify(payload)}`);
+}
+
+function normalizeSqlForLog(sql: string) {
+  return sql.trim().replace(/\s+/g, " ");
 }

@@ -30,6 +30,7 @@ services:
       WEBSITE_BASE_URL: ${WEBSITE_BASE_URL:-http://localhost:3100}
       DATABASE_CLIENT: postgres
       DATABASE_URL: postgres://${POSTGRES_USER:-record_platform}:${POSTGRES_PASSWORD:-record_platform}@db:5432/${POSTGRES_DB:-record_platform}
+      SQL_LOG: ${SQL_LOG:-false}
       JWT_SECRET: ${JWT_SECRET:-change-me}
       JWT_EXPIRES_SECONDS: ${JWT_EXPIRES_SECONDS:-28800}
       ADMIN_LOGIN: ${ADMIN_LOGIN:-admin}

@@ -9,6 +9,7 @@ export const config = {
   databaseClient: process.env.DATABASE_CLIENT ?? "sqlite",
   databaseUrl: process.env.DATABASE_URL,
   sqliteDatabasePath: process.env.SQLITE_DATABASE_PATH ?? "record-platform.sqlite",
+  sqlLog: parseBoolean(process.env.SQL_LOG),
   jwtSecret: process.env.JWT_SECRET ?? "dev-secret-change-me",
   jwtExpiresSeconds: Number(process.env.JWT_EXPIRES_SECONDS ?? 60 * 60 * 8),
   adminLogin: process.env.ADMIN_LOGIN ?? "admin",
@@ -23,6 +24,10 @@ export const config = {
   minioSecretKey: process.env.MINIO_SECRET_KEY ?? "minioadmin",
   minioBucket: process.env.MINIO_BUCKET ?? "record-platform"
 };
+
+function parseBoolean(value: string | undefined) {
+  return ["1", "true", "yes", "on"].includes(String(value ?? "").toLowerCase());
+}
 
 function loadEnvFile(path: string) {
   if (!existsSync(path)) return;

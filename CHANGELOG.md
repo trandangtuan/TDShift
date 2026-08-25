@@ -102,6 +102,8 @@ All notable changes to this project are documented here.
 - Moved the generic form Save action to the top actionbar beside Back/Reset/Delete and made those form actionbar buttons icon-only.
 - Added CRM highlights to the public Website Home and Features pages, including pipeline, activities, quotation handoff, breadcrumbs, and lazy tab loading notes.
 - Added the GitHub source repository link to the public Website Home download/edit section so users can clone, fork, customize, and run MetaFlow.
+- Added short-lived public website HTML caching and schema capability caching so concurrent page visits avoid repeated SQLite metadata/page/menu/view lookups.
+- Added optional SQL call logging through `SQL_LOG=true`, including operation type, elapsed time, row/change counts, and normalized SQL text.
 
 ### Changed
 

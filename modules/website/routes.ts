@@ -1,5 +1,9 @@
 import type { ModuleRoute } from "@record-platform/core";
 
+const PAGE_CACHE_TTL_MS = 30_000;
+const schemaCache = new WeakMap<object, WebsiteSchema>();
+const pageCache = new WeakMap<object, Map<string, CachedPage>>();
+
 export const websiteRoutes: ModuleRoute[] = [
   {
     register({ app, db }) {
@@ -14,16 +18,23 @@ export const websiteRoutes: ModuleRoute[] = [
 
 function renderWebsitePage(db: any, slug: string, reply: any) {
   const normalizedSlug = normalizeSlug(slug);
+  const cached = getCachedPage(db, normalizedSlug);
+  if (cached) return sendHtml(reply, cached.html, cached.status);
   const page = getPublishedWebsitePage(db, normalizedSlug);
-  if (!page) return reply.code(404).type("text/html").send(renderNotFound(normalizedSlug));
-  return reply.type("text/html").send(renderPage(db, page, getPublishedWebsiteMenus(db)));
+  if (!page) {
+    const html = renderNotFound(normalizedSlug);
+    setCachedPage(db, normalizedSlug, { html, status: 404 });
+    return sendHtml(reply, html, 404);
+  }
+  const html = renderPage(db, page, getPublishedWebsiteMenus(db));
+  setCachedPage(db, normalizedSlug, { html, status: 200 });
+  return sendHtml(reply, html, 200);
 }
 
 function getPublishedWebsitePage(db: any, slug: string) {
-  const hasViewName = tableHasColumn(db, "website_page", "view_name");
-  const hasLegacyContent = tableHasColumn(db, "website_page", "content_html");
+  const { pageHasViewName, pageHasLegacyContent } = getWebsiteSchema(db);
   return db.prepare(`
-    SELECT title, meta_description${hasViewName ? ", view_name" : ""}${hasLegacyContent ? ", content_html" : ""}
+    SELECT title, meta_description${pageHasViewName ? ", view_name" : ""}${pageHasLegacyContent ? ", content_html" : ""}
     FROM website_page
     WHERE slug = ? AND is_published = 1 AND active = 1
     ORDER BY id DESC LIMIT 1
@@ -87,6 +98,51 @@ function escapeHtml(value: unknown) {
   return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 }
 
+function sendHtml(reply: any, html: string, status: number) {
+  return reply
+    .code(status)
+    .type("text/html; charset=utf-8")
+    .header("Cache-Control", status === 200 ? "public, max-age=30, stale-while-revalidate=120" : "public, max-age=10")
+    .send(html);
+}
+
+function getCachedPage(db: object, slug: string) {
+  const cached = pageCache.get(db)?.get(slug);
+  if (!cached || cached.expiresAt <= Date.now()) return null;
+  return cached;
+}
+
+function setCachedPage(db: object, slug: string, page: Omit<CachedPage, "expiresAt">) {
+  let pages = pageCache.get(db);
+  if (!pages) {
+    pages = new Map();
+    pageCache.set(db, pages);
+  }
+  pages.set(slug, { ...page, expiresAt: Date.now() + PAGE_CACHE_TTL_MS });
+}
+
+function getWebsiteSchema(db: object) {
+  const cached = schemaCache.get(db);
+  if (cached) return cached;
+  const schema = {
+    pageHasViewName: tableHasColumn(db, "website_page", "view_name"),
+    pageHasLegacyContent: tableHasColumn(db, "website_page", "content_html")
+  };
+  schemaCache.set(db, schema);
+  return schema;
+}
+
 function tableHasColumn(db: any, tableName: string, columnName: string) {
   return (db.prepare(`PRAGMA table_info(${tableName})`).all() as Array<{ name: string }>).some((column) => column.name === columnName);
 }
+
+type WebsiteSchema = {
+  pageHasViewName: boolean;
+  pageHasLegacyContent: boolean;
+};
+
+type CachedPage = {
+  html: string;
+  status: number;
+  expiresAt: number;
+};
