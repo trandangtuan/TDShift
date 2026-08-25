@@ -15,6 +15,8 @@ COPY packages/core/package.json packages/core/package.json
 RUN npm ci
 
 FROM deps AS build
+ARG VITE_API_BASE
+ENV VITE_API_BASE=$VITE_API_BASE
 COPY apps apps
 COPY packages packages
 COPY modules modules
