@@ -165,13 +165,13 @@ const systemTables = [
   )`
 ];
 
-export function initializeSystemSchema() {
+export function initializeSystemSchema(options: { backfillAudit?: boolean } = {}) {
   for (const sql of systemTables) db.prepare(sql).run();
   ensureColumn("core_view", "content_type", "TEXT NOT NULL DEFAULT 'json'");
   ensureColumn("core_view", "content", "TEXT");
   db.prepare("UPDATE core_view SET content_type = COALESCE(content_type, 'json'), content = COALESCE(content, architecture)").run();
   for (const table of systemTableNames) ensureAuditColumns(table);
-  for (const table of systemTableNames) backfillAuditColumns(table);
+  if (options.backfillAudit) for (const table of systemTableNames) backfillAuditColumns(table);
 }
 
 export function syncBusinessTable(model: { tableName: string; fields: FieldDefinition[] }) {
@@ -185,7 +185,8 @@ export function syncBusinessTable(model: { tableName: string; fields: FieldDefin
 }
 
 export function bootstrapModules(modules: ModuleDefinition[], options: { forceInstall?: boolean; applyMetadata?: boolean } = {}) {
-  initializeSystemSchema();
+  const shouldApplyMetadata = Boolean(options.forceInstall || options.applyMetadata);
+  initializeSystemSchema({ backfillAudit: shouldApplyMetadata });
   const now = new Date().toISOString();
   const discoverModule = db.prepare(`
     INSERT INTO core_module (technical_name, display_name, version, description, state, installable, auto_install, sequence, created_at, updated_at)
@@ -203,7 +204,6 @@ export function bootstrapModules(modules: ModuleDefinition[], options: { forceIn
         updated_at = @now
     WHERE technical_name = @technicalName
   `);
-  const shouldApplyMetadata = Boolean(options.forceInstall || options.applyMetadata);
   for (const mod of modules) {
     const moduleParams = { ...mod, description: mod.description ?? null, installable: mod.installable === false ? 0 : 1, autoInstall: mod.autoInstall ? 1 : 0, sequence: mod.sequence ?? 100, now };
     discoverModule.run(moduleParams);
@@ -275,9 +275,11 @@ export function bootstrapModules(modules: ModuleDefinition[], options: { forceIn
     }
     reconcileModuleMetadata(mod, now);
   }
-  insertExternalIds(now);
-  for (const mod of modules) for (const record of mod.data ?? []) seedData(record.model, record.values);
-  backfillAllAuditColumns();
+  if (shouldApplyMetadata) insertExternalIds(now, modules.map((mod) => mod.technicalName));
+  if (shouldApplyMetadata) {
+    for (const mod of modules) for (const record of mod.data ?? []) seedData(record.model, record.values);
+    backfillModuleAuditColumns(modules);
+  }
 }
 
 export function installModuleRecords(moduleName: string) {
@@ -406,7 +408,8 @@ function shouldTransferModelOwnership(model: { fields: FieldDefinition[] }) {
   return model.fields.some((field) => field.stored !== false && !auditFieldNames.has(field.name) && (field.required || field.name === "name"));
 }
 
-function insertExternalIds(now: string) {
+function insertExternalIds(now: string, moduleNames: string[]) {
+  if (!moduleNames.length) return;
   const mappings = [
     ["core_module", "core.module", "technical_name"],
     ["core_model", "core.model", "technical_name"],
@@ -417,15 +420,20 @@ function insertExternalIds(now: string) {
   ] as const;
   for (const [table, type, nameExpr] of mappings) {
     const moduleExpr = table === "core_module" ? "technical_name" : "module";
-    const rows = db.prepare(`SELECT id, ${moduleExpr} AS module, ${nameExpr} AS complete_name FROM ${table}`).all() as Array<{ id: number; module: string; complete_name: string }>;
-    for (const row of rows) {
-      const name = row.complete_name.includes(".") ? row.complete_name.split(".").slice(1).join(".") : row.complete_name;
-      db.prepare(`
-        INSERT INTO core_external_id (module, name, complete_name, resource_type, resource_id, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(complete_name) DO UPDATE SET resource_id=excluded.resource_id, updated_at=excluded.updated_at
-      `).run(row.module, name, row.complete_name, type, row.id, now, now);
-    }
+    const moduleFilter = moduleNames.map((_, index) => `@module${index}`).join(", ");
+    db.prepare(`
+      INSERT INTO core_external_id (module, name, complete_name, resource_type, resource_id, created_at, updated_at)
+      SELECT ${moduleExpr} AS module,
+             ${nameExpr} AS name,
+             ${nameExpr} AS complete_name,
+             @resource_type AS resource_type,
+             id AS resource_id,
+             @created_at AS created_at,
+             @updated_at AS updated_at
+      FROM ${table}
+      WHERE ${moduleExpr} IN (${moduleFilter})
+      ON CONFLICT(complete_name) DO UPDATE SET resource_id=excluded.resource_id, updated_at=excluded.updated_at
+    `).run({ resource_type: type, created_at: now, updated_at: now, ...Object.fromEntries(moduleNames.map((moduleName, index) => [`module${index}`, moduleName])) });
   }
 }
 
@@ -498,9 +506,12 @@ function ensureColumn(tableName: string, columnName: string, typeSql: string) {
   db.prepare(`ALTER TABLE ${quoteIdent(tableName)} ADD COLUMN ${quoteIdent(columnName)} ${typeSql}`).run();
 }
 
-function backfillAllAuditColumns() {
-  const rows = db.prepare("SELECT table_name FROM core_model WHERE is_active = 1").all() as Array<{ table_name: string }>;
-  const tables = new Set([...systemTableNames, ...rows.map((row) => row.table_name)]);
+function backfillModuleAuditColumns(modules: ModuleDefinition[]) {
+  const tables = new Set<string>();
+  for (const mod of modules) {
+    if (mod.technicalName === "base") for (const table of systemTableNames) tables.add(table);
+    for (const model of mod.models ?? []) tables.add(model.tableName);
+  }
   for (const table of tables) backfillAuditColumns(table);
 }
 

@@ -15,7 +15,13 @@ export const config = {
   adminPassword: process.env.ADMIN_PASSWORD ?? "admin",
   adminName: process.env.ADMIN_NAME ?? "Administrator",
   adminEmail: process.env.ADMIN_EMAIL ?? "admin@example.local",
-  websiteBaseUrl: process.env.WEBSITE_BASE_URL ?? `http://localhost:${Number(process.env.PORT ?? 3100)}`
+  websiteBaseUrl: process.env.WEBSITE_BASE_URL ?? `http://localhost:${Number(process.env.PORT ?? 3100)}`,
+  minioEndpoint: process.env.MINIO_ENDPOINT ?? "localhost",
+  minioPort: Number(process.env.MINIO_PORT ?? 9000),
+  minioUseSsl: process.env.MINIO_USE_SSL === "true",
+  minioAccessKey: process.env.MINIO_ACCESS_KEY ?? "minioadmin",
+  minioSecretKey: process.env.MINIO_SECRET_KEY ?? "minioadmin",
+  minioBucket: process.env.MINIO_BUCKET ?? "record-platform"
 };
 
 function loadEnvFile(path: string) {

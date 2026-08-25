@@ -1,4 +1,4 @@
-import { List, LogOut, Plus, RefreshCw, Settings, UploadCloud } from "lucide-react";
+import { List, LogOut, Plus, RefreshCw, Settings, Trash2, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button, ConfigProvider, Input, Layout } from "antd";
 import type { ActionDefinition, Domain, RuntimeMenu, RuntimeView } from "@record-platform/core";
@@ -147,6 +147,12 @@ export default function App() {
     await loadRecords(action.model, nextView);
   }
 
+  async function removeSelectedRecord() {
+    if (!action?.model || !selectedId) return;
+    await api("/api/model/unlink", { method: "POST", body: { model: action.model, ids: [selectedId] } });
+    await backToList();
+  }
+
   const selectedRecord = useMemo(() => records.find((record) => record.id === selectedId) ?? null, [records, selectedId]);
 
   async function stayOnFormAfterSave(id: number) {
@@ -178,9 +184,9 @@ export default function App() {
   }
 
   return (
-    <ConfigProvider theme={{ token: { colorPrimary: "#0f766e", borderRadius: 6, colorBgLayout: "#f4f7f6", fontFamily: "'DM Sans', sans-serif" } }}>
+    <ConfigProvider theme={{ token: { colorPrimary: "#0f766e", borderRadius: 5, colorBgLayout: "#f4f7f6", controlHeight: 28, fontFamily: "'DM Sans', sans-serif", fontSize: 12 } }}>
       <Layout className="app">
-      <Layout.Sider className="sidebar" width={248} theme="light">
+      <Layout.Sider className="sidebar" width={216} theme="light">
         <div className="brand"><span className="brand-mark">R</span><div><strong>Record Platform</strong><small>Operations console</small></div></div>
         <div className="sidebar-menu">
           <MenuTree menus={menus} onOpen={openAction} />
@@ -235,7 +241,11 @@ export default function App() {
                     <Button type="primary" icon={<Plus size={17} />} onClick={() => openForm(null)} title="Create" />
                   </>
                 ) : (
-                  <Button icon={<List size={17} />} onClick={backToList} title="Back to list" />
+                  <>
+                    <Button icon={<List size={17} />} onClick={backToList} title="Back to list">Back</Button>
+                    {selectedId ? <Button icon={<RefreshCw size={17} />} onClick={() => stayOnFormAfterSave(selectedId)} title="Refresh">Reset</Button> : null}
+                    {selectedId ? <Button danger icon={<Trash2 size={17} />} onClick={removeSelectedRecord} title="Delete">Delete</Button> : null}
+                  </>
                 )}
               </div>
             </div>
@@ -270,8 +280,6 @@ export default function App() {
                 view={view}
                 record={selectedRecord}
                 onSaved={stayOnFormAfterSave}
-                onRefresh={stayOnFormAfterSave}
-                onDeleted={backToList}
                 onRegistryChanged={async () => {
                   await reloadMenus();
                   await backToList();
@@ -287,13 +295,15 @@ export default function App() {
 }
 
 async function api<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
+  const isFormData = typeof FormData !== "undefined" && init?.body instanceof FormData;
+  const body = init?.body ? isFormData ? init.body as FormData : JSON.stringify(init.body) : undefined;
   const response = await fetch(`${apiBase}${path}`, {
     method: init?.method ?? "GET",
     headers: {
-      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...(init?.body && !isFormData ? { "Content-Type": "application/json" } : {}),
       ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
     },
-    body: init?.body ? JSON.stringify(init.body) : undefined
+    body
   });
   if (response.status === 401 && path !== "/api/auth/login") {
     localStorage.removeItem(tokenStorageKey);

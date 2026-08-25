@@ -6,5 +6,6 @@ export const baseActions: ActionDefinition[] = [
   { technicalName: "base.action_fields", name: "Fields", type: "window", model: "core.model.field", viewModes: ["list", "form"] },
   { technicalName: "base.action_views", name: "Views", type: "window", model: "core.view", viewModes: ["list", "form"] },
   { technicalName: "base.action_menus", name: "Menus", type: "window", model: "core.menu", viewModes: ["list", "form"] },
-  { technicalName: "base.action_users", name: "Users", type: "window", model: "core.user", viewModes: ["list", "form"] }
+  { technicalName: "base.action_users", name: "Users", type: "window", model: "core.user", viewModes: ["list", "form"] },
+  { technicalName: "base.action_attachments", name: "Attachments", type: "window", model: "ir.attachment", viewModes: ["list", "form"] }
 ];

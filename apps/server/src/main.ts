@@ -1,4 +1,5 @@
 import cors from "@fastify/cors";
+import multipart from "@fastify/multipart";
 import fastifyStatic from "@fastify/static";
 import Fastify, { type FastifyRequest } from "fastify";
 import { existsSync } from "node:fs";
@@ -17,8 +18,9 @@ if ((db.prepare("SELECT COUNT(*) AS count FROM core_model").get() as { count: nu
 ensureAdminUser();
 let registry = buildRegistry();
 
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: true, bodyLimit: 5 * 1024 * 1024 });
 await app.register(cors, { origin: true });
+await app.register(multipart, { limits: { fileSize: 1024 * 1024 * 1024 } });
 const webDistPath = findWebDistPath();
 
 app.addHook("preHandler", async (request, reply) => {

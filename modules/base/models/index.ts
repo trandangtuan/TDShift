@@ -1,4 +1,5 @@
 export { actionModel } from "./action";
+export { attachmentModel } from "./attachment";
 export { externalIdModel } from "./external-id";
 export { menuModel } from "./menu";
 export { modelModel } from "./model";

@@ -60,6 +60,7 @@ All notable changes to this project are documented here.
 - Changed `website.page` content rendering to load HTML from a referenced `core.view` record instead of storing page body HTML directly on the page record.
 - Added a seeded `core.view` HTML page view for the Website Home page.
 - Changed seed handling to backfill missing values on existing seed records without overwriting non-null user data.
+- Changed the web client to use a more compact interface density with smaller controls, tighter tables, narrower sidebar, and reduced form spacing.
 - Changed sidebar menus to start collapsed when the app first opens.
 - Moved the current user and logout action to the bottom of the sidebar and removed the topbar brand text.
 - Removed the global refresh button from the topbar and added contextual refresh actions to list and form views.
@@ -77,6 +78,15 @@ All notable changes to this project are documented here.
 - Added configurable database backend support with SQLite as the default and a PostgreSQL adapter enabled by `DATABASE_CLIENT=postgres` and `DATABASE_URL`.
 - Added a production Dockerfile and Docker Compose setup for running the app with PostgreSQL, including a Postgres service, healthcheck, persistent volume, and app environment wiring.
 - Updated the public Home page branding to MetaFlow.
+- Added an `accounting` module with TT99-oriented Vietnamese enterprise accounting basics: chart of accounts, journals, journal entries, journal items, Accounting menus, seed accounts, seed journals, and journal entry posting validation for balanced debit and credit totals.
+- Added sales fulfillment automation so confirming a sale order creates draft customer delivery stock moves, and marking those delivery moves done creates one draft customer invoice backed by receivable and revenue journal items.
+- Added purchase receipt automation so confirming a purchase order creates draft vendor receipt stock moves, and marking those receipt moves done creates one draft vendor bill backed by inventory and payable journal items.
+- Added module-local `SKILL.md` documentation for every module so AI agents can understand each module's scope, extension points, lifecycle expectations, and verification checklist.
+- Added `ir.attachment` to the `base` module for storing file metadata, base64 file data or URL references, related record links, and a technical Attachments menu.
+- Added MinIO-backed attachment storage: `ir.attachment` uploads base64 `datas` payloads to MinIO, stores bucket/object metadata, exposes attachment download routes, and includes MinIO Docker Compose configuration.
+- Added an upload control for `ir.attachment` forms so users can choose a local file, auto-fill attachment metadata, convert the file to base64, and submit it through the MinIO attachment pipeline.
+- Changed attachment uploads to stream multipart file data directly to MinIO through `/api/attachments/upload`, avoiding large base64 JSON payloads and Fastify body-size failures.
+- Updated module-local skills with user workflows, feature maps, extension guidance, and verification notes for each module.
 
 ### Changed
 
@@ -102,6 +112,11 @@ All notable changes to this project are documented here.
 - Fixed manual `core.menu` creation failing because required metadata ownership fields were missing.
 - Fixed public website rendering when existing `website.menu` records have missing `label` or `url` values.
 - Fixed generic form URL rendering so editable URL fields such as `website.menu.url` use an input, while readonly generated URLs remain clickable links.
+- Fixed generic record writes so readonly audit fields returned as many2one display tuples are ignored, and many2one tuple values normalize back to ids before database writes.
+- Fixed inline one2many editors so audit metadata columns are hidden from order and journal line tables.
+- Fixed form line editing so one2many fields wait for visible column metadata, hide audit fields reliably, and keep many2one product dropdowns selectable above compact line tables.
+- Changed form views to render `state`/`status` selection fields as a status bar and moved reset/delete actions next to the back-to-list action.
+- Changed generic form field rendering to use Ant Design controls, including Checkbox for boolean fields and searchable Select controls for many2one relations.
 
 ### Verification
 

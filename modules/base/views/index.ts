@@ -1,3 +1,4 @@
+export { attachmentViews } from "./attachment";
 export { menuViews } from "./menu";
 export { modelViews } from "./model";
 export { modelFieldViews } from "./model-field";

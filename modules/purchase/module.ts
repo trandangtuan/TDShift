@@ -1,15 +1,15 @@
 import { defineModule } from "@record-platform/core";
 import { purchaseOrderData, purchaseOrderLineData } from "./data";
-import { purchaseOrderLineModel, purchaseOrderModel } from "./models";
+import { purchaseOrderLineModel, purchaseOrderModel, purchaseStockMoveModel } from "./models";
 import { purchaseOrderLineViews, purchaseOrderViews } from "./views";
 
 export default defineModule({
   technicalName: "purchase",
   displayName: "Purchases",
-  version: "1.0.0",
-  depends: ["base", "contacts", "product", "stock"],
+  version: "1.1.0",
+  depends: ["base", "contacts", "product", "stock", "accounting"],
   sequence: 25,
-  models: [purchaseOrderModel, purchaseOrderLineModel],
+  models: [purchaseOrderModel, purchaseOrderLineModel, purchaseStockMoveModel],
   views: [...purchaseOrderViews, ...purchaseOrderLineViews],
   actions: [
     { technicalName: "purchase.action_orders", name: "Purchase Orders", type: "window", model: "purchase.order", viewModes: ["list", "form"] },

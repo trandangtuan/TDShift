@@ -1,15 +1,15 @@
 import { defineModule } from "@record-platform/core";
 import { orderData, orderLineData } from "./data";
-import { saleOrderLineModel, saleOrderModel } from "./models";
+import { saleOrderLineModel, saleOrderModel, saleStockMoveModel } from "./models";
 import { saleOrderLineViews, saleOrderViews } from "./views";
 
 export default defineModule({
   technicalName: "sale",
   displayName: "Sales",
-  version: "1.0.0",
-  depends: ["base", "contacts", "product"],
+  version: "1.1.0",
+  depends: ["base", "contacts", "product", "stock", "accounting"],
   sequence: 20,
-  models: [saleOrderModel, saleOrderLineModel],
+  models: [saleOrderModel, saleOrderLineModel, saleStockMoveModel],
   views: [...saleOrderViews, ...saleOrderLineViews],
   actions: [
     { technicalName: "sale.action_orders", name: "Orders", type: "window", model: "sale.order", viewModes: ["list", "form"] },

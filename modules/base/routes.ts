@@ -1,5 +1,6 @@
 import type { ModuleRoute } from "@record-platform/core";
 import { ensureAdminUser, getUserFromRequest, login, registerUser, resetUserToken } from "../../apps/server/src/auth";
+import { getAttachmentObject, storeAttachmentStream } from "../../apps/server/src/attachments";
 import { bootstrapModules, installModuleRecords, uninstallModuleAndDropOwnedFields } from "../../apps/server/src/db";
 
 export const baseRoutes: ModuleRoute[] = [
@@ -71,6 +72,40 @@ export const baseRoutes: ModuleRoute[] = [
       });
       app.post("/api/model/call", async (request: any) => ({ result: await createRequestEnvironment(request).model(request.body.model).call(request.body.method, request.body.ids, request.body.args) }));
 
+      app.get("/api/attachments/:id/download", async (request: any, reply: any) => {
+        const env = createRequestEnvironment(request);
+        const [attachment] = await env.model("ir.attachment").read([Number(request.params.id)], ["name", "file_name", "mime_type", "storage", "bucket", "object_name", "url"]);
+        if (!attachment) return reply.code(404).send({ error: "Attachment not found" });
+        if (attachment.storage === "url" && attachment.url) return reply.redirect(String(attachment.url));
+        if (attachment.storage !== "minio" || !attachment.bucket || !attachment.object_name) return reply.code(404).send({ error: "Attachment object not found" });
+        const stream = await getAttachmentObject(String(attachment.bucket), String(attachment.object_name));
+        return reply
+          .header("Content-Type", String(attachment.mime_type || "application/octet-stream"))
+          .header("Content-Disposition", `attachment; filename="${String(attachment.file_name || attachment.name || "attachment").replace(/"/g, "")}"`)
+          .send(stream);
+      });
+
+      app.post("/api/attachments/upload", async (request: any, reply: any) => {
+        const file = await request.file();
+        if (!file) return reply.code(400).send({ error: "File is required" });
+        const fields = multipartFields(file.fields);
+        const stored = await storeAttachmentStream({ stream: file.file, fileName: file.filename, mimeType: file.mimetype });
+        const env = createRequestEnvironment(request);
+        const id = await env.model("ir.attachment").create({
+          name: fields.name || file.filename,
+          file_name: file.filename,
+          mime_type: file.mimetype,
+          storage: "minio",
+          datas: null,
+          res_model: fields.res_model || null,
+          res_id: fields.res_id ? Number(fields.res_id) : null,
+          public: fields.public === "true",
+          active: true,
+          ...stored
+        });
+        return { id, ...stored };
+      });
+
       app.post("/api/modules/refresh", async () => {
         bootstrapModules(modules);
         rebuildRegistry();
@@ -121,3 +156,7 @@ function resolveInstallSet(modules: ModuleRouteContextModules, moduleName: strin
 }
 
 type ModuleRouteContextModules = Parameters<NonNullable<ModuleRoute["register"]>>[0]["modules"];
+
+function multipartFields(fields: Record<string, any>) {
+  return Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, String(value?.value ?? "")]));
+}

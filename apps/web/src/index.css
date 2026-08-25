@@ -10,6 +10,7 @@
   --danger: #b42318;
   --shadow: 0 8px 24px rgba(31, 41, 55, 0.08);
   font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -31,14 +32,33 @@ body {
 button, input, select, textarea { font: inherit; }
 
 .app { display: flex; height: 100vh; min-height: 0; overflow: hidden; }
-.brand { align-items: center; display: flex; flex: 0 0 auto; gap: 10px; padding: 16px 14px 20px; }
-.brand-mark { align-items: center; background: #0f766e; border-radius: 6px; color: white; display: inline-flex; font-size: 18px; font-weight: 800; height: 34px; justify-content: center; width: 34px; }
+.brand { align-items: center; display: flex; flex: 0 0 auto; gap: 8px; padding: 10px 10px 12px; }
+.brand-mark { align-items: center; background: #0f766e; border-radius: 5px; color: white; display: inline-flex; font-size: 15px; font-weight: 800; height: 28px; justify-content: center; width: 28px; }
 .brand strong, .brand small { display: block; }
-.brand strong { font-size: 14px; }
-.brand small { color: var(--muted); font-size: 11px; margin-top: 2px; }
-button { align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text); cursor: pointer; display: inline-flex; gap: 8px; min-height: 36px; padding: 0 12px; }
+.brand strong { font-size: 13px; }
+.brand small { color: var(--muted); font-size: 10px; margin-top: 1px; }
+button { align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; color: var(--text); cursor: pointer; display: inline-flex; gap: 6px; min-height: 28px; padding: 0 9px; }
 button:hover { border-color: #aab4c0; }
 button.danger { color: var(--danger); }
+.ant-btn {
+  font-size: 12px;
+  height: 28px;
+  padding: 0 9px;
+}
+.ant-input,
+.ant-select,
+.ant-select-selector {
+  font-size: 12px;
+}
+.ant-table {
+  font-size: 12px;
+}
+.ant-table-wrapper .ant-table-tbody > tr > td {
+  padding: 6px 8px;
+}
+.ant-table-wrapper .ant-table-thead > tr > th {
+  padding: 6px 8px;
+}
 .login-panel .ant-form-item { margin-bottom: 14px; }
 .login-panel .ant-alert { margin-bottom: 2px; }
 
@@ -174,7 +194,7 @@ button.danger { color: var(--danger); }
   flex-direction: column;
   height: 100vh;
   min-height: 0;
-  padding: 10px 8px;
+  padding: 6px;
 }
 
 .sidebar-menu {
@@ -194,8 +214,8 @@ button.danger { color: var(--danger); }
   flex: 0 0 auto;
   gap: 8px;
   justify-content: space-between;
-  margin-top: 10px;
-  padding: 10px 4px 0;
+  margin-top: 6px;
+  padding: 7px 3px 0;
 }
 
 .sidebar-user div {
@@ -212,13 +232,13 @@ button.danger { color: var(--danger); }
 
 .sidebar-user span {
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .sidebar-user small {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   margin-top: 2px;
 }
 
@@ -227,6 +247,8 @@ button.danger { color: var(--danger); }
   border-color: transparent;
   justify-content: flex-start;
   margin: 1px 0;
+  min-height: 28px;
+  padding: 0 8px;
   width: 100%;
 }
 
@@ -256,8 +278,8 @@ button.danger { color: var(--danger); }
   flex-direction: column;
   height: 100vh;
   min-width: 0;
-  overflow: hidden;
-  padding: 18px;
+  overflow: auto;
+  padding: 10px;
   width: 100%;
 }
 
@@ -266,11 +288,11 @@ button.danger { color: var(--danger); }
   display: flex;
   flex: 0 0 auto;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .actionbar h1 {
-  font-size: 22px;
+  font-size: 17px;
   line-height: 1.2;
   margin: 0;
 }
@@ -278,34 +300,40 @@ button.danger { color: var(--danger); }
 .actionbar span {
   color: var(--muted);
   display: block;
-  font-size: 13px;
-  margin-top: 3px;
+  font-size: 11px;
+  margin-top: 1px;
 }
 
 .actions,
 .form-toolbar {
   align-items: center;
   display: flex;
-  gap: 8px;
+  gap: 5px;
 }
 
 .icon-button {
   justify-content: center;
-  min-width: 36px;
+  min-width: 28px;
   padding: 0;
 }
 
-.field input,
 .field-link,
-.field select,
+.field .ant-input,
+.field .ant-input-number,
+.field .ant-picker,
+.field .ant-select,
+.field .ant-select-selector,
 .field textarea {
   background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 5px;
   color: var(--text);
-  min-height: 36px;
-  padding: 7px 9px;
+  font-size: 12px;
+  min-height: 28px;
   width: 100%;
+}
+
+.field .ant-input-number-input {
+  height: 26px;
 }
 
 .field-link {
@@ -326,7 +354,7 @@ button.danger { color: var(--danger); }
 }
 
 .record-search {
-  width: 260px;
+  width: 220px;
 }
 
 .record-search.ant-input-search .ant-input-group {
@@ -337,8 +365,8 @@ button.danger { color: var(--danger); }
   border-color: var(--border);
   border-radius: 6px 0 0 6px;
   box-shadow: none;
-  height: 36px;
-  padding: 0 10px;
+  height: 28px;
+  padding: 0 8px;
 }
 
 .record-search.ant-input-search .ant-input-affix-wrapper:hover,
@@ -348,7 +376,7 @@ button.danger { color: var(--danger); }
 
 .record-search.ant-input-search .ant-input {
   color: var(--text);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .record-search.ant-input-search .ant-input::placeholder {
@@ -362,9 +390,9 @@ button.danger { color: var(--danger); }
   border-radius: 0 6px 6px 0;
   box-shadow: none;
   display: inline-flex;
-  height: 36px;
+  height: 28px;
   justify-content: center;
-  min-width: 38px;
+  min-width: 30px;
   padding: 0;
 }
 
@@ -379,7 +407,11 @@ button.danger { color: var(--danger); }
   border: 1px solid var(--border);
   border-radius: 8px;
   box-shadow: var(--shadow);
-  overflow: hidden;
+  overflow: visible;
+}
+
+.form-panel {
+  flex: 0 0 auto;
 }
 
 .list-panel {
@@ -446,9 +478,9 @@ table {
 th,
 td {
   border-bottom: 1px solid var(--border);
-  font-size: 14px;
-  line-height: 1.35;
-  padding: 11px 12px;
+  font-size: 12px;
+  line-height: 1.25;
+  padding: 7px 8px;
   text-align: left;
 }
 
@@ -459,14 +491,14 @@ th {
 }
 
 .list-panel .ant-table-thead > tr > th {
-  padding: 9px 12px;
+  padding: 6px 8px;
   vertical-align: top;
 }
 
 .column-header {
   display: grid;
-  gap: 6px;
-  min-width: 120px;
+  gap: 4px;
+  min-width: 104px;
 }
 
 .column-header span {
@@ -479,7 +511,7 @@ th {
   background: #fff;
   border-color: var(--border);
   border-radius: 5px;
-  font-size: 12px;
+  font-size: 11px;
   width: 100%;
 }
 
@@ -499,7 +531,7 @@ td {
 
 .row-action {
   text-align: right;
-  width: 54px;
+  width: 42px;
 }
 
 .pager {
@@ -507,10 +539,10 @@ td {
   background: var(--surface-muted);
   border-top: 1px solid var(--border);
   display: flex;
-  gap: 10px;
+  gap: 7px;
   justify-content: flex-end;
   margin: 0;
-  padding: 10px;
+  padding: 7px;
 }
 
 .pager span,
@@ -518,16 +550,16 @@ td {
   align-items: center;
   color: var(--muted);
   display: inline-flex;
-  font-size: 13px;
-  gap: 6px;
+  font-size: 12px;
+  gap: 4px;
 }
 
 .pager select {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  min-height: 32px;
-  padding: 4px 6px;
+  border-radius: 5px;
+  min-height: 28px;
+  padding: 3px 5px;
 }
 
 .table-empty,
@@ -563,26 +595,67 @@ td {
 .form-toolbar {
   background: var(--surface-muted);
   border-bottom: 1px solid var(--border);
-  padding: 10px;
+  padding: 7px;
+}
+
+.statusbar {
+  align-items: center;
+  background: #fbfcfd;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  min-height: 34px;
+  overflow-x: auto;
+  padding: 6px 10px;
+}
+
+.statusbar span {
+  background: #edf1f5;
+  border: 1px solid var(--border);
+  color: #536173;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  margin-left: -1px;
+  padding: 7px 12px;
+  position: relative;
+  white-space: nowrap;
+}
+
+.statusbar span:first-child {
+  border-radius: 5px 0 0 5px;
+  margin-left: 0;
+}
+
+.statusbar span:last-child {
+  border-radius: 0 5px 5px 0;
+}
+
+.statusbar span.active {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #fff;
+  z-index: 1;
 }
 
 .field-grid {
+  align-content: start;
   display: grid;
-  gap: 14px 18px;
+  gap: 8px 12px;
   grid-template-columns: repeat(2, minmax(220px, 1fr));
-  padding: 16px;
+  padding: 10px;
 }
 
 .field {
   display: grid;
   align-items: center;
-  gap: 12px;
-  grid-template-columns: minmax(120px, 34%) minmax(0, 1fr);
+  gap: 8px;
+  grid-template-columns: minmax(104px, 32%) minmax(0, 1fr);
 }
 
 .field span {
   color: #394454;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -594,8 +667,32 @@ td {
 }
 
 .field textarea {
-  min-height: 92px;
+  min-height: 68px;
   resize: vertical;
+}
+
+.attachment-upload-field {
+  align-items: start;
+  grid-column: 1 / -1;
+}
+
+.attachment-upload-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.attachment-upload-control textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  min-height: 92px;
+}
+
+.attachment-upload-control small {
+  color: var(--muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .many2one-picker {
@@ -604,47 +701,16 @@ td {
 }
 
 .many2one-picker.compact {
-  min-width: 180px;
-}
-
-.many2one-options {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  box-shadow: var(--shadow);
-  left: 0;
-  max-height: 264px;
-  overflow: auto;
-  padding: 4px;
-  position: absolute;
-  right: 0;
-  top: calc(100% + 4px);
-  z-index: 10;
-}
-
-.many2one-options button {
-  border-color: transparent;
-  justify-content: flex-start;
-  min-height: 32px;
-  padding: 0 8px;
-  width: 100%;
-}
-
-.many2one-options button:hover {
-  background: var(--surface-muted);
-}
-
-.many2one-empty {
-  color: var(--muted);
-  font-size: 13px;
-  padding: 8px;
+  min-width: 150px;
 }
 
 .one2many {
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 6px;
   grid-column: 1 / -1;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
 }
 
 .one2many-header {
@@ -653,33 +719,65 @@ td {
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
-  padding: 8px 10px;
+  padding: 6px 8px;
 }
 
 .one2many-header span {
   color: #394454;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .one2many td {
-  padding: 7px;
+  padding: 5px;
+  position: relative;
 }
 
-.one2many input,
-.one2many select {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  min-height: 32px;
-  padding: 5px 7px;
+.one2many table {
+  min-width: 760px;
+}
+
+.one2many .line-col-product_id {
+  min-width: 180px;
+  width: 22%;
+}
+
+.one2many .line-col-description {
+  min-width: 170px;
+  width: 22%;
+}
+
+.one2many .line-col-quantity,
+.one2many .line-col-price_unit,
+.one2many .line-col-price_subtotal,
+.one2many .line-col-debit,
+.one2many .line-col-credit {
+  min-width: 92px;
+  width: 11%;
+}
+
+.one2many .ant-input,
+.one2many .ant-input-number,
+.one2many .ant-picker,
+.one2many .ant-select {
+  min-height: 27px;
   width: 100%;
+}
+
+.one2many .ant-input-number-input,
+.one2many .ant-picker-input > input,
+.one2many .ant-select-selector {
+  font-size: 12px;
+}
+
+.one2many .ant-input-number-input {
+  height: 25px;
 }
 
 .one2many-empty {
   color: var(--muted);
-  font-size: 14px;
-  padding: 14px;
+  font-size: 12px;
+  padding: 10px;
 }
 
 .ai-chat {

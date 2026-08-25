@@ -11,6 +11,7 @@ import type {
   ViewNode
 } from "@record-platform/core";
 import { hashPassword } from "./auth";
+import { storeAttachmentPayload } from "./attachments";
 import { config } from "./config";
 import { db, quoteIdent } from "./db";
 import { moduleDefinitions } from "./modules";
@@ -18,8 +19,14 @@ import { moduleDefinitions } from "./modules";
 export function buildRegistry(): RuntimeRegistry {
   const models = new Map<string, RuntimeModel>();
   const modelRows = db.prepare("SELECT * FROM core_model WHERE is_active = 1").all() as any[];
+  const fieldRows = db.prepare("SELECT * FROM core_model_field WHERE is_active = 1 ORDER BY model, sequence, id").all() as any[];
+  const fieldsByModel = new Map<string, FieldDefinition[]>();
+  for (const row of fieldRows) {
+    const fields = fieldsByModel.get(row.model) ?? [];
+    fields.push(rowToField(row));
+    fieldsByModel.set(row.model, fields);
+  }
   for (const row of modelRows) {
-    const fields = (db.prepare("SELECT * FROM core_model_field WHERE model = ? AND is_active = 1 ORDER BY sequence, id").all(row.technical_name) as any[]).map(rowToField);
     models.set(row.technical_name, {
       technicalName: row.technical_name,
       name: row.name,
@@ -27,7 +34,7 @@ export function buildRegistry(): RuntimeRegistry {
       module: row.module,
       isAbstract: Boolean(row.is_abstract),
       isTransient: Boolean(row.is_transient),
-      fields,
+      fields: fieldsByModel.get(row.technical_name) ?? [],
       methods: new Map()
     });
   }
@@ -130,6 +137,7 @@ function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime
       return rows.sort((left, right) => (order.get(Number(left.id)) ?? 0) - (order.get(Number(right.id)) ?? 0));
     },
     async create(values) {
+      if (model.technicalName === "ir.attachment") values = await storeAttachmentPayload(values);
       const normalized = withCreateAuditDefaults(model, withTableDefaults(model, withMetadataDefaults(model.tableName, normalizeValues(model, values)), true), env.user.id);
       const columns = Object.keys(normalized);
       const result = db.prepare(`INSERT INTO ${quoteIdent(model.tableName)} (${columns.map(quoteIdent).join(", ")}) VALUES (${columns.map((column) => `@${column}`).join(", ")})`).run(normalized);
@@ -137,6 +145,7 @@ function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime
     },
     async write(ids, values) {
       if (ids.length === 0) return;
+      if (model.technicalName === "ir.attachment") values = await storeAttachmentPayload(values);
       const normalized = withWriteAuditDefaults(model, withTableDefaults(model, normalizeValues(model, values), false), env.user.id);
       const assignments = Object.keys(normalized).map((column) => `${quoteIdent(column)} = @${column}`).join(", ");
       db.prepare(`UPDATE ${quoteIdent(model.tableName)} SET ${assignments} WHERE id IN (${ids.map((_, index) => `@id${index}`).join(", ")})`).run({ ...normalized, ...Object.fromEntries(ids.map((id, index) => [`id${index}`, id])) });
@@ -322,9 +331,10 @@ function normalizeValues(model: RuntimeModel, values: Record<string, unknown>) {
   const normalized: Record<string, unknown> = {};
   for (const field of model.fields) {
     if (field.stored === false) continue;
+    if (["create_uid", "create_date", "write_uid", "write_date"].includes(field.name)) continue;
     if (!(field.name in values)) continue;
     const value = values[field.name];
-    normalized[field.name] = field.type === "boolean" ? (value ? 1 : 0) : field.type === "json" ? JSON.stringify(value) : value;
+    normalized[field.name] = normalizeFieldValue(field, value);
   }
   if (model.technicalName === "core.user") {
     const password = typeof values.password === "string" ? values.password.trim() : "";
@@ -335,6 +345,18 @@ function normalizeValues(model: RuntimeModel, values: Record<string, unknown>) {
     if (slug) normalized.url = websiteUrl(slug);
   }
   return normalized;
+}
+
+function normalizeFieldValue(field: FieldDefinition, value: unknown) {
+  if (field.type === "boolean") return value ? 1 : 0;
+  if (field.type === "json") return JSON.stringify(value);
+  if (field.type === "many2one") return relationId(value);
+  return value;
+}
+
+function relationId(value: unknown) {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value;
 }
 
 function websiteUrl(slug: string) {

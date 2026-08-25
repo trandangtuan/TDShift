@@ -1,4 +1,4 @@
-import type { ModelDefinition } from "@record-platform/core";
+import type { MethodContext, ModelDefinition } from "@record-platform/core";
 
 export const saleOrderModel: ModelDefinition = {
   technicalName: "sale.order",
@@ -25,6 +25,24 @@ export const saleOrderModel: ModelDefinition = {
   ],
   methods: {
     async confirm(ctx) {
+      const stockLocation = await firstLocation(ctx, "internal");
+      const customerLocation = await firstLocation(ctx, "customer");
+      for (const orderId of ctx.ids) {
+        const [order] = await ctx.env.model("sale.order").read([orderId], ["name", "date_order"]);
+        const lines = await ctx.env.model("sale.order.line").searchRead([["order_id", "=", orderId]], ["product_id", "quantity", "description"]);
+        for (const line of lines) {
+          await ctx.env.model("stock.move").create({
+            name: `${order?.name ?? "SO"} / Delivery / ${line.id}`,
+            product_id: line.product_id,
+            quantity: line.quantity,
+            source_location_id: stockLocation,
+            dest_location_id: customerLocation,
+            state: "draft",
+            origin: order?.name,
+            date: order?.date_order
+          });
+        }
+      }
       await ctx.env.model("sale.order").write(ctx.ids, { state: "confirmed" });
       return { confirmed: ctx.ids.length };
     },
@@ -42,3 +60,9 @@ export const saleOrderModel: ModelDefinition = {
     }
   }
 };
+
+async function firstLocation(ctx: MethodContext, usage: string) {
+  const locations = await ctx.env.model("stock.location").searchRead([["usage", "=", usage]], ["name"], { limit: 1 });
+  if (!locations[0]?.id) throw new Error(`Missing stock location with usage ${usage}`);
+  return Number(locations[0].id);
+}

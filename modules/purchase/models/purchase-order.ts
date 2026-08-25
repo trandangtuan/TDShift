@@ -32,12 +32,12 @@ export const purchaseOrderModel: ModelDefinition = {
         const lines = await ctx.env.model("purchase.order.line").searchRead([["order_id", "=", orderId]], ["product_id", "quantity"]);
         for (const line of lines) {
           await ctx.env.model("stock.move").create({
-            name: `${order?.name ?? "PO"} / ${line.id}`,
+            name: `${order?.name ?? "PO"} / Receipt / ${line.id}`,
             product_id: line.product_id,
             quantity: line.quantity,
             source_location_id: supplierLocation,
             dest_location_id: stockLocation,
-            state: "done",
+            state: "draft",
             origin: order?.name,
             date: order?.date_order
           });
