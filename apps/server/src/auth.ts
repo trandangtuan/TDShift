@@ -19,6 +19,8 @@ interface UserRow {
   active: number;
 }
 
+const requestUserCache = new WeakMap<FastifyRequest, AuthUser | null>();
+
 export function ensureAdminUser() {
   const now = new Date().toISOString();
   const existing = db.prepare("SELECT id FROM core_user WHERE login = ?").get(config.adminLogin);
@@ -46,9 +48,11 @@ export function registerUser(values: { login: string; name: string; email?: stri
 }
 
 export function getUserFromRequest(request: FastifyRequest): AuthUser | null {
+  if (requestUserCache.has(request)) return requestUserCache.get(request) ?? null;
   const header = request.headers.authorization;
-  if (!header?.startsWith("Bearer ")) return null;
-  return verifyToken(header.slice("Bearer ".length));
+  const user = header?.startsWith("Bearer ") ? verifyToken(header.slice("Bearer ".length)) : null;
+  requestUserCache.set(request, user);
+  return user;
 }
 
 export function resetUserToken(userId: number) {

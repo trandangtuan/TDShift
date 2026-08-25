@@ -22,13 +22,32 @@ export default function ListRenderer({ api, model, view, records, page, pageSize
   const [filters, setFilters] = useState<Record<string, string>>({});
   const domain = useMemo(() => buildColumnDomain(model, fields, filters), [model, fields, filters]);
   const domainKey = JSON.stringify(domain);
+  const listKey = `${model.technicalName}:${view.technicalName}`;
   const onFilterChangeRef = useRef(onFilterChange);
+  const didMountRef = useRef(false);
+  const skipNextFilterChangeRef = useRef(false);
 
   useEffect(() => {
     onFilterChangeRef.current = onFilterChange;
   }, [onFilterChange]);
 
   useEffect(() => {
+    if (Object.values(filters).some(Boolean)) {
+      skipNextFilterChangeRef.current = true;
+      setFilters({});
+    }
+  }, [listKey]);
+
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      skipNextFilterChangeRef.current = false;
+      return;
+    }
+    if (skipNextFilterChangeRef.current) {
+      skipNextFilterChangeRef.current = false;
+      return;
+    }
     const timer = window.setTimeout(() => onFilterChangeRef.current(domain), 300);
     return () => window.clearTimeout(timer);
   }, [domainKey]);

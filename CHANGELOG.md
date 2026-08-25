@@ -104,6 +104,8 @@ All notable changes to this project are documented here.
 - Added the GitHub source repository link to the public Website Home download/edit section so users can clone, fork, customize, and run MetaFlow.
 - Added short-lived public website HTML caching and schema capability caching so concurrent page visits avoid repeated SQLite metadata/page/menu/view lookups.
 - Added optional SQL call logging through `SQL_LOG=true`, including operation type, elapsed time, row/change counts, and normalized SQL text.
+- Added `in` domain support and optimized the Sales order list total computation so `sale.order.amount_total` batches raw order-line reads instead of querying and enriching lines per order.
+- Added per-request authenticated user caching and stopped list views from firing an initial empty column-filter reload after the first record load.
 
 ### Changed
 

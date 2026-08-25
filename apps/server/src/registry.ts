@@ -185,6 +185,7 @@ async function applyComputedFields(env: Environment, model: RuntimeModel, record
 }
 
 async function enrichManyToOneValues(env: Environment, model: RuntimeModel, records: Array<Record<string, unknown>>, requestedFields: string[] | undefined) {
+  if (env.context.skipMany2OneEnrichment) return;
   if (!records.length) return;
   const requested = new Set(requestedFields?.length ? requestedFields : model.fields.map((field) => field.name));
   const fields = model.fields.filter((field) => field.type === "many2one" && field.relationModel && requested.has(field.name));
@@ -317,6 +318,14 @@ function domainToSql(domain: Domain) {
     if (op === "ilike") {
       clauses.push(`${quoteIdent(field)} LIKE ?`);
       params.push(`%${normalizeDomainValue(value)}%`);
+    } else if (op === "in") {
+      const values = Array.isArray(value) ? value.map(normalizeDomainValue) : [];
+      if (!values.length) {
+        clauses.push("1 = 0");
+        continue;
+      }
+      clauses.push(`${quoteIdent(field)} IN (${values.map(() => "?").join(", ")})`);
+      params.push(...values);
     } else {
       clauses.push(`${quoteIdent(field)} ${op} ?`);
       params.push(normalizeDomainValue(value));

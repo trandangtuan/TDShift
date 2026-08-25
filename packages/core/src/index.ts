@@ -22,7 +22,7 @@ export type FieldType =
 export type ViewType = "list" | "form" | "search" | "page";
 export type ViewContentType = "json" | "html" | "xml";
 export type ActionType = "window" | "client";
-export type DomainTerm = [string, "=" | "!=" | ">" | ">=" | "<" | "<=" | "ilike", unknown];
+export type DomainTerm = [string, "=" | "!=" | ">" | ">=" | "<" | "<=" | "ilike" | "in", unknown];
 export type Domain = DomainTerm[];
 
 export interface ModuleDefinition {

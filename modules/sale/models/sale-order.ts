@@ -51,15 +51,26 @@ export const saleOrderModel: ModelDefinition = {
       return { cancelled: ctx.ids.length };
     },
     async compute_amount_total(ctx) {
-      const totals: Record<number, number> = {};
-      for (const id of ctx.ids) {
-        const lines = await ctx.env.model("sale.order.line").searchRead([["order_id", "=", id]], ["price_subtotal"]);
-        totals[id] = lines.reduce((sum, line) => sum + Number(line.price_subtotal ?? 0), 0);
+      const totals = Object.fromEntries(ctx.ids.map((id) => [id, 0])) as Record<number, number>;
+      const lines = await ctx.env.withContext({ skipMany2OneEnrichment: true }).model("sale.order.line").searchRead([["order_id", "in", ctx.ids]], ["order_id", "price_subtotal"]);
+      for (const line of lines) {
+        const orderId = relationId(line.order_id);
+        if (orderId === null) continue;
+        totals[orderId] = (totals[orderId] ?? 0) + Number(line.price_subtotal ?? 0);
       }
       return totals;
     }
   }
 };
+
+function relationId(value: unknown) {
+  if (Array.isArray(value)) {
+    const id = Number(value[0]);
+    return Number.isFinite(id) ? id : null;
+  }
+  const id = Number(value);
+  return Number.isFinite(id) ? id : null;
+}
 
 async function firstLocation(ctx: MethodContext, usage: string) {
   const locations = await ctx.env.model("stock.location").searchRead([["usage", "=", usage]], ["name"], { limit: 1 });
