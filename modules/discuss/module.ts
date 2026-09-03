@@ -20,9 +20,9 @@ export default defineModule({
   menus: [
     { technicalName: "discuss.menu_root", name: "Discuss", icon: "comments", sequence: 15 },
     { technicalName: "discuss.menu_chat", name: "Chat", parent: "discuss.menu_root", action: "discuss.action_chat", sequence: 5 },
-    { technicalName: "discuss.menu_channels", name: "Channels", parent: "discuss.menu_root", action: "discuss.action_channels", sequence: 10 },
-    { technicalName: "discuss.menu_members", name: "Channel Members", parent: "discuss.menu_root", action: "discuss.action_members", sequence: 20 },
-    { technicalName: "discuss.menu_messages", name: "Messages", parent: "discuss.menu_root", action: "discuss.action_messages", sequence: 30 }
+    // { technicalName: "discuss.menu_channels", name: "Channels", parent: "discuss.menu_root", action: "discuss.action_channels", sequence: 10 },
+    // { technicalName: "discuss.menu_members", name: "Channel Members", parent: "discuss.menu_root", action: "discuss.action_members", sequence: 20 },
+    // { technicalName: "discuss.menu_messages", name: "Messages", parent: "discuss.menu_root", action: "discuss.action_messages", sequence: 30 }
   ],
   routes: discussRoutes
 });

@@ -1,9 +1,11 @@
 import type { ModelDefinition } from "@record-platform/core";
+import { discussChannelAccessRule } from "../access";
 
 export const discussChannelModel: ModelDefinition = {
   technicalName: "discuss.channel",
   name: "Discuss Channel",
   tableName: "discuss_channel",
+  accessRule: discussChannelAccessRule,
   fields: [
     { name: "name", label: "Channel Name", type: "char", required: true, sequence: 10 },
     { name: "description", label: "Description", type: "text", sequence: 20 },

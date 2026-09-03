@@ -43,6 +43,7 @@ export function buildRegistry(): RuntimeRegistry {
     for (const model of mod.models ?? []) {
       const runtimeModel = models.get(model.technicalName);
       if (!runtimeModel) continue;
+      runtimeModel.accessRule = model.accessRule;
       for (const [name, method] of Object.entries(model.methods ?? {})) {
         const chain = runtimeModel.methods.get(name) ?? [];
         chain.push(method);
@@ -113,7 +114,8 @@ export function createEnvironment(registry: RuntimeRegistry, context: Record<str
 function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime {
   return {
     async search(domain: Domain = [], options: { limit?: number; offset?: number } = {}) {
-      const { sql, params } = domainToSql(domain);
+      const securedDomain = [...getAccessDomain(model, env), ...domain];
+      const { sql, params } = domainToSql(securedDomain);
       const limit = options.limit && options.limit > 0 ? ` LIMIT ${Math.min(options.limit, 100)}` : "";
       const offset = options.offset && options.offset > 0 ? ` OFFSET ${Math.max(0, options.offset)}` : "";
       const rows = db.prepare(`SELECT id FROM ${quoteIdent(model.tableName)} ${sql} ORDER BY id DESC${limit}${limit ? offset : ""}`).all(...params) as Array<{ id: number }>;
@@ -124,7 +126,8 @@ function createModelRuntime(env: Environment, model: RuntimeModel): ModelRuntime
       const storedFields = model.fields.filter((field) => field.stored !== false);
       const requestedFields = fields?.length ? fields : model.fields.map((field) => field.name);
       const selected = unique(["id", ...requestedFields.filter((fieldName) => storedFields.some((field) => field.name === fieldName))]);
-      const rows = db.prepare(`SELECT ${selected.map(quoteIdent).join(", ")} FROM ${quoteIdent(model.tableName)} WHERE id IN (${ids.map(() => "?").join(", ")})`).all(...ids);
+      const { sql, params } = domainToSql([...getAccessDomain(model, env), ["id", "in", ids]]);
+      const rows = db.prepare(`SELECT ${selected.map(quoteIdent).join(", ")} FROM ${quoteIdent(model.tableName)} ${sql}`).all(...params);
       const records = rows.map((row: any) => deserializeRow(model, row));
       await applyComputedFields(env, model, records, requestedFields);
       await enrichManyToOneValues(env, model, records, requestedFields);
@@ -259,6 +262,10 @@ function normalizeComputedResult(result: unknown, fieldName: string, ids: number
 
 function unique<T>(values: T[]) {
   return [...new Set(values)];
+}
+
+function getAccessDomain(model: RuntimeModel, env: Environment): Domain {
+  return model.accessRule?.({ db, user: env.user }) ?? [];
 }
 
 function rowToField(row: any): FieldDefinition {

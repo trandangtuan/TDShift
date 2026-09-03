@@ -11,6 +11,9 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Added module-owned Discuss access rules through the generic model access hook, so registry code no longer contains Discuss-specific model names or SQL.
+- Added Discuss record rules so users can only read channels, messages, members, and read receipts belonging to channels where they are active members.
+- Added inline label editing for individual Discuss channel members.
 - Added `core.user.phone` and expanded Discuss user search to match names, phone numbers, and email addresses.
 - Added Discuss channel deletion with dependent message/read-receipt cleanup, member removal, and user search that creates or reuses a private channel automatically.
 - Added the `discuss` module with internal channels, messages, channel membership management, user assignment, member labels, and channel/member/message menus.

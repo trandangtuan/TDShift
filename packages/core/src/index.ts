@@ -63,9 +63,12 @@ export interface ModelDefinition {
   isAbstract?: boolean;
   isTransient?: boolean;
   fields: FieldDefinition[];
+  accessRule?: ModelAccessRule;
   methods?: Record<string, ModelMethod>;
   extensions?: ModelExtensionDefinition[];
 }
+
+export type ModelAccessRule = (context: { db: any; user: Environment["user"] }) => Domain;
 
 export interface FieldDefinition {
   name: string;
