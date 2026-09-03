@@ -111,6 +111,10 @@ function verifyToken(token: string) {
   return toAuthUser(user);
 }
 
+export function getUserFromToken(token: string) {
+  return verifyToken(token);
+}
+
 function safeEqual(left: string, right: string) {
   const leftBuffer = Buffer.from(left);
   const rightBuffer = Buffer.from(right);

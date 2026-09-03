@@ -72,6 +72,10 @@ export async function getAttachmentObject(bucket: string, objectName: string) {
   return minioClient().getObject(bucket, objectName);
 }
 
+export async function deleteAttachmentObject(bucket: string, objectName: string) {
+  await minioClient().removeObject(bucket, objectName);
+}
+
 async function ensureBucket(bucket: string) {
   const exists = await minioClient().bucketExists(bucket).catch(() => false);
   if (!exists) await minioClient().makeBucket(bucket);

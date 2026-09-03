@@ -11,6 +11,12 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Added module-owned Discuss access rules through the generic model access hook, so registry code no longer contains Discuss-specific model names or SQL.
+- Added Discuss record rules so users can only read channels, messages, members, and read receipts belonging to channels where they are active members.
+- Added inline label editing for individual Discuss channel members.
+- Added `core.user.phone` and expanded Discuss user search to match names, phone numbers, and email addresses.
+- Added Discuss channel deletion with dependent message/read-receipt cleanup, member removal, and user search that creates or reuses a private channel automatically.
+- Added the `discuss` module with internal channels, messages, channel membership management, user assignment, member labels, and channel/member/message menus.
 - Added contribution rules requiring every change request to be analyzed, re-evaluated against the architecture, verified, and recorded in this changelog.
 - Added `CONTRIBUTING.md` to document the required change workflow and record-driven development rule.
 - Added Phase 1 record-driven platform POC with a TypeScript monorepo, Fastify backend, SQLite dev database, runtime registry, generic model CRUD APIs, and React/Vite web client.
@@ -130,6 +136,7 @@ All notable changes to this project are documented here.
 
 ### Fixed
 
+- Fixed Discuss Socket.IO message and read-receipt inserts to use the platform's `create_date`/`write_date` audit columns, preventing backend restarts and browser connection resets.
 - Fixed initial data seeding for models without a `name` column, such as `sale.order.line`.
 - Restored the `sale_discount` module manifest required by the module registry and install/uninstall POC.
 - Fixed missing technical views for `core.menu`.
