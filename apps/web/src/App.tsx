@@ -5,6 +5,7 @@ import type { ActionDefinition, Domain, RuntimeMenu, RuntimeView } from "@record
 import AiChat from "./components/AiChat";
 import FormRenderer from "./components/FormRenderer";
 import type { FormRendererHandle } from "./components/FormRenderer";
+import Gallery from "./components/Gallery";
 import LoginScreen from "./components/LoginScreen";
 import ListRenderer from "./components/ListRenderer";
 import MenuTree from "./components/MenuTree";
@@ -312,6 +313,8 @@ export default function App() {
             </div>
             <AiChat api={api} streamApi={streamApi} />
           </>
+        ) : action.technicalName === "gallery.action_gallery" || action.technicalName === "gallery.action_timeline" ? (
+          <Gallery api={api} initialView={action.technicalName === "gallery.action_timeline" ? "timeline" : "gallery"} />
         ) : !model || !view ? (
           <div className="empty-state">
             <Settings size={36} />

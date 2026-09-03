@@ -11,5 +11,6 @@ import stock from "../../../modules/stock/module";
 import purchase from "../../../modules/purchase/module";
 import website from "../../../modules/website/module";
 import mcp from "../../../modules/mcp/module";
+import gallery from "../../../modules/gallery/module";
 
-export const moduleDefinitions: ModuleDefinition[] = [base, contacts, product, accounting, stock, sale, crm, purchase, saleDiscount, website, ai, mcp];
+export const moduleDefinitions: ModuleDefinition[] = [base, contacts, product, accounting, stock, sale, crm, purchase, saleDiscount, website, ai, mcp, gallery];
