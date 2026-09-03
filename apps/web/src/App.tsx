@@ -6,6 +6,7 @@ import AiChat from "./components/AiChat";
 import FormRenderer from "./components/FormRenderer";
 import type { FormRendererHandle } from "./components/FormRenderer";
 import Gallery from "./components/Gallery";
+import DiscussChat from "./components/DiscussChat";
 import LoginScreen from "./components/LoginScreen";
 import ListRenderer from "./components/ListRenderer";
 import MenuTree from "./components/MenuTree";
@@ -303,6 +304,11 @@ export default function App() {
             <h1>Metadata runtime is ready</h1>
             <p>Choose a menu record. The sidebar, action, view, fields, and records are all resolved from runtime metadata.</p>
           </div>
+        ) : action.technicalName === "discuss.action_chat" ? (
+          <>
+            <div className="actionbar discuss-actionbar"><div><h1>{action.name}</h1><span>Internal messaging</span></div></div>
+            <DiscussChat api={api} user={user} />
+          </>
         ) : action.technicalName === "ai.action_chat" ? (
           <>
             <div className="actionbar">

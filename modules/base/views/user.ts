@@ -1,7 +1,7 @@
 import type { ViewDefinition } from "@record-platform/core";
 
 export const userViews: ViewDefinition[] = [
-  { technicalName: "base.user.list", name: "Users", model: "core.user", type: "list", architecture: { type: "list", model: "core.user", fields: ["login", "name", "email", "active"] } },
+  { technicalName: "base.user.list", name: "Users", model: "core.user", type: "list", architecture: { type: "list", model: "core.user", fields: ["login", "name", "email", "phone", "active"] } },
   {
     technicalName: "base.user.form",
     name: "User",
@@ -10,7 +10,7 @@ export const userViews: ViewDefinition[] = [
     architecture: {
       type: "form",
       model: "core.user",
-      children: [{ type: "group", children: [{ type: "field", name: "login" }, { type: "field", name: "name" }, { type: "field", name: "email" }, { type: "field", name: "password" }, { type: "field", name: "token_version" }, { type: "field", name: "api_token" }, { type: "field", name: "active" }] }]
+      children: [{ type: "group", children: [{ type: "field", name: "login" }, { type: "field", name: "name" }, { type: "field", name: "email" }, { type: "field", name: "phone" }, { type: "field", name: "password" }, { type: "field", name: "token_version" }, { type: "field", name: "api_token" }, { type: "field", name: "active" }] }]
     }
   }
 ];

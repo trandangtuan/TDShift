@@ -8,7 +8,6 @@ const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "im
 
 export const galleryRoutes: ModuleRoute[] = [{
   async register({ app, db, createRequestEnvironment }) {
-    db.prepare("CREATE INDEX IF NOT EXISTS gallery_image_owner_created_idx ON gallery_image (owner_id, create_date DESC, id DESC)").run();
     app.post("/api/gallery/upload", async (request: any, reply: any) => {
       const file = await request.file({ limits: { fileSize: MAX_FILE_SIZE } });
       if (!file) return reply.code(400).send({ error: "File is required" });
