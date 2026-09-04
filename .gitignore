@@ -5,3 +5,5 @@ apps/server/.env
 *.sqlite-wal
 node_modules/
 dist/
+.next/
+*.tsbuildinfo

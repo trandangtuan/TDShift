@@ -6,11 +6,16 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- Changed first startup to install only the `base` module; all other modules are discovered and require explicit installation with their dependencies.
+- Changed the public website presentation layer to a separate Next.js App Router app at `apps/site`, while keeping `modules/website` as the source of page and menu metadata.
+- Changed new `ir.attachment` and gallery uploads to store file bytes on the local filesystem under `ATTACHMENT_STORAGE_PATH`, while retaining legacy MinIO reads.
 - Changed `sale.order.amount_total` to a stored field and added Sale Order Line write hooks to refresh stored totals when order lines change.
 - Changed Sale Order list totals to read from stored `amount_total`, so `search_read` no longer computes totals or queries `sale_order_line` for list rows.
 
 ### Added
 
+- Added 20 active demo products to the `product` module seed data for catalog and website_sale testing.
+- Added `website_sale`, a website extension that publishes active `product.product` records through the Next.js catalog at `/products` and `/products/:slug`.
 - Added module-owned Discuss access rules through the generic model access hook, so registry code no longer contains Discuss-specific model names or SQL.
 - Added Discuss record rules so users can only read channels, messages, members, and read receipts belonging to channels where they are active members.
 - Added inline label editing for individual Discuss channel members.

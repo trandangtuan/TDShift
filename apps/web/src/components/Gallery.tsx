@@ -2,6 +2,7 @@ import { DeleteOutlined, PictureOutlined, ReloadOutlined, UploadOutlined } from 
 import { Button, Empty, Image, message, Popconfirm, Segmented, Spin, Upload } from "antd";
 import type { UploadProps } from "antd";
 import { useEffect, useRef, useState } from "react";
+import { beginApiRequest, endApiRequest } from "../apiActivity";
 import type { ApiClient } from "./types";
 
 type GalleryProps = { api: ApiClient; initialView: "gallery" | "timeline" };
@@ -111,10 +112,11 @@ function GalleryCard({ image, onDelete }: { image: GalleryImage; onDelete: (imag
   useEffect(() => {
     let objectUrl: string | null = null;
     const controller = new AbortController();
+    beginApiRequest();
     fetch(`${apiBase}${image.thumbnail_url}`, { headers: { Authorization: `Bearer ${localStorage.getItem(tokenStorageKey) ?? ""}` }, signal: controller.signal }).then((response) => {
       if (!response.ok) throw new Error("Image unavailable");
       return response.blob();
-    }).then((blob) => { objectUrl = URL.createObjectURL(blob); setSrc(objectUrl); }).catch(() => undefined);
+    }).then((blob) => { objectUrl = URL.createObjectURL(blob); setSrc(objectUrl); }).catch(() => undefined).finally(endApiRequest);
     return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl); };
   }, [image.id, image.thumbnail_url]);
   return <article className="gallery-card">

@@ -7,11 +7,25 @@ const pageCache = new WeakMap<object, Map<string, CachedPage>>();
 export const websiteRoutes: ModuleRoute[] = [
   {
     register({ app, db }) {
-      app.get("/", async (_request: any, reply: any) => renderWebsitePage(db, "home", reply));
-      app.get("/:slug", async (request: any, reply: any) => {
-        if (request.url.startsWith("/api/") || request.url.startsWith("/assets/") || request.url.startsWith("/web")) return reply.callNotFound();
-        return renderWebsitePage(db, request.params.slug, reply);
+      app.get("/api/website/pages/:slug", async (request: any, reply: any) => {
+        const page = getPublishedWebsitePage(db, normalizeSlug(request.params.slug));
+        if (!page) return reply.code(404).send({ error: "Page not found" });
+        return {
+          page: {
+            title: page.title,
+            meta_description: page.meta_description,
+            content: getWebsiteViewContent(db, page.view_name) ?? page.content_html ?? ""
+          },
+          menus: getPublishedWebsiteMenus(db)
+        };
       });
+      if (!process.env.NEXT_SITE_URL) {
+        app.get("/", async (_request: any, reply: any) => renderWebsitePage(db, "home", reply));
+        app.get("/:slug", async (request: any, reply: any) => {
+          if (request.url.startsWith("/api/") || request.url.startsWith("/assets/") || request.url.startsWith("/web")) return reply.callNotFound();
+          return renderWebsitePage(db, request.params.slug, reply);
+        });
+      }
     }
   }
 ];

@@ -10,6 +10,7 @@ ENV NODE_ENV=development
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY apps/server/package.json apps/server/package.json
 COPY apps/web/package.json apps/web/package.json
+COPY apps/site/package.json apps/site/package.json
 COPY apps/mcp/package.json apps/mcp/package.json
 COPY packages/core/package.json packages/core/package.json
 RUN npm ci
@@ -32,3 +33,7 @@ COPY --from=build /app/modules modules
 COPY --from=build /app/skills skills
 EXPOSE 3100
 CMD ["npm", "run", "start"]
+
+FROM runner AS site-runner
+EXPOSE 3000
+CMD ["npm", "run", "start", "-w", "@record-platform/site"]

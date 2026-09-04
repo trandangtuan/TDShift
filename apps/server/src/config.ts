@@ -17,6 +17,8 @@ export const config = {
   adminName: process.env.ADMIN_NAME ?? "Administrator",
   adminEmail: process.env.ADMIN_EMAIL ?? "admin@example.local",
   websiteBaseUrl: process.env.WEBSITE_BASE_URL ?? `http://localhost:${Number(process.env.PORT ?? 3100)}`,
+  nextSiteUrl: process.env.NEXT_SITE_URL ?? "http://localhost:3101",
+  attachmentStoragePath: process.env.ATTACHMENT_STORAGE_PATH ?? "storage/attachments",
   minioEndpoint: process.env.MINIO_ENDPOINT ?? "localhost",
   minioPort: Number(process.env.MINIO_PORT ?? 9000),
   minioUseSsl: process.env.MINIO_USE_SSL === "true",

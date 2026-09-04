@@ -30,6 +30,24 @@ body {
   overflow: hidden;
 }
 button, input, select, textarea { font: inherit; }
+.api-activity-indicator {
+  align-items: center;
+  background: #1f2933;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  bottom: 18px;
+  box-shadow: 0 5px 16px rgba(31, 41, 55, 0.24);
+  color: #8ee3d7;
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  position: fixed;
+  right: 18px;
+  width: 32px;
+  z-index: 1000;
+}
+.api-activity-indicator svg { animation: api-activity-spin 0.9s linear infinite; }
+@keyframes api-activity-spin { to { transform: rotate(360deg); } }
 
 .app { display: flex; height: 100vh; min-height: 0; overflow: hidden; }
 .brand { align-items: center; display: flex; flex: 0 0 auto; gap: 8px; padding: 10px 10px 12px; }

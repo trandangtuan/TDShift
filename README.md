@@ -23,7 +23,8 @@ Implemented modules:
 - `contacts`: `res.partner` model with list/form views.
 - `sale`: `sale.order` model with generic CRUD and `confirm`/`cancel` methods.
 - `sale_discount`: extends `sale.order` with discount fields and a form view extension.
-- `website`: public website page records with admin page management and HTML rendering.
+- `website`: public website page records with admin page management and HTML rendering through Next.js.
+- `website_sale`: public product catalog backed by the shared `product.product` model.
 
 Implemented runtime:
 
@@ -34,6 +35,7 @@ Implemented runtime:
 - Generic record CRUD API.
 - Dynamic menu/action/view APIs.
 - React/Vite web client.
+- Next.js public website with App Router, shared layout, dynamic slug pages, and SEO metadata.
 - Generic list renderer.
 - Generic form renderer.
 - Generic field renderer.
@@ -62,7 +64,10 @@ Or run them separately:
 ```bash
 npm run server
 npm run web
+npm run site
 ```
+
+When using `npm run dev`, public website requests are proxied through `http://localhost:3100`; Next.js itself listens internally on port `3101`.
 
 After building, run only the backend. It serves both API and the built web app from one port:
 
@@ -78,9 +83,12 @@ Backend: http://localhost:3100
 Web:     http://localhost:5173
 Built admin app: http://localhost:3100/web
 Website: http://localhost:3100
+Next website (through app): http://localhost:3100
 ```
 
-In production build mode, the web client calls `/api/...` on the same backend origin. In development mode, Vite still runs separately and defaults API calls to `http://localhost:3100`.
+In development mode, the Next website reads published pages from the backend website API at `http://localhost:3100`. Set `WEBSITE_API_URL` when the backend runs at another address. In Docker, Fastify exposes the single public port `3100` and proxies website requests to the internal Next.js service.
+
+On a new database, only `base` is installed automatically. Other modules are discovered and can be installed from Settings; dependencies are installed automatically with the selected module.
 
 ## Docker Compose with PostgreSQL
 
@@ -95,6 +103,7 @@ Default services:
 
 ```text
 App:        http://localhost:3100
+Website:    http://localhost:3100
 PostgreSQL: db:5432 inside the compose network
 ```
 

@@ -8,12 +8,13 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n server,web -c green,cyan \"npm run dev -w @record-platform/server\" \"npm run dev -w @record-platform/web\"",
-    "build": "npm run build -w @record-platform/core && npm run build -w @record-platform/server && npm run build -w @record-platform/web && npm run build -w @record-platform/mcp",
-    "check": "npm run check -w @record-platform/core && npm run check -w @record-platform/server && npm run check -w @record-platform/web && npm run check -w @record-platform/mcp",
+    "dev": "concurrently -n server,web,site -c green,cyan,magenta \"NEXT_SITE_URL=http://localhost:3101 npm run dev -w @record-platform/server\" \"npm run dev -w @record-platform/web\" \"npm run dev -w @record-platform/site\"",
+    "build": "npm run build -w @record-platform/core && npm run build -w @record-platform/server && npm run build -w @record-platform/web && npm run build -w @record-platform/site && npm run build -w @record-platform/mcp",
+    "check": "npm run check -w @record-platform/core && npm run check -w @record-platform/server && npm run check -w @record-platform/web && npm run check -w @record-platform/site && npm run check -w @record-platform/mcp",
     "start": "npm run start -w @record-platform/server",
-    "server": "npm run dev -w @record-platform/server",
-    "web": "npm run dev -w @record-platform/web"
+    "server": "NEXT_SITE_URL=http://localhost:3101 npm run dev -w @record-platform/server",
+    "web": "npm run dev -w @record-platform/web",
+    "site": "npm run dev -w @record-platform/site"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

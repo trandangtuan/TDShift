@@ -1,6 +1,6 @@
 import type { ModuleRoute } from "@record-platform/core";
 import { ensureAdminUser, getUserFromRequest, login, registerUser, resetUserToken } from "../../apps/server/src/auth";
-import { getAttachmentObject, storeAttachmentStream } from "../../apps/server/src/attachments";
+import { getAttachmentObject, getLegacyMinioObject, storeAttachmentStream } from "../../apps/server/src/attachments";
 import { bootstrapModules, installModuleRecords, uninstallModuleAndDropOwnedFields } from "../../apps/server/src/db";
 
 export const baseRoutes: ModuleRoute[] = [
@@ -77,8 +77,13 @@ export const baseRoutes: ModuleRoute[] = [
         const [attachment] = await env.model("ir.attachment").read([Number(request.params.id)], ["name", "file_name", "mime_type", "storage", "bucket", "object_name", "url"]);
         if (!attachment) return reply.code(404).send({ error: "Attachment not found" });
         if (attachment.storage === "url" && attachment.url) return reply.redirect(String(attachment.url));
-        if (attachment.storage !== "minio" || !attachment.bucket || !attachment.object_name) return reply.code(404).send({ error: "Attachment object not found" });
-        const stream = await getAttachmentObject(String(attachment.bucket), String(attachment.object_name));
+        if (!attachment.bucket || !attachment.object_name) return reply.code(404).send({ error: "Attachment object not found" });
+        const stream = attachment.storage === "minio"
+          ? await getLegacyMinioObject(String(attachment.bucket), String(attachment.object_name))
+          : attachment.storage === "file"
+            ? await getAttachmentObject(String(attachment.bucket), String(attachment.object_name))
+            : null;
+        if (!stream) return reply.code(404).send({ error: "Attachment object not found" });
         return reply
           .header("Content-Type", String(attachment.mime_type || "application/octet-stream"))
           .header("Content-Disposition", `attachment; filename="${String(attachment.file_name || attachment.name || "attachment").replace(/"/g, "")}"`)
@@ -95,7 +100,7 @@ export const baseRoutes: ModuleRoute[] = [
           name: fields.name || file.filename,
           file_name: file.filename,
           mime_type: file.mimetype,
-          storage: "minio",
+          storage: "file",
           datas: null,
           res_model: fields.res_model || null,
           res_id: fields.res_id ? Number(fields.res_id) : null,

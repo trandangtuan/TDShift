@@ -1,4 +1,5 @@
 import cors from "@fastify/cors";
+import httpProxy from "@fastify/http-proxy";
 import multipart from "@fastify/multipart";
 import fastifyStatic from "@fastify/static";
 import Fastify, { type FastifyRequest } from "fastify";
@@ -13,7 +14,9 @@ import { buildRegistry, createEnvironment } from "./registry";
 
 bootstrapModules(moduleDefinitions);
 if ((db.prepare("SELECT COUNT(*) AS count FROM core_model").get() as { count: number }).count === 0) {
-  bootstrapModules(moduleDefinitions, { forceInstall: true });
+  const baseModule = moduleDefinitions.find((module) => module.technicalName === "base");
+  if (!baseModule) throw new Error("The base module must be available on first startup.");
+  bootstrapModules([baseModule], { forceInstall: true });
 }
 ensureAdminUser();
 let registry = buildRegistry();
@@ -23,9 +26,17 @@ await app.register(cors, { origin: true });
 await app.register(multipart, { limits: { fileSize: 1024 * 1024 * 1024 } });
 const webDistPath = findWebDistPath();
 
+if (process.env.NEXT_SITE_URL) {
+  await app.register(httpProxy, {
+    upstream: config.nextSiteUrl,
+    routes: ["/", "/:slug", "/:slug/*"],
+    http2: false
+  });
+}
+
 app.addHook("preHandler", async (request, reply) => {
   if (!request.url.startsWith("/api/")) return;
-  if (request.url === "/api/health" || request.url === "/api/auth/login" || request.url === "/api/auth/register") return;
+  if (request.url === "/api/health" || request.url === "/api/auth/login" || request.url === "/api/auth/register" || request.url.startsWith("/api/website/") || request.url.startsWith("/api/website-sale/")) return;
   const user = getUserFromRequest(request);
   if (!user) return reply.code(401).send({ error: "Authentication required" });
 });

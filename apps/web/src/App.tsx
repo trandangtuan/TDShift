@@ -1,5 +1,5 @@
-import { ChevronRight, List, LogOut, Plus, RefreshCw, Save, Settings, Trash2, UploadCloud } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronRight, List, LoaderCircle, LogOut, Plus, RefreshCw, Save, Settings, Trash2, UploadCloud } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Button, ConfigProvider, Input, Layout } from "antd";
 import type { ActionDefinition, Domain, RuntimeMenu, RuntimeView } from "@record-platform/core";
 import AiChat from "./components/AiChat";
@@ -11,6 +11,7 @@ import LoginScreen from "./components/LoginScreen";
 import ListRenderer from "./components/ListRenderer";
 import MenuTree from "./components/MenuTree";
 import type { AuthUser, RuntimeModel } from "./components/types";
+import { beginApiRequest, endApiRequest, getPendingApiRequests, subscribeApiActivity } from "./apiActivity";
 import "./index.css";
 
 const apiBase = import.meta.env.VITE_API_BASE ?? (import.meta.env.DEV ? "http://localhost:3100" : "");
@@ -400,8 +401,15 @@ export default function App() {
         )}
       </Layout.Content>
       </Layout>
+      <ApiActivityIndicator />
     </ConfigProvider>
   );
+}
+
+function ApiActivityIndicator() {
+  const pending = useSyncExternalStore(subscribeApiActivity, getPendingApiRequests, () => 0);
+  if (!pending) return null;
+  return <div className="api-activity-indicator" role="status" aria-label="API request in progress" title={`${pending} API request${pending === 1 ? "" : "s"} in progress`}><LoaderCircle size={16} /></div>;
 }
 
 function Breadcrumbs({ items, current, onOpen }: { items: BreadcrumbItem[]; current: string; onOpen: (item: BreadcrumbItem) => void }) {
@@ -430,53 +438,63 @@ function pushWorkspaceUrl(actionExternalId: string, mode: Mode, id?: number | nu
 }
 
 async function api<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
-  const isFormData = typeof FormData !== "undefined" && init?.body instanceof FormData;
-  const body = init?.body ? isFormData ? init.body as FormData : JSON.stringify(init.body) : undefined;
-  const response = await fetch(`${apiBase}${path}`, {
-    method: init?.method ?? "GET",
-    headers: {
-      ...(init?.body && !isFormData ? { "Content-Type": "application/json" } : {}),
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
-    },
-    body
-  });
-  if (response.status === 401 && path !== "/api/auth/login") {
-    localStorage.removeItem(tokenStorageKey);
-    authToken = null;
-    window.dispatchEvent(new Event("auth:expired"));
+  beginApiRequest();
+  try {
+    const isFormData = typeof FormData !== "undefined" && init?.body instanceof FormData;
+    const body = init?.body ? isFormData ? init.body as FormData : JSON.stringify(init.body) : undefined;
+    const response = await fetch(`${apiBase}${path}`, {
+      method: init?.method ?? "GET",
+      headers: {
+        ...(init?.body && !isFormData ? { "Content-Type": "application/json" } : {}),
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+      },
+      body
+    });
+    if (response.status === 401 && path !== "/api/auth/login") {
+      localStorage.removeItem(tokenStorageKey);
+      authToken = null;
+      window.dispatchEvent(new Event("auth:expired"));
+    }
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  } finally {
+    endApiRequest();
   }
-  if (!response.ok) throw new Error(await response.text());
-  return response.json();
 }
 
 async function streamApi(path: string, init: { method?: string; body?: unknown; onEvent: (event: Record<string, unknown>) => void }) {
-  const response = await fetch(`${apiBase}${path}`, {
-    method: init.method ?? "GET",
-    headers: {
-      ...(init.body ? { "Content-Type": "application/json" } : {}),
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
-    },
-    body: init.body ? JSON.stringify(init.body) : undefined
-  });
-  if (response.status === 401) {
-    localStorage.removeItem(tokenStorageKey);
-    authToken = null;
-    window.dispatchEvent(new Event("auth:expired"));
-  }
-  if (!response.ok || !response.body) throw new Error(await response.text());
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-    for (const line of lines) {
-      if (!line.trim()) continue;
-      init.onEvent(JSON.parse(line));
+  beginApiRequest();
+  try {
+    const response = await fetch(`${apiBase}${path}`, {
+      method: init.method ?? "GET",
+      headers: {
+        ...(init.body ? { "Content-Type": "application/json" } : {}),
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+      },
+      body: init.body ? JSON.stringify(init.body) : undefined
+    });
+    if (response.status === 401) {
+      localStorage.removeItem(tokenStorageKey);
+      authToken = null;
+      window.dispatchEvent(new Event("auth:expired"));
     }
+    if (!response.ok || !response.body) throw new Error(await response.text());
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        init.onEvent(JSON.parse(line));
+      }
+    }
+    if (buffer.trim()) init.onEvent(JSON.parse(buffer));
+  } finally {
+    endApiRequest();
   }
-  if (buffer.trim()) init.onEvent(JSON.parse(buffer));
 }

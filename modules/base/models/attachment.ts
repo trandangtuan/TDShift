@@ -20,6 +20,7 @@ export const attachmentModel: ModelDefinition = {
       defaultValue: "db",
       selectionOptions: [
         { label: "Database", value: "db" },
+        { label: "File", value: "file" },
         { label: "MinIO", value: "minio" },
         { label: "URL", value: "url" }
       ],

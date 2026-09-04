@@ -1,5 +1,9 @@
 import { createHash, randomUUID } from "node:crypto";
-import { PassThrough } from "node:stream";
+import { createReadStream, createWriteStream } from "node:fs";
+import { mkdir, unlink } from "node:fs/promises";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
+import { Transform } from "node:stream";
+import { pipeline } from "node:stream/promises";
 import { Client } from "minio";
 import { config } from "./config";
 
@@ -25,14 +29,11 @@ export async function storeAttachmentPayload(values: Record<string, unknown>) {
   const fileName = String(values.file_name || values.name || "attachment");
   const objectName = String(values.object_name || `${new Date().toISOString().slice(0, 10)}/${randomUUID()}-${safeFileName(fileName)}`);
   const bucket = String(values.bucket || config.minioBucket);
-  await ensureBucket(bucket);
-  await minioClient().putObject(bucket, objectName, buffer, buffer.length, {
-    "Content-Type": String(values.mime_type || "application/octet-stream")
-  });
+  await writeAttachmentFile(bucket, objectName, buffer);
 
   return {
     ...values,
-    storage: "minio",
+    storage: "file",
     bucket,
     object_name: objectName,
     file_size: buffer.length,
@@ -46,19 +47,16 @@ export async function storeAttachmentStream(input: { stream: NodeJS.ReadableStre
   const objectName = input.objectName || `${new Date().toISOString().slice(0, 10)}/${randomUUID()}-${safeFileName(input.fileName)}`;
   const checksum = createHash("sha256");
   let fileSize = 0;
-  const passThrough = new PassThrough();
-
-  input.stream.on("data", (chunk: Buffer) => {
-    fileSize += chunk.length;
-    checksum.update(chunk);
+  const filePath = attachmentFilePath(bucket, objectName);
+  await mkdir(dirname(filePath), { recursive: true });
+  const digest = new Transform({
+    transform(chunk: Buffer, _encoding, callback) {
+      fileSize += chunk.length;
+      checksum.update(chunk);
+      callback(null, chunk);
+    }
   });
-  input.stream.on("error", (error) => passThrough.destroy(error));
-  input.stream.pipe(passThrough);
-
-  await ensureBucket(bucket);
-  await minioClient().putObject(bucket, objectName, passThrough, undefined, {
-    "Content-Type": input.mimeType || "application/octet-stream"
-  });
+  await pipeline(input.stream, digest, createWriteStream(filePath));
 
   return {
     bucket,
@@ -69,16 +67,45 @@ export async function storeAttachmentStream(input: { stream: NodeJS.ReadableStre
 }
 
 export async function getAttachmentObject(bucket: string, objectName: string) {
-  return minioClient().getObject(bucket, objectName);
+  return createReadStream(attachmentFilePath(bucket, objectName));
 }
 
 export async function deleteAttachmentObject(bucket: string, objectName: string) {
-  await minioClient().removeObject(bucket, objectName);
+  await unlink(attachmentFilePath(bucket, objectName));
 }
 
-async function ensureBucket(bucket: string) {
-  const exists = await minioClient().bucketExists(bucket).catch(() => false);
-  if (!exists) await minioClient().makeBucket(bucket);
+export async function getLegacyMinioObject(bucket: string, objectName: string) {
+  return minioClient().getObject(bucket, objectName);
+}
+
+async function writeAttachmentFile(bucket: string, objectName: string, buffer: Buffer) {
+  const filePath = attachmentFilePath(bucket, objectName);
+  await mkdir(dirname(filePath), { recursive: true });
+  await new Promise<void>((resolvePromise, reject) => {
+    const stream = createWriteStream(filePath);
+    stream.on("error", reject);
+    stream.on("finish", resolvePromise);
+    stream.end(buffer);
+  });
+}
+
+function attachmentFilePath(bucket: string, objectName: string) {
+  const root = resolve(config.attachmentStoragePath);
+  const filePath = resolve(root, safePathPart(bucket), safeObjectName(objectName));
+  const pathFromRoot = relative(root, filePath);
+  if (pathFromRoot.startsWith("..") || isAbsolute(pathFromRoot)) throw new Error("Invalid attachment path");
+  return filePath;
+}
+
+function safeObjectName(objectName: string) {
+  const normalized = objectName.replaceAll("\\", "/");
+  if (!normalized || normalized.split("/").some((part) => !part || part === "." || part === "..")) throw new Error("Invalid attachment object name");
+  return normalized;
+}
+
+function safePathPart(value: string) {
+  if (!value || value === "." || value === ".." || value.includes("/") || value.includes("\\")) throw new Error("Invalid attachment bucket");
+  return value;
 }
 
 function safeFileName(name: string) {
