@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const partnerViews: ViewDefinition[] = [
-  { technicalName: "contacts.partner.list", name: "Contacts", model: "res.partner", type: "list", architecture: { type: "list", model: "res.partner", fields: ["name", "email", "phone", "active"] } },
+export const partnerView: ViewDefinition[] = [
+  { technicalName: "contacts.partner.list", name: "Liên hệ", model: "res.partner", type: "list", architecture: { type: "list", model: "res.partner", fields: ["name", "email", "phone", "active"] } },
   {
     technicalName: "contacts.partner.form",
-    name: "Contact",
+    name: "Liên hệ",
     model: "res.partner",
     type: "form",
     architecture: {

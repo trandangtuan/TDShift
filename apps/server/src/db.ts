@@ -1,8 +1,30 @@
 import type { FieldDefinition, ModuleDefinition } from "@record-platform/core";
-import { createDatabase } from "./database";
+import type { DatabaseLike } from "./database";
+import { AsyncLocalStorage } from "node:async_hooks";
+import { getDatabase, getDefaultDatabaseName } from "./database-manager";
 
-export const db = createDatabase();
-db.pragma("journal_mode = WAL");
+const defaultDatabase = getDatabase(getDefaultDatabaseName());
+const databaseContext = new AsyncLocalStorage<{ name: string; database: DatabaseLike }>();
+
+export const db = new Proxy({} as DatabaseLike, {
+  get(_target, property) {
+    const database = databaseContext.getStore()?.database ?? defaultDatabase;
+    const value = database[property as keyof DatabaseLike];
+    return typeof value === "function" ? value.bind(database) : value;
+  }
+});
+
+export function getCurrentDatabaseName() {
+  return databaseContext.getStore()?.name ?? getDefaultDatabaseName();
+}
+
+export function enterDatabase(name: string) {
+  databaseContext.enterWith({ name, database: getDatabase(name) });
+}
+
+export function runInDatabase<T>(name: string, callback: () => T) {
+  return databaseContext.run({ name, database: getDatabase(name) }, callback);
+}
 
 type BootstrapModuleOptions = { forceInstall?: boolean; applyMetadata?: boolean };
 type ModuleSyncCounts = {

@@ -39,7 +39,7 @@ export const pageData: DataRecordDefinition[] = [
       slug: "module-guide",
       url: "http://localhost:3100/module-guide",
       title: "Hướng dẫn sử dụng module",
-      meta_description: "Hướng dẫn sử dụng từng module trong MetaFlow: Base, Contacts, Product, CRM, Sale, Purchase, Stock, Accounting, Website, AI và MCP.",
+      meta_description: "Hướng dẫn sử dụng từng module trong MetaFlow: Nền tảng, Liên hệ, Product, CRM, Sale, Mua hàng, Stock, Accounting, Website, AI và MCP.",
       view_name: "website.page_module_guide.view",
       is_published: true,
       published_at: "2026-08-25T00:00:00.000Z",

@@ -4,7 +4,7 @@ import { saleOrderDiscountViewExtensions } from "./views";
 
 export default defineModule({
   technicalName: "sale_discount",
-  displayName: "Sales Discount",
+  displayName: "Bán hàng Discount",
   version: "1.0.0",
   depends: ["sale"],
   sequence: 30,

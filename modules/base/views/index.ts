@@ -1,7 +1,7 @@
-export { attachmentViews } from "./attachment";
-export { menuViews } from "./menu";
-export { modelViews } from "./model";
-export { modelFieldViews } from "./model-field";
-export { moduleViews } from "./module";
-export { userViews } from "./user";
-export { viewViews } from "./view";
+export { attachmentView } from "./attachment";
+export { menuView } from "./menu";
+export { modelView } from "./model";
+export { modelFieldView } from "./model-field";
+export { moduleView } from "./module";
+export { userView } from "./user";
+export { viewView } from "./view";

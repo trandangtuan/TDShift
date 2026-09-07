@@ -25,7 +25,7 @@ export const mcpRoutes: ModuleRoute[] = [{
           }
         });
         const server = createMcpServer({
-          listModels: async () => [...getRegistry().models.values()].map(({ technicalName, name, tableName, fields }) => ({ technicalName, name, tableName, fields })),
+          listModel: async () => [...getRegistry().models.values()].map(({ technicalName, name, tableName, fields }) => ({ technicalName, name, tableName, fields })),
           readRecords: async (input) => ({ records: await createRequestEnvironment(request).model(input.model).searchRead(input.domain as any, input.fields, { limit: input.limit, offset: input.offset }) }),
           createRecord: async (input) => ({ id: await createRequestEnvironment(request).model(input.model).create(input.values) }),
           updateRecords: async (input) => {

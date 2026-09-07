@@ -11,6 +11,6 @@ export const discussMessageModel: ModelDefinition = {
     { name: "author_id", label: "Author", type: "many2one", relationModel: "core.user", required: true, indexed: true, sequence: 20 },
     { name: "body", label: "Message", type: "text", required: true, sequence: 30 },
     { name: "sent_at", label: "Sent At", type: "datetime", sequence: 40 },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 50 }
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 50 }
   ]
 };

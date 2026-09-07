@@ -1,6 +1,6 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const discussChannelViews: ViewDefinition[] = [
+export const discussChannelView: ViewDefinition[] = [
   { technicalName: "discuss.channel.list", name: "Channels", model: "discuss.channel", type: "list", architecture: { type: "list", model: "discuss.channel", fields: ["name", "description", "active"] } },
   {
     technicalName: "discuss.channel.form",

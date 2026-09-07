@@ -1,2 +1,2 @@
-export { pageViews } from "./page";
-export { websiteMenuViews } from "./menu";
+export { pageView } from "./page";
+export { websiteMenuView } from "./menu";

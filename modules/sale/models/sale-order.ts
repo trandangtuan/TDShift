@@ -2,26 +2,26 @@ import type { MethodContext, ModelDefinition } from "@record-platform/core";
 
 export const saleOrderModel: ModelDefinition = {
   technicalName: "sale.order",
-  name: "Sale Order",
+  name: "Đơn bán hàng",
   tableName: "sale_order",
   fields: [
-    { name: "name", label: "Order", type: "char", required: true, sequence: 10 },
-    { name: "partner_id", label: "Customer", type: "many2one", relationModel: "res.partner", required: true, sequence: 20 },
-    { name: "date_order", label: "Order Date", type: "date", sequence: 40 },
+    { name: "name", label: "Đơn hàng", type: "char", required: true, sequence: 10 },
+    { name: "partner_id", label: "Khách hàng", type: "many2one", relationModel: "res.partner", required: true, sequence: 20 },
+    { name: "date_order", label: "Ngày đặt hàng", type: "date", sequence: 40 },
     {
       name: "state",
-      label: "State",
+      label: "Trạng thái",
       type: "selection",
       defaultValue: "draft",
       selectionOptions: [
-        { label: "Draft", value: "draft" },
-        { label: "Confirmed", value: "confirmed" },
-        { label: "Cancelled", value: "cancelled" }
+        { label: "Nháp", value: "draft" },
+        { label: "Đã xác nhận", value: "confirmed" },
+        { label: "Đã hủy", value: "cancelled" }
       ],
       sequence: 50
     },
-    { name: "amount_total", label: "Total", type: "decimal", readonly: true, computeMethod: "compute_amount_total", defaultValue: 0, sequence: 60 },
-    { name: "order_line", label: "Order Lines", type: "one2many", relationModel: "sale.order.line", inverseField: "order_id", stored: false, sequence: 70 }
+    { name: "amount_total", label: "Tổng cộng", type: "decimal", readonly: true, computeMethod: "compute_amount_total", defaultValue: 0, sequence: 60 },
+    { name: "order_line", label: "Dòng đơn hàng", type: "one2many", relationModel: "sale.order.line", inverseField: "order_id", stored: false, sequence: 70 }
   ],
   methods: {
     async confirm(ctx) {

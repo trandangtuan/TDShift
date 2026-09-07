@@ -2,7 +2,7 @@ import { defineModule } from "@record-platform/core";
 import { pageData, websiteMenuData } from "./data";
 import { pageModel, websiteMenuModel } from "./models";
 import { websiteRoutes } from "./routes";
-import { pageViews, websiteMenuViews } from "./views";
+import { pageView, websiteMenuView } from "./views";
 
 export default defineModule({
   technicalName: "website",
@@ -11,18 +11,18 @@ export default defineModule({
   depends: ["base"],
   sequence: 35,
   models: [pageModel, websiteMenuModel],
-  views: [...pageViews, ...websiteMenuViews],
+  views: [...pageView, ...websiteMenuView],
   actions: [
     {
       technicalName: "website.action_pages",
-      name: "Pages",
+      name: "Trang",
       type: "window",
       model: "website.page",
       viewModes: ["list", "form"]
     },
     {
       technicalName: "website.action_menus",
-      name: "Website Menus",
+      name: "Menu website",
       type: "window",
       model: "website.menu",
       viewModes: ["list", "form"]
@@ -30,8 +30,8 @@ export default defineModule({
   ],
   menus: [
     { technicalName: "website.menu_root", name: "Website", icon: "globe", sequence: 35 },
-    { technicalName: "website.menu_pages", name: "Pages", parent: "website.menu_root", action: "website.action_pages", sequence: 10 },
-    { technicalName: "website.menu_menus", name: "Menus", parent: "website.menu_root", action: "website.action_menus", sequence: 20 }
+    { technicalName: "website.menu_pages", name: "Trang", parent: "website.menu_root", action: "website.action_pages", sequence: 10 },
+    { technicalName: "website.menu_menus", name: "Menu", parent: "website.menu_root", action: "website.action_menus", sequence: 20 }
   ],
   data: [...pageData, ...websiteMenuData],
   routes: websiteRoutes

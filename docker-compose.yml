@@ -18,6 +18,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: runner
       args:
         VITE_API_BASE: ${VITE_API_BASE:-}
     depends_on:
@@ -26,8 +27,13 @@ services:
     environment:
       PORT: 3100
       WEBSITE_BASE_URL: ${WEBSITE_BASE_URL:-http://localhost:3100}
-      DATABASE_CLIENT: postgres
-      DATABASE_URL: postgres://${POSTGRES_USER:-record_platform}:${POSTGRES_PASSWORD:-record_platform}@db:5432/${POSTGRES_DB:-record_platform}
+      DATABASE_CLIENT: ${DATABASE_CLIENT:-postgres}
+      DATABASE_URL: ${DATABASE_URL:-postgres://${POSTGRES_USER:-record_platform}:${POSTGRES_PASSWORD:-record_platform}@db:5432/${POSTGRES_DB:-record_platform}}
+      SQLITE_DATABASE_PATH: /app/storage/databases/record-platform.sqlite
+      DATABASE_CATALOG_PATH: /app/storage/databases/record-platform.sqlite.catalog.sqlite
+      DATABASE_DIRECTORY: /app/storage/databases
+      DB_FILTER: ${DB_FILTER:-}
+      DB_NAME: ${DB_NAME:-}
       SQL_LOG: ${SQL_LOG:-false}
       JWT_SECRET: ${JWT_SECRET:-change-me}
       JWT_EXPIRES_SECONDS: ${JWT_EXPIRES_SECONDS:-28800}
@@ -44,6 +50,7 @@ services:
       - "${APP_PORT:-3100}:3100"
     volumes:
       - attachments_data:/app/storage/attachments
+      - databases_data:/app/storage/databases
     restart: unless-stopped
 
   site:
@@ -59,3 +66,4 @@ services:
 volumes:
   postgres_data:
   attachments_data:
+  databases_data:

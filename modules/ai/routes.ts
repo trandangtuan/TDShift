@@ -28,9 +28,9 @@ export const aiRoutes: ModuleRoute[] = [
         const env = createRequestEnvironment(request);
         const mcpClient = await findMcpClient(env, body.mcpClientId);
         const provider = await findProvider(env, body.providerId ?? mcpClient?.provider_id);
-        if (!provider) return reply.code(404).send({ error: "No active AI provider found" });
+        if (!provider) return reply.code(404).send({ error: "Không active AI provider found" });
         const mcpServer = await findMcpServer(env, body.mcpServerId ?? mcpClient?.mcp_server_id);
-        if (!mcpServer) return reply.code(404).send({ error: "No active MCP server found" });
+        if (!mcpServer) return reply.code(404).send({ error: "Không active MCP server found" });
         const systemPrompt = body.system ?? mcpClient?.system_prompt ?? defaultSystemPrompt();
         const enabledToolList = mcpClient?.enabled_tools || mcpServer.enabled_tools;
         const requestToken = bearerToken(request.headers.authorization);
@@ -76,7 +76,7 @@ export const aiRoutes: ModuleRoute[] = [
         if (!body.prompt?.trim()) return reply.code(400).send({ error: "prompt is required" });
         const origin = typeof request.headers.origin === "string" ? request.headers.origin : "*";
         reply.raw.writeHead(200, {
-          "Access-Control-Allow-Origin": origin,
+          "Access-Control-Allow-Nguồn gốc": origin,
           "Access-Control-Allow-Credentials": "true",
           "Content-Type": "application/x-ndjson; charset=utf-8",
           "Cache-Control": "no-cache, no-transform",
@@ -90,9 +90,9 @@ export const aiRoutes: ModuleRoute[] = [
           send("status", { message: "Loading AI client configuration" });
           const mcpClient = await findMcpClient(env, body.mcpClientId);
           provider = await findProvider(env, body.providerId ?? mcpClient?.provider_id);
-          if (!provider) throw new Error("No active AI provider found");
+          if (!provider) throw new Error("Không active AI provider found");
           const mcpServer = await findMcpServer(env, body.mcpServerId ?? mcpClient?.mcp_server_id);
-          if (!mcpServer) throw new Error("No active MCP server found");
+          if (!mcpServer) throw new Error("Không active MCP server found");
           const systemPrompt = body.system ?? mcpClient?.system_prompt ?? defaultSystemPrompt();
           const enabledToolList = mcpClient?.enabled_tools || mcpServer.enabled_tools;
           const requestToken = bearerToken(request.headers.authorization);
@@ -101,7 +101,7 @@ export const aiRoutes: ModuleRoute[] = [
             send("status", { message: `Connected to MCP server: ${mcpServer.name}` });
             const enabledTools = parseEnabledTools(enabledToolList);
             const listedTools = (await client.listTools()).tools.filter((tool) => !enabledTools.size || enabledTools.has(tool.name));
-            send("tools", { tools: listedTools.map((tool) => ({ name: tool.name, description: tool.description })) });
+            send("công cụ", { tools: listedTools.map((tool) => ({ name: tool.name, description: tool.description })) });
             const tools: AiTool[] = listedTools.map((tool) => ({ name: tool.name, description: tool.description, inputSchema: tool.inputSchema }));
             const messages: AiMessage[] = [
               { role: "system", content: systemPrompt },

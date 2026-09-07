@@ -6,7 +6,7 @@ export const crmLostReasonModel: ModelDefinition = {
   tableName: "crm_lost_reason",
   fields: [
     { name: "name", label: "Reason", type: "char", required: true, sequence: 10 },
-    { name: "description", label: "Description", type: "text", sequence: 20 },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 30 }
+    { name: "description", label: "Mô tả", type: "text", sequence: 20 },
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 30 }
   ]
 };

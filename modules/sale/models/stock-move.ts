@@ -2,7 +2,7 @@ import type { ModelDefinition } from "@record-platform/core";
 
 export const saleStockMoveModel: ModelDefinition = {
   technicalName: "stock.move",
-  name: "Stock Move",
+  name: "Dịch chuyển kho",
   tableName: "stock_move",
   fields: [],
   extensions: [

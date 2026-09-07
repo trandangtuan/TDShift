@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const aiProviderViews: ViewDefinition[] = [
-  { technicalName: "ai.provider.list", name: "AI Providers", model: "ai.provider", type: "list", architecture: { type: "list", model: "ai.provider", fields: ["name", "provider_type", "model_name", "api_key_env", "active"] } },
+export const aiProviderView: ViewDefinition[] = [
+  { technicalName: "ai.provider.list", name: "Provider AI", model: "ai.provider", type: "list", architecture: { type: "list", model: "ai.provider", fields: ["name", "provider_type", "model_name", "api_key_env", "active"] } },
   {
     technicalName: "ai.provider.form",
-    name: "AI Provider",
+    name: "Provider AI",
     model: "ai.provider",
     type: "form",
     architecture: {

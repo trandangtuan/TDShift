@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const journalViews: ViewDefinition[] = [
-  { technicalName: "account.journal.list", name: "Journals", model: "account.journal", type: "list", architecture: { type: "list", model: "account.journal", fields: ["code", "name", "type", "active"] } },
+export const journalView: ViewDefinition[] = [
+  { technicalName: "account.journal.list", name: "Sổ nhật ký", model: "account.journal", type: "list", architecture: { type: "list", model: "account.journal", fields: ["code", "name", "type", "active"] } },
   {
     technicalName: "account.journal.form",
-    name: "Journal",
+    name: "Sổ nhật ký",
     model: "account.journal",
     type: "form",
     architecture: {

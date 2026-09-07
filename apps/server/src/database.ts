@@ -16,9 +16,9 @@ export type StatementLike = {
   all(...params: unknown[]): unknown[];
 };
 
-export function createDatabase(): DatabaseLike {
+export function createDatabase(databasePath = process.env.SQLITE_DATABASE_PATH ?? "record-platform.sqlite"): DatabaseLike {
   const client = (process.env.DATABASE_CLIENT ?? "sqlite").toLowerCase();
-  const database = client === "postgres" || client === "postgresql" ? new PostgresCliDatabase(process.env.DATABASE_URL) : (new SQLite(process.env.SQLITE_DATABASE_PATH ?? "record-platform.sqlite") as unknown as DatabaseLike);
+  const database = client === "postgres" || client === "postgresql" ? new PostgresCliDatabase(process.env.DATABASE_URL) : (new SQLite(databasePath) as unknown as DatabaseLike);
   return config.sqlLog ? new LoggingDatabase(database) : database;
 }
 

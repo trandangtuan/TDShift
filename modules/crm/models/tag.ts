@@ -7,6 +7,6 @@ export const crmTagModel: ModelDefinition = {
   fields: [
     { name: "name", label: "Tag", type: "char", required: true, sequence: 10 },
     { name: "color", label: "Color", type: "char", defaultValue: "#0f766e", sequence: 20 },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 30 }
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 30 }
   ]
 };

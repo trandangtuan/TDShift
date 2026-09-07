@@ -2,7 +2,7 @@ import type { ModelDefinition } from "@record-platform/core";
 
 export const purchaseStockMoveModel: ModelDefinition = {
   technicalName: "stock.move",
-  name: "Stock Move",
+  name: "Dịch chuyển kho",
   tableName: "stock_move",
   fields: [],
   extensions: [
@@ -14,8 +14,8 @@ export const purchaseStockMoveModel: ModelDefinition = {
         const result = await next?.();
         for (const id of ctx.ids) {
           const [move] = await ctx.env.model("stock.move").read([id], ["origin", "date", "source_location_id", "dest_location_id"]);
-          if (!move?.origin || !(await isVendorReceipt(ctx, move))) continue;
-          await createVendorBill(ctx, String(move.origin), String(move.date ?? ""));
+          if (!move?.origin || !(await isProviderReceipt(ctx, move))) continue;
+          await createProviderBill(ctx, String(move.origin), String(move.date ?? ""));
         }
         return result;
       }
@@ -23,7 +23,7 @@ export const purchaseStockMoveModel: ModelDefinition = {
   ]
 };
 
-async function isVendorReceipt(ctx: { env: { model: (name: string) => any } }, move: Record<string, unknown>) {
+async function isProviderReceipt(ctx: { env: { model: (name: string) => any } }, move: Record<string, unknown>) {
   const sourceId = relationId(move.source_location_id);
   const destId = relationId(move.dest_location_id);
   if (!sourceId || !destId) return false;
@@ -32,7 +32,7 @@ async function isVendorReceipt(ctx: { env: { model: (name: string) => any } }, m
   return source?.usage === "supplier" && dest?.usage === "internal";
 }
 
-async function createVendorBill(ctx: { env: { model: (name: string) => any } }, purchaseName: string, receiptDate: string) {
+async function createProviderBill(ctx: { env: { model: (name: string) => any } }, purchaseName: string, receiptDate: string) {
   const existing = await ctx.env.model("account.move").searchRead([["source_document", "=", purchaseName], ["move_type", "=", "in_invoice"]], ["name"], { limit: 1 });
   if (existing.length) return;
 
@@ -59,7 +59,7 @@ async function createVendorBill(ctx: { env: { model: (name: string) => any } }, 
     move_type: "in_invoice",
     state: "draft"
   });
-  await ctx.env.model("account.move.line").create({ move_id: billId, account_id: purchaseAccountId, partner_id: partnerId, name: `Inventory ${purchaseName}`, debit: total, credit: 0, date: billDate });
+  await ctx.env.model("account.move.line").create({ move_id: billId, account_id: purchaseAccountId, partner_id: partnerId, name: `Stock ${purchaseName}`, debit: total, credit: 0, date: billDate });
   await ctx.env.model("account.move.line").create({ move_id: billId, account_id: payableAccountId, partner_id: partnerId, name: `Payable ${purchaseName}`, debit: 0, credit: total, date: billDate });
 }
 

@@ -1,3 +1,3 @@
-export { discussChannelMemberViews } from "./channel-member";
-export { discussChannelViews } from "./channel";
-export { discussMessageViews } from "./message";
+export { discussChannelMemberView } from "./channel-member";
+export { discussChannelView } from "./channel";
+export { discussMessageView } from "./message";

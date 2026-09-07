@@ -6,8 +6,8 @@ export const crmActivityTypeModel: ModelDefinition = {
   tableName: "crm_activity_type",
   fields: [
     { name: "name", label: "Activity Type", type: "char", required: true, sequence: 10 },
-    { name: "category", label: "Category", type: "selection", defaultValue: "todo", selectionOptions: [{ label: "To Do", value: "todo" }, { label: "Call", value: "call" }, { label: "Email", value: "email" }, { label: "Meeting", value: "meeting" }, { label: "Upload Document", value: "upload" }], sequence: 20 },
-    { name: "default_delay_days", label: "Default Delay Days", type: "integer", defaultValue: 0, sequence: 30 },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 40 }
+    { name: "category", label: "Danh mục", type: "selection", defaultValue: "todo", selectionOptions: [{ label: "Cần làm", value: "todo" }, { label: "Gọi điện", value: "call" }, { label: "Email", value: "email" }, { label: "Cuộc họp", value: "meeting" }, { label: "Tải tài liệu", value: "upload" }], sequence: 20 },
+    { name: "default_delay_days", label: "Số ngày trễ default", type: "integer", defaultValue: 0, sequence: 30 },
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 40 }
   ]
 };

@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 export interface RecordOperations {
-  listModels(): Promise<unknown>;
+  listModel(): Promise<unknown>;
   readRecords(input: { model: string; domain: unknown[]; fields?: string[]; limit: number; offset: number }): Promise<unknown>;
   createRecord(input: { model: string; values: Record<string, unknown> }): Promise<unknown>;
   updateRecords(input: { model: string; ids: number[]; values: Record<string, unknown> }): Promise<unknown>;
@@ -21,14 +21,14 @@ export function createMcpServer(operations: RecordOperations) {
   server.registerTool("list_models", {
     description: "List available Record Platform models and their fields.",
     inputSchema: {}
-  }, async () => textResult(await operations.listModels()));
+  }, async () => textResult(await operations.listModel()));
 
   server.registerTool("read_records", {
     description: "Search and read records from a Record Platform model.",
     inputSchema: {
-      model: z.string().describe("Technical model name, for example sale.order"),
+      model: z.string().describe("Kỹ thuật model name, for example sale.order"),
       domain: domainSchema.describe("Filter clauses"),
-      fields: z.array(z.string()).optional().describe("Fields to return"),
+      fields: z.array(z.string()).optional().describe("Field to return"),
       limit: z.number().int().min(1).max(100).default(30),
       offset: z.number().int().min(0).default(0)
     }

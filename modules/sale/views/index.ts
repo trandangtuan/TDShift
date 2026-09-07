@@ -1,2 +1,2 @@
-export { saleOrderViews } from "./sale-order";
-export { saleOrderLineViews } from "./sale-order-line";
+export { saleOrderView } from "./sale-order";
+export { saleorderLineView } from "./sale-order-line";

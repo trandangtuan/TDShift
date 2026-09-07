@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const crmActivityViews: ViewDefinition[] = [
-  { technicalName: "crm.activity.list", name: "CRM Activities", model: "crm.activity", type: "list", architecture: { type: "list", model: "crm.activity", fields: ["name", "lead_id", "activity_type_id", "assigned_user_id", "deadline", "state", "done_date"] } },
+export const crmActivityView: ViewDefinition[] = [
+  { technicalName: "crm.activity.list", name: "CRM Activity", model: "crm.activity", type: "list", architecture: { type: "list", model: "crm.activity", fields: ["name", "lead_id", "activity_type_id", "assigned_user_id", "deadline", "state", "done_date"] } },
   {
     technicalName: "crm.activity.form",
-    name: "CRM Activity",
+    name: "Activity CRM",
     model: "crm.activity",
     type: "form",
     architecture: {

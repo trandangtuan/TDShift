@@ -5,10 +5,10 @@ export const websiteSaleData: DataRecordDefinition[] = [
     externalId: "website_sale.page_products",
     model: "website.page",
     values: {
-      name: "Products",
+      name: "Sản phẩm",
       slug: "products",
       url: "/products",
-      title: "Sản phẩm | MetaFlow",
+      title: "Product | MetaFlow",
       meta_description: "Khám phá danh mục sản phẩm của MetaFlow.",
       view_name: "website_sale.products.view",
       is_published: true,
@@ -20,7 +20,7 @@ export const websiteSaleData: DataRecordDefinition[] = [
     externalId: "website_sale.menu_products",
     model: "website.menu",
     values: {
-      name: "Products",
+      name: "Sản phẩm",
       label: "Sản phẩm",
       url: "/products",
       page_slug: "products",

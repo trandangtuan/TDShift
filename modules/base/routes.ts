@@ -1,26 +1,72 @@
 import type { ModuleRoute } from "@record-platform/core";
 import { ensureAdminUser, getUserFromRequest, login, registerUser, resetUserToken } from "../../apps/server/src/auth";
 import { getAttachmentObject, getLegacyMinioObject, storeAttachmentStream } from "../../apps/server/src/attachments";
-import { bootstrapModules, installModuleRecords, uninstallModuleAndDropOwnedFields } from "../../apps/server/src/db";
+import { bootstrapModules, db, installModuleRecords, runInDatabase, uninstallModuleAndDropOwnedFields } from "../../apps/server/src/db";
+import { config } from "../../apps/server/src/config";
+import { createManagedDatabase, deleteManagedDatabase, isDatabaseAllowed, listDatabases } from "../../apps/server/src/database-manager";
 
 export const baseRoutes: ModuleRoute[] = [
   {
     async register({ app, db, modules, getRegistry, rebuildRegistry, createRequestEnvironment }) {
       app.get("/api/health", async () => ({ ok: true, models: getRegistry().models.size, actions: getRegistry().actions.size }));
 
+      app.get("/api/databases", async (request: any) => listDatabases(request.hostname).map(({ name, isDefault }) => ({ name, isDefault })));
+
       app.post("/api/auth/login", async (request: any, reply: any) => {
-        const result = login(request.body.login, request.body.password);
-        if (!result) return reply.code(401).send({ error: "Invalid login or password" });
-        return result;
+        const database = String(request.body.database ?? "main");
+        try {
+          const result = runInDatabase(database, () => login(request.body.login, request.body.password, database, request.hostname));
+          if (!result) return reply.code(401).send({ error: "Invalid login or password" });
+          return result;
+        } catch (error: any) {
+          return reply.code(400).send({ error: error?.message ?? "Database not found" });
+        }
       });
 
       app.post("/api/auth/register", async (request: any, reply: any) => {
-        if (!request.body.login || !request.body.name || !request.body.password) return reply.code(400).send({ error: "Login, name, and password are required" });
+        if (!request.body.login || !request.body.name || !request.body.password) return reply.code(400).send({ error: "Đăng nhập, name, and password are required" });
         try {
-          return registerUser(request.body);
+          const database = String(request.body.database ?? (config.dbName || "main"));
+          if (!isDatabaseAllowed(database, request.hostname)) return reply.code(400).send({ error: "Database is not allowed for this host" });
+          return runInDatabase(database, () => registerUser(request.body));
         } catch (error: any) {
-          if (error?.code === "SQLITE_CONSTRAINT_UNIQUE") return reply.code(409).send({ error: "Login already exists" });
-          throw error;
+          if (error?.code === "SQLITE_CONSTRAINT_UNIQUE") return reply.code(409).send({ error: "Đăng nhập already exists" });
+          return reply.code(400).send({ error: error?.message ?? "Database not found" });
+        }
+      });
+
+      app.post("/api/databases", async (request: any, reply: any) => {
+        const user = getUserFromRequest(request);
+        if (!user || user.login !== config.adminLogin) return reply.code(403).send({ error: "Only the administrator can manage databases" });
+        if (config.dbName) return reply.code(400).send({ error: "DB_NAME locks this server to one database" });
+        try {
+          const database = createManagedDatabase(String(request.body.name ?? ""));
+          runInDatabase(database.name, () => {
+            bootstrapModules(modules);
+            const count = (db.prepare("SELECT COUNT(*) AS count FROM core_model").get() as { count: number }).count;
+            if (count === 0) {
+              const baseModule = modules.find((module) => module.technicalName === "base");
+              if (!baseModule) throw new Error("The base module must be available on first startup.");
+              bootstrapModules([baseModule], { forceInstall: true });
+            }
+            ensureAdminUser();
+          });
+          rebuildRegistry();
+          return { name: database.name, isDefault: false };
+        } catch (error: any) {
+          return reply.code(400).send({ error: error?.message ?? "Could not create database" });
+        }
+      });
+
+      app.delete("/api/databases/:name", async (request: any, reply: any) => {
+        const user = getUserFromRequest(request);
+        if (!user || user.login !== config.adminLogin) return reply.code(403).send({ error: "Only the administrator can manage databases" });
+        if (config.dbName) return reply.code(400).send({ error: "DB_NAME locks this server to one database" });
+        try {
+          deleteManagedDatabase(String(request.params.name));
+          return { ok: true };
+        } catch (error: any) {
+          return reply.code(400).send({ error: error?.message ?? "Could not delete database" });
         }
       });
 
@@ -93,7 +139,7 @@ export const baseRoutes: ModuleRoute[] = [
       app.post("/api/attachments/upload", async (request: any, reply: any) => {
         const file = await request.file();
         if (!file) return reply.code(400).send({ error: "File is required" });
-        const fields = multipartFields(file.fields);
+        const fields = multipartField(file.fields);
         const stored = await storeAttachmentStream({ stream: file.file, fileName: file.filename, mimeType: file.mimetype });
         const env = createRequestEnvironment(request);
         const id = await env.model("ir.attachment").create({
@@ -153,7 +199,7 @@ export const baseRoutes: ModuleRoute[] = [
   }
 ];
 
-function resolveInstallSet(modules: ModuleRouteContextModules, moduleName: string) {
+function resolveInstallSet(modules: ModuleRouteContextModule, moduleName: string) {
   const byName = new Map(modules.map((mod) => [mod.technicalName, mod]));
   const result: typeof modules = [];
   const seen = new Set<string>();
@@ -169,8 +215,8 @@ function resolveInstallSet(modules: ModuleRouteContextModules, moduleName: strin
   return result;
 }
 
-type ModuleRouteContextModules = Parameters<NonNullable<ModuleRoute["register"]>>[0]["modules"];
+type ModuleRouteContextModule = Parameters<NonNullable<ModuleRoute["register"]>>[0]["modules"];
 
-function multipartFields(fields: Record<string, any>) {
+function multipartField(fields: Record<string, any>) {
   return Object.fromEntries(Object.entries(fields).map(([key, value]) => [key, String(value?.value ?? "")]));
 }

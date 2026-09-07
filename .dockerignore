@@ -1,6 +1,7 @@
 node_modules
 npm-debug.log
 apps/*/dist
+apps/*/.next
 packages/*/dist
 record-platform.sqlite
 .git

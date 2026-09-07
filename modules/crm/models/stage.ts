@@ -6,8 +6,8 @@ export const crmStageModel: ModelDefinition = {
   tableName: "crm_stage",
   fields: [
     { name: "name", label: "Stage", type: "char", required: true, sequence: 10 },
-    { name: "sequence", label: "Sequence", type: "integer", defaultValue: 10, sequence: 20 },
-    { name: "probability", label: "Probability %", type: "decimal", defaultValue: 0, sequence: 30 },
+    { name: "sequence", label: "Thứ tự", type: "integer", defaultValue: 10, sequence: 20 },
+    { name: "probability", label: "Xác suất %", type: "decimal", defaultValue: 0, sequence: 30 },
     { name: "fold", label: "Folded", type: "boolean", defaultValue: false, sequence: 40 },
     {
       name: "stage_type",
@@ -17,12 +17,12 @@ export const crmStageModel: ModelDefinition = {
       selectionOptions: [
         { label: "New", value: "new" },
         { label: "Open", value: "open" },
-        { label: "Won", value: "won" },
-        { label: "Lost", value: "lost" }
+        { label: "Thắng", value: "won" },
+        { label: "Đã mất", value: "lost" }
       ],
       sequence: 50
     },
-    { name: "team_id", label: "Sales Team", type: "many2one", relationModel: "crm.team", sequence: 60 },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 70 }
+    { name: "team_id", label: "Bán hàng Team", type: "many2one", relationModel: "crm.team", sequence: 60 },
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 70 }
   ]
 };

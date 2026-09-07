@@ -1,9 +1,9 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const websiteMenuViews: ViewDefinition[] = [
+export const websiteMenuView: ViewDefinition[] = [
   {
     technicalName: "website.menu.list",
-    name: "Website Menus",
+    name: "Menu website",
     model: "website.menu",
     type: "list",
     architecture: {
@@ -14,7 +14,7 @@ export const websiteMenuViews: ViewDefinition[] = [
   },
   {
     technicalName: "website.menu.form",
-    name: "Website Menu",
+    name: "Menu website",
     model: "website.menu",
     type: "form",
     architecture: {

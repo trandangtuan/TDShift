@@ -5,21 +5,21 @@ export const stockLocationModel: ModelDefinition = {
   name: "Stock Location",
   tableName: "stock_location",
   fields: [
-    { name: "name", label: "Location", type: "char", required: true, sequence: 10 },
+    { name: "name", label: "Vị trí", type: "char", required: true, sequence: 10 },
     {
       name: "usage",
-      label: "Usage",
+      label: "Cách dùng",
       type: "selection",
       required: true,
       defaultValue: "internal",
       selectionOptions: [
-        { label: "Internal", value: "internal" },
-        { label: "Supplier", value: "supplier" },
-        { label: "Customer", value: "customer" },
-        { label: "Inventory", value: "inventory" }
+        { label: "Nội bộ", value: "internal" },
+        { label: "Nhà cung cấp", value: "supplier" },
+        { label: "Khách hàng", value: "customer" },
+        { label: "Stock", value: "inventory" }
       ],
       sequence: 20
     },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 30 }
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 30 }
   ]
 };

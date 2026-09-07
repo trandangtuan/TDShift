@@ -10,7 +10,7 @@ export const crmDemoData: DataRecordDefinition[] = [
       contact_name: "Nguyễn Minh Anh",
       email_from: "minhanh@example.vn",
       phone: "0901000001",
-      company_name: "Công ty CP Bê tông Thắng Long",
+      company_name: "Công ty CP Bê tông Won Long",
       team_id: 1,
       user_id: 1,
       stage_id: 2,
@@ -23,7 +23,7 @@ export const crmDemoData: DataRecordDefinition[] = [
       expected_closing: "2026-09-18",
       priority: "3",
       state: "qualified",
-      description: "Khách hàng cần quản lý bán hàng, kho vật tư, kế toán TT99 và hóa đơn sau giao hàng.",
+      description: "Customer cần quản lý bán hàng, kho vật tư, kế toán TT99 và hóa đơn sau giao hàng.",
       active: true
     }
   },
@@ -101,7 +101,7 @@ export const crmDemoData: DataRecordDefinition[] = [
       state: "lost",
       lost_reason_id: 1,
       lost_feedback: "Khách chọn phương án chi phí thấp hơn trong giai đoạn thử nghiệm.",
-      description: "Cơ hội mẫu để kiểm tra báo cáo lost reason.",
+      description: "Opportunity mẫu để kiểm tra báo cáo lost reason.",
       active: true
     }
   },
@@ -122,7 +122,7 @@ export const crmDemoData: DataRecordDefinition[] = [
     externalId: "crm.activity_retail_email",
     model: "crm.activity",
     values: {
-      name: "Gửi đề xuất thương mại",
+      name: "Send đề xuất thương mại",
       lead_id: 2,
       activity_type_id: 2,
       assigned_user_id: 1,
@@ -141,7 +141,7 @@ export const crmDemoData: DataRecordDefinition[] = [
       assigned_user_id: 1,
       deadline: "2026-08-26",
       state: "planned",
-      note: "Xác nhận người quyết định, ngân sách và thời gian triển khai."
+      note: "Confirm người quyết định, ngân sách và thời gian triển khai."
     }
   },
   {

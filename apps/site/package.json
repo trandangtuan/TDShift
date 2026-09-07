@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "next dev -p 3101",
-    "build": "next build",
+    "build": "next build --webpack --experimental-build-mode=compile && next build --webpack --experimental-build-mode=generate-env",
     "start": "next start -p 3101",
     "check": "tsc --noEmit",
     "lint": "eslint ."

@@ -1,4 +1,4 @@
-export { aiMcpClientViews } from "./mcp-client";
-export { aiMcpServerViews } from "./mcp-server";
-export { aiProviderViews } from "./provider";
-export { aiRequestLogViews } from "./request-log";
+export { aiMcpClientView } from "./mcp-client";
+export { aiMcpServerView } from "./mcp-server";
+export { aiProviderView } from "./provider";
+export { aiRequestLogView } from "./request-log";

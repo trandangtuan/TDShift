@@ -6,6 +6,6 @@ export const crmSourceModel: ModelDefinition = {
   tableName: "crm_source",
   fields: [
     { name: "name", label: "Source", type: "char", required: true, sequence: 10 },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 20 }
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 20 }
   ]
 };

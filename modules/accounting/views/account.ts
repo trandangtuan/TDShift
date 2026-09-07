@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const accountViews: ViewDefinition[] = [
-  { technicalName: "account.account.list", name: "Accounts", model: "account.account", type: "list", architecture: { type: "list", model: "account.account", fields: ["code", "name", "type", "parent_id", "level", "reconcile", "active"] } },
+export const accountView: ViewDefinition[] = [
+  { technicalName: "account.account.list", name: "Tài khoản", model: "account.account", type: "list", architecture: { type: "list", model: "account.account", fields: ["code", "name", "type", "parent_id", "level", "reconcile", "active"] } },
   {
     technicalName: "account.account.form",
-    name: "Account",
+    name: "Tài khoản",
     model: "account.account",
     type: "form",
     architecture: {

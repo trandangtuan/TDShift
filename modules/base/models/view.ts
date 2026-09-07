@@ -5,13 +5,13 @@ export const viewModel: ModelDefinition = {
   name: "View",
   tableName: "core_view",
   fields: [
-    { name: "technical_name", label: "Technical Name", type: "char", required: true, sequence: 10 },
-    { name: "name", label: "Name", type: "char", required: true, sequence: 20 },
+    { name: "technical_name", label: "Kỹ thuật Name", type: "char", required: true, sequence: 10 },
+    { name: "name", label: "Tên", type: "char", required: true, sequence: 20 },
     { name: "model", label: "Model", type: "char", required: true, sequence: 30 },
-    { name: "type", label: "Type", type: "char", required: true, sequence: 40 },
+    { name: "type", label: "Loại", type: "char", required: true, sequence: 40 },
     {
       name: "content_type",
-      label: "Content Type",
+      label: "Loại nội dung",
       type: "selection",
       required: true,
       defaultValue: "json",
@@ -22,7 +22,7 @@ export const viewModel: ModelDefinition = {
       ],
       sequence: 50
     },
-    { name: "content", label: "Content", type: "text", sequence: 60 },
-    { name: "architecture", label: "Architecture", type: "json", required: true, sequence: 70 }
+    { name: "content", label: "Nội dung", type: "text", sequence: 60 },
+    { name: "architecture", label: "Kiến trúc", type: "json", required: true, sequence: 70 }
   ]
 };

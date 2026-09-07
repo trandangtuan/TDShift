@@ -2,7 +2,7 @@ import type { ModelDefinition } from "@record-platform/core";
 
 export const saleOrderDiscountModel: ModelDefinition = {
   technicalName: "sale.order",
-  name: "Sale Order",
+  name: "Đơn bán hàng",
   tableName: "sale_order",
   fields: [
     { name: "discount_percent", label: "Discount %", type: "decimal", defaultValue: 0, sequence: 60 },

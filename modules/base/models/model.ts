@@ -5,10 +5,10 @@ export const modelModel: ModelDefinition = {
   name: "Model",
   tableName: "core_model",
   fields: [
-    { name: "technical_name", label: "Technical Name", type: "char", required: true, indexed: true, sequence: 10 },
-    { name: "name", label: "Name", type: "char", required: true, sequence: 20 },
-    { name: "table_name", label: "Table Name", type: "char", required: true, sequence: 30 },
+    { name: "technical_name", label: "Kỹ thuật Name", type: "char", required: true, indexed: true, sequence: 10 },
+    { name: "name", label: "Tên", type: "char", required: true, sequence: 20 },
+    { name: "table_name", label: "Tên bảng", type: "char", required: true, sequence: 30 },
     { name: "module", label: "Module", type: "char", required: true, sequence: 40 },
-    { name: "is_custom", label: "Custom", type: "boolean", sequence: 50 }
+    { name: "is_custom", label: "Tùy chỉnh", type: "boolean", sequence: 50 }
   ]
 };

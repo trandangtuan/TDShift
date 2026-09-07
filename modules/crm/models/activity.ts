@@ -2,7 +2,7 @@ import type { ModelDefinition } from "@record-platform/core";
 
 export const crmActivityModel: ModelDefinition = {
   technicalName: "crm.activity",
-  name: "CRM Activity",
+  name: "Activity CRM",
   tableName: "crm_activity",
   fields: [
     { name: "name", label: "Summary", type: "char", required: true, sequence: 10 },
@@ -12,17 +12,17 @@ export const crmActivityModel: ModelDefinition = {
     { name: "deadline", label: "Deadline", type: "date", sequence: 50 },
     {
       name: "state",
-      label: "State",
+      label: "Trạng thái",
       type: "selection",
       defaultValue: "planned",
       selectionOptions: [
         { label: "Planned", value: "planned" },
-        { label: "Done", value: "done" },
-        { label: "Cancelled", value: "cancelled" }
+        { label: "Hoàn tất", value: "done" },
+        { label: "Đã hủy", value: "cancelled" }
       ],
       sequence: 60
     },
-    { name: "note", label: "Note", type: "text", sequence: 70 },
+    { name: "note", label: "Khôngte", type: "text", sequence: 70 },
     { name: "done_date", label: "Done Date", type: "date", sequence: 80 }
   ],
   methods: {

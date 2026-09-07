@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const purchaseOrderLineViews: ViewDefinition[] = [
-  { technicalName: "purchase.order.line.list", name: "Purchase Order Lines", model: "purchase.order.line", type: "list", architecture: { type: "list", model: "purchase.order.line", fields: ["order_id", "product_id", "description", "quantity", "price_unit", "price_subtotal"] } },
+export const purchaseorderLineView: ViewDefinition[] = [
+  { technicalName: "purchase.order.line.list", name: "Mua hàng Dòng đơn hàng", model: "purchase.order.line", type: "list", architecture: { type: "list", model: "purchase.order.line", fields: ["order_id", "product_id", "description", "quantity", "price_unit", "price_subtotal"] } },
   {
     technicalName: "purchase.order.line.form",
-    name: "Purchase Order Line",
+    name: "Mua hàng Order Line",
     model: "purchase.order.line",
     type: "form",
     architecture: {

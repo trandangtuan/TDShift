@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const accountMoveLineViews: ViewDefinition[] = [
-  { technicalName: "account.move.line.list", name: "Journal Items", model: "account.move.line", type: "list", architecture: { type: "list", model: "account.move.line", fields: ["date", "move_id", "account_id", "partner_id", "name", "debit", "credit"] } },
+export const accountMoveLineView: ViewDefinition[] = [
+  { technicalName: "account.move.line.list", name: "MoveLine", model: "account.move.line", type: "list", architecture: { type: "list", model: "account.move.line", fields: ["date", "move_id", "account_id", "partner_id", "name", "debit", "credit"] } },
   {
     technicalName: "account.move.line.form",
-    name: "Journal Item",
+    name: "Dòng bút toán",
     model: "account.move.line",
     type: "form",
     architecture: {

@@ -8,7 +8,7 @@ const accounts: Array<[string, string, string, number, boolean?]> = [
   ["128", "Held-to-maturity investments", "asset", 1],
   ["131", "Trade receivables", "asset", 1, true],
   ["133", "Deductible VAT", "asset", 1],
-  ["136", "Internal receivables", "asset", 1, true],
+  ["136", "Nội bộ receivables", "asset", 1, true],
   ["138", "Other receivables", "asset", 1, true],
   ["141", "Advances", "asset", 1, true],
   ["151", "Goods in transit", "asset", 1],
@@ -32,7 +32,7 @@ const accounts: Array<[string, string, string, number, boolean?]> = [
   ["333", "Taxes and amounts payable to the State", "liability", 1],
   ["334", "Payables to employees", "liability", 1, true],
   ["335", "Accrued expenses", "liability", 1],
-  ["336", "Internal payables", "liability", 1, true],
+  ["336", "Nội bộ payables", "liability", 1, true],
   ["338", "Other payables", "liability", 1, true],
   ["341", "Loans and finance lease liabilities", "liability", 1],
   ["343", "Issued bonds", "liability", 1],
@@ -51,7 +51,7 @@ const accounts: Array<[string, string, string, number, boolean?]> = [
   ["511", "Revenue from sales and services", "revenue", 1],
   ["515", "Financial income", "revenue", 1],
   ["521", "Revenue deductions", "revenue", 1],
-  ["611", "Purchases", "expense", 1],
+  ["611", "Mua hàng", "expense", 1],
   ["621", "Direct materials cost", "expense", 1],
   ["622", "Direct labor cost", "expense", 1],
   ["623", "Machine operating cost", "expense", 1],
@@ -76,6 +76,6 @@ export const accountData: DataRecordDefinition[] = accounts.map(([code, name, ty
     level,
     reconcile: reconcile ?? false,
     active: true,
-    note: "Baseline Vietnamese enterprise accounting account for TT99-oriented setup."
+    note: "Nền tảngline Vietnamese enterprise accounting account for TT99-oriented setup."
   }
 }));

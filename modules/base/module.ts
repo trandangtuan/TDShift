@@ -1,19 +1,19 @@
 import { defineModule } from "@record-platform/core";
 import { baseActions } from "./actions";
-import { baseMenus } from "./menus";
+import { baseMenu } from "./menus";
 import { actionModel, attachmentModel, externalIdModel, menuModel, modelFieldModel, modelModel, moduleModel, userModel, viewModel } from "./models";
 import { baseRoutes } from "./routes";
-import { attachmentViews, menuViews, modelFieldViews, modelViews, moduleViews, userViews, viewViews } from "./views";
+import { attachmentView, menuView, modelFieldView, modelView, moduleView, userView, viewView } from "./views";
 
 export default defineModule({
   technicalName: "base",
-  displayName: "Base",
+  displayName: "Nền tảng",
   version: "1.1.0",
-  description: "Core metadata and platform primitives.",
+  description: "Metadata lõi và các thành phần nền tảng.",
   sequence: 1,
   models: [moduleModel, modelModel, modelFieldModel, viewModel, actionModel, menuModel, externalIdModel, userModel, attachmentModel],
-  views: [...moduleViews, ...modelViews, ...modelFieldViews, ...viewViews, ...menuViews, ...userViews, ...attachmentViews],
+  views: [...moduleView, ...modelView, ...modelFieldView, ...viewView, ...menuView, ...userView, ...attachmentView],
   actions: baseActions,
-  menus: baseMenus,
+  menus: baseMenu,
   routes: baseRoutes
 });

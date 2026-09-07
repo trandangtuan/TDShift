@@ -16,7 +16,7 @@ export const websiteRoutes: ModuleRoute[] = [
             meta_description: page.meta_description,
             content: getWebsiteViewContent(db, page.view_name) ?? page.content_html ?? ""
           },
-          menus: getPublishedWebsiteMenus(db)
+          menus: getPublishedWebsiteMenu(db)
         };
       });
       if (!process.env.NEXT_SITE_URL) {
@@ -40,7 +40,7 @@ function renderWebsitePage(db: any, slug: string, reply: any) {
     setCachedPage(db, normalizedSlug, { html, status: 404 });
     return sendHtml(reply, html, 404);
   }
-  const html = renderPage(db, page, getPublishedWebsiteMenus(db));
+  const html = renderPage(db, page, getPublishedWebsiteMenu(db));
   setCachedPage(db, normalizedSlug, { html, status: 200 });
   return sendHtml(reply, html, 200);
 }
@@ -60,7 +60,7 @@ function normalizeSlug(slug: string) {
   return trimmed || "home";
 }
 
-function getPublishedWebsiteMenus(db: any) {
+function getPublishedWebsiteMenu(db: any) {
   return db.prepare(`
     SELECT label, url FROM website_menu
     WHERE is_published = 1 AND active = 1
@@ -105,7 +105,7 @@ function getWebsiteViewContent(db: any, viewName: string | null | undefined) {
 }
 
 function renderNotFound(slug: string) {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Page not found</title></head><body><main><h1>Page not found</h1><p>No published page for ${escapeHtml(slug)}.</p></main></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Page not found</title></head><body><main><h1>Page not found</h1><p>Không published page for ${escapeHtml(slug)}.</p></main></body></html>`;
 }
 
 function escapeHtml(value: unknown) {

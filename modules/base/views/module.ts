@@ -1,7 +1,7 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const moduleViews: ViewDefinition[] = [
-  { technicalName: "base.module.list", name: "Modules", model: "core.module", type: "list", architecture: { type: "list", model: "core.module", fields: ["technical_name", "display_name", "version", "state", "installable", "auto_install"] } },
+export const moduleView: ViewDefinition[] = [
+  { technicalName: "base.module.list", name: "Module", model: "core.module", type: "list", architecture: { type: "list", model: "core.module", fields: ["technical_name", "display_name", "version", "state", "installable", "auto_install"] } },
   {
     technicalName: "base.module.form",
     name: "Module",

@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const userViews: ViewDefinition[] = [
-  { technicalName: "base.user.list", name: "Users", model: "core.user", type: "list", architecture: { type: "list", model: "core.user", fields: ["login", "name", "email", "phone", "active"] } },
+export const userView: ViewDefinition[] = [
+  { technicalName: "base.user.list", name: "Người dùng", model: "core.user", type: "list", architecture: { type: "list", model: "core.user", fields: ["login", "name", "email", "phone", "active"] } },
   {
     technicalName: "base.user.form",
-    name: "User",
+    name: "Người dùng",
     model: "core.user",
     type: "form",
     architecture: {

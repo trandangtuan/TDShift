@@ -1,4 +1,4 @@
-import { ChevronDown, Settings, ShoppingCart, Target, Users } from "lucide-react";
+import { ChevronDown, Settings, ShoppingCart, Target, User } from "lucide-react";
 import { useState } from "react";
 import type { RuntimeMenu } from "./types";
 
@@ -10,7 +10,7 @@ export default function MenuTree({ menus, onOpen }: MenuTreeProps) {
 
 function MenuNode({ menu, onOpen, level }: { menu: RuntimeMenu; onOpen: (action: string) => void; level: number }) {
   const [open, setOpen] = useState(false);
-  const Icon = menu.icon === "shopping-cart" ? ShoppingCart : menu.icon === "users" ? Users : menu.icon === "target" ? Target : Settings;
+  const Icon = menu.icon === "shopping-cart" ? ShoppingCart : menu.icon === "users" ? User : menu.icon === "target" ? Target : Settings;
   return <div>
     <button className="menu-item" style={{ paddingLeft: 14 + level * 14 }} onClick={() => (menu.action ? onOpen(menu.action) : setOpen(!open))}>
       {level === 0 && <Icon size={17} />}<span>{menu.name}</span>{menu.children.length > 0 && <ChevronDown className={open ? "chevron open" : "chevron"} size={15} />}

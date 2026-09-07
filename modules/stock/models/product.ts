@@ -2,10 +2,10 @@ import type { ModelDefinition } from "@record-platform/core";
 
 export const stockProductModel: ModelDefinition = {
   technicalName: "product.product",
-  name: "Product",
+  name: "Sản phẩm",
   tableName: "product_product",
   fields: [
-    { name: "qty_available", label: "On Hand", type: "decimal", readonly: true, stored: false, computeMethod: "compute_qty_available", sequence: 45 }
+    { name: "qty_available", label: "Tồn kho", type: "decimal", readonly: true, stored: false, computeMethod: "compute_qty_available", sequence: 45 }
   ],
   methods: {
     async compute_qty_available(ctx) {

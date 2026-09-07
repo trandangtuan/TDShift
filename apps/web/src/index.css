@@ -55,6 +55,7 @@ button, input, select, textarea { font: inherit; }
 .brand strong, .brand small { display: block; }
 .brand strong { font-size: 13px; }
 .brand small { color: var(--muted); font-size: 10px; margin-top: 1px; }
+.database-session-label { color: #0f766e !important; font-size: 10px; }
 button { align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; color: var(--text); cursor: pointer; display: inline-flex; gap: 6px; min-height: 28px; padding: 0 9px; }
 button:hover { border-color: #aab4c0; }
 button.danger { color: var(--danger); }
@@ -79,6 +80,25 @@ button.danger { color: var(--danger); }
 }
 .login-panel .ant-form-item { margin-bottom: 14px; }
 .login-panel .ant-alert { margin-bottom: 2px; }
+.database-list { margin-top: 16px; }
+.database-row { align-items: center; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; min-height: 34px; }
+.database-screen { height: 100%; overflow: auto; padding: 30px clamp(22px, 4vw, 56px) 48px; }
+.database-screen-header { align-items: flex-start; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; margin-bottom: 22px; padding-bottom: 22px; }
+.database-screen-header h1 { align-items: center; display: flex; font-size: 24px; gap: 10px; margin: 7px 0 6px; }
+.database-screen-header p { color: var(--muted); margin: 0; }
+.eyebrow { color: #0f766e; font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.database-create-panel { align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; display: flex; justify-content: space-between; margin-bottom: 24px; padding: 16px 18px; }
+.database-create-panel > div { display: grid; gap: 4px; }
+.database-create-panel span { color: var(--muted); font-size: 11px; }
+.database-list-header { align-items: center; display: flex; justify-content: space-between; margin-bottom: 10px; }
+.database-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+.database-card { align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 7px; display: flex; gap: 12px; min-height: 78px; padding: 14px; }
+.database-card-icon { align-items: center; background: #e5f3f1; border-radius: 6px; color: #0f766e; display: flex; flex: 0 0 auto; height: 38px; justify-content: center; width: 38px; }
+.database-card-content { display: grid; flex: 1; gap: 4px; min-width: 0; }
+.database-card-content strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.database-card-content span { color: var(--muted); font-size: 11px; }
+.database-default-badge { background: #e5f3f1; border-radius: 4px; color: #0f766e; font-size: 10px; font-weight: 700; padding: 4px 6px; }
+@media (max-width: 700px) { .database-screen-header, .database-create-panel { align-items: stretch; flex-direction: column; gap: 16px; } .database-screen-header .ant-btn { align-self: flex-start; } }
 
 .gallery-screen { height: 100%; overflow: auto; padding: 24px 28px 48px; }
 .gallery-toolbar { align-items: center; border-bottom: 1px solid var(--border); display: flex; gap: 20px; justify-content: space-between; margin-bottom: 22px; padding-bottom: 18px; }

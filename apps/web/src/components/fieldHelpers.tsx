@@ -8,7 +8,7 @@ export function fieldLabel(model: RuntimeModel, fieldName: string) {
 
 export function formatValue(model: RuntimeModel, fieldName: string, value: unknown, api?: ApiClient) {
   const field = model.fields.find((candidate) => candidate.name === fieldName);
-  if (field?.type === "boolean") return value ? "Yes" : "No";
+  if (field?.type === "boolean") return value ? "Có" : "Không";
   if (field?.type === "many2one") {
     if (Array.isArray(value)) return <span>{String(value[1] ?? value[0] ?? "")}</span>;
     return api ? <ManyToOneDisplay api={api} field={field} value={value} /> : String(value ?? "");

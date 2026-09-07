@@ -1,16 +1,16 @@
 import { defineModule } from "@record-platform/core";
 import { websiteSaleData } from "./data";
 import { websiteSaleRoutes } from "./routes";
-import { websiteSaleViews } from "./views";
+import { websiteSaleView } from "./views";
 
 export default defineModule({
   technicalName: "website_sale",
-  displayName: "Website Products",
+  displayName: "Website Product",
   version: "1.0.0",
-  description: "Publishes active products through the public website.",
+  description: "Xuất bản sản phẩm đang hoạt động lên website công khai.",
   depends: ["website", "product"],
   sequence: 36,
-  views: websiteSaleViews,
+  views: websiteSaleView,
   data: websiteSaleData,
   routes: websiteSaleRoutes
 });

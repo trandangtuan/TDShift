@@ -2,13 +2,13 @@ import type { ModelDefinition } from "@record-platform/core";
 
 export const aiProviderModel: ModelDefinition = {
   technicalName: "ai.provider",
-  name: "AI Provider",
+  name: "Provider AI",
   tableName: "ai_provider",
   fields: [
-    { name: "name", label: "Name", type: "char", required: true, sequence: 10 },
+    { name: "name", label: "Tên", type: "char", required: true, sequence: 10 },
     {
       name: "provider_type",
-      label: "Provider",
+      label: "Nhà cung cấp",
       type: "selection",
       required: true,
       defaultValue: "openai",
@@ -19,10 +19,10 @@ export const aiProviderModel: ModelDefinition = {
       ],
       sequence: 20
     },
-    { name: "base_url", label: "Base URL", type: "char", sequence: 30 },
-    { name: "api_key_env", label: "API Key Env", type: "char", required: true, sequence: 40 },
+    { name: "base_url", label: "Nền tảng URL", type: "char", sequence: 30 },
+    { name: "api_key_env", label: "Biến API key", type: "char", required: true, sequence: 40 },
     { name: "model_name", label: "Model", type: "char", required: true, sequence: 50 },
-    { name: "temperature", label: "Temperature", type: "decimal", defaultValue: 0.1, sequence: 60 },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 70 }
+    { name: "temperature", label: "Nhiệt độ", type: "decimal", defaultValue: 0.1, sequence: 60 },
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 70 }
   ]
 };

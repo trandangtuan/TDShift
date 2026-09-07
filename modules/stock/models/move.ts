@@ -2,28 +2,28 @@ import type { ModelDefinition } from "@record-platform/core";
 
 export const stockMoveModel: ModelDefinition = {
   technicalName: "stock.move",
-  name: "Stock Move",
+  name: "Dịch chuyển kho",
   tableName: "stock_move",
   fields: [
-    { name: "name", label: "Reference", type: "char", required: true, sequence: 10 },
-    { name: "product_id", label: "Product", type: "many2one", relationModel: "product.product", required: true, indexed: true, sequence: 20 },
-    { name: "quantity", label: "Quantity", type: "decimal", defaultValue: 1, sequence: 30 },
-    { name: "source_location_id", label: "Source Location", type: "many2one", relationModel: "stock.location", required: true, sequence: 40 },
-    { name: "dest_location_id", label: "Destination Location", type: "many2one", relationModel: "stock.location", required: true, sequence: 50 },
+    { name: "name", label: "Tham chiếu", type: "char", required: true, sequence: 10 },
+    { name: "product_id", label: "Sản phẩm", type: "many2one", relationModel: "product.product", required: true, indexed: true, sequence: 20 },
+    { name: "quantity", label: "Số lượng", type: "decimal", defaultValue: 1, sequence: 30 },
+    { name: "source_location_id", label: "Vị trí nguồn", type: "many2one", relationModel: "stock.location", required: true, sequence: 40 },
+    { name: "dest_location_id", label: "Vị trí đích", type: "many2one", relationModel: "stock.location", required: true, sequence: 50 },
     {
       name: "state",
-      label: "State",
+      label: "Trạng thái",
       type: "selection",
       defaultValue: "draft",
       selectionOptions: [
-        { label: "Draft", value: "draft" },
-        { label: "Done", value: "done" },
-        { label: "Cancelled", value: "cancelled" }
+        { label: "Nháp", value: "draft" },
+        { label: "Hoàn tất", value: "done" },
+        { label: "Đã hủy", value: "cancelled" }
       ],
       sequence: 60
     },
-    { name: "origin", label: "Origin", type: "char", sequence: 70 },
-    { name: "date", label: "Date", type: "date", sequence: 80 }
+    { name: "origin", label: "Nguồn gốc", type: "char", sequence: 70 },
+    { name: "date", label: "Ngày", type: "date", sequence: 80 }
   ],
   methods: {
     async done(ctx) {

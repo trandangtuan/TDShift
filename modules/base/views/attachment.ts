@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const attachmentViews: ViewDefinition[] = [
-  { technicalName: "base.attachment.list", name: "Attachments", model: "ir.attachment", type: "list", architecture: { type: "list", model: "ir.attachment", fields: ["name", "file_name", "mime_type", "file_size", "storage", "bucket", "object_name", "res_model", "res_id", "public", "active"] } },
+export const attachmentView: ViewDefinition[] = [
+  { technicalName: "base.attachment.list", name: "Tệp đính kèm", model: "ir.attachment", type: "list", architecture: { type: "list", model: "ir.attachment", fields: ["name", "file_name", "mime_type", "file_size", "storage", "bucket", "object_name", "res_model", "res_id", "public", "active"] } },
   {
     technicalName: "base.attachment.form",
-    name: "Attachment",
+    name: "Tệp đính kèm",
     model: "ir.attachment",
     type: "form",
     architecture: {

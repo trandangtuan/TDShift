@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const stockMoveViews: ViewDefinition[] = [
-  { technicalName: "stock.move.list", name: "Stock Moves", model: "stock.move", type: "list", architecture: { type: "list", model: "stock.move", fields: ["name", "product_id", "quantity", "source_location_id", "dest_location_id", "state", "origin", "date"] } },
+export const stockMoveView: ViewDefinition[] = [
+  { technicalName: "stock.move.list", name: "Dịch chuyển kho", model: "stock.move", type: "list", architecture: { type: "list", model: "stock.move", fields: ["name", "product_id", "quantity", "source_location_id", "dest_location_id", "state", "origin", "date"] } },
   {
     technicalName: "stock.move.form",
-    name: "Stock Move",
+    name: "Dịch chuyển kho",
     model: "stock.move",
     type: "form",
     architecture: {

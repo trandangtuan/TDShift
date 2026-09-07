@@ -1,4 +1,4 @@
-export { accountViews } from "./account";
-export { journalViews } from "./journal";
-export { accountMoveViews } from "./move";
-export { accountMoveLineViews } from "./move-line";
+export { accountView } from "./account";
+export { journalView } from "./journal";
+export { accountMoveView } from "./move";
+export { accountMoveLineView } from "./move-line";

@@ -65,7 +65,7 @@ export default function ListRenderer({ api, model, view, records, page, pageSize
             value={filters[fieldName] ?? ""}
             onChange={(event) => setFilters((current) => ({ ...current, [fieldName]: event.target.value }))}
             onClick={(event) => event.stopPropagation()}
-            placeholder="Search"
+            placeholder="Tìm kiếm"
           />
         ) : null}
       </div>
@@ -76,8 +76,8 @@ export default function ListRenderer({ api, model, view, records, page, pageSize
   };
   });
   return <section className="panel list-panel">
-    <Table columns={columns} dataSource={records} rowKey={(record) => String(record.id)} pagination={false} scroll={{ x: "max-content", y: "calc(100vh - 238px)" }} locale={{ emptyText: <Empty description="No records" /> }} onRow={(record) => ({ onClick: () => onOpen(Number(record.id)), className: "clickable-row" })} />
-    <Space className="pager" align="center"><span>Page {page + 1}</span><Pagination current={page + 1} pageSize={pageSize} total={(page + 1) * pageSize + (records.length === pageSize ? 1 : 0)} showSizeChanger={false} onChange={(nextPage) => onPageChange(nextPage - 1)} /><Select value={pageSize} options={[10, 30, 50, 100].map((size) => ({ value: size, label: `${size} rows` }))} onChange={onPageSizeChange} /></Space>
+    <Table columns={columns} dataSource={records} rowKey={(record) => String(record.id)} pagination={false} scroll={{ x: "max-content", y: "calc(100vh - 238px)" }} locale={{ emptyText: <Empty description="Không có bản ghi" /> }} onRow={(record) => ({ onClick: () => onOpen(Number(record.id)), className: "clickable-row" })} />
+    <Space className="pager" align="center"><span>Page {page + 1}</span><Pagination current={page + 1} pageSize={pageSize} total={(page + 1) * pageSize + (records.length === pageSize ? 1 : 0)} showSizeChanger={false} onChange={(nextPage) => onPageChange(nextPage - 1)} /><Select value={pageSize} options={[10, 30, 50, 100].map((size) => ({ value: size, label: `${size} dòng` }))} onChange={onPageSizeChange} /></Space>
   </section>;
 }
 

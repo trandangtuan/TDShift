@@ -6,9 +6,9 @@ import Fastify, { type FastifyRequest } from "fastify";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ensureAdminUser, getUserFromRequest } from "./auth";
+import { ensureAdminUser, getDatabaseNameFromToken, getUserFromRequest } from "./auth";
 import { config } from "./config";
-import { bootstrapModules, db } from "./db";
+import { bootstrapModules, db, enterDatabase, getCurrentDatabaseName } from "./db";
 import { moduleDefinitions } from "./modules";
 import { buildRegistry, createEnvironment } from "./registry";
 
@@ -19,7 +19,7 @@ if ((db.prepare("SELECT COUNT(*) AS count FROM core_model").get() as { count: nu
   bootstrapModules([baseModule], { forceInstall: true });
 }
 ensureAdminUser();
-let registry = buildRegistry();
+const registries = new Map([[getCurrentDatabaseName(), buildRegistry()]]);
 
 const app = Fastify({ logger: true, bodyLimit: 5 * 1024 * 1024 });
 await app.register(cors, { origin: true });
@@ -36,9 +36,16 @@ if (process.env.NEXT_SITE_URL) {
 
 app.addHook("preHandler", async (request, reply) => {
   if (!request.url.startsWith("/api/")) return;
-  if (request.url === "/api/health" || request.url === "/api/auth/login" || request.url === "/api/auth/register" || request.url.startsWith("/api/website/") || request.url.startsWith("/api/website-sale/")) return;
+  if (request.url === "/api/health" || request.url === "/api/databases" || request.url === "/api/auth/login" || request.url === "/api/auth/register" || request.url.startsWith("/api/website/") || request.url.startsWith("/api/website-sale/")) return;
   const user = getUserFromRequest(request);
   if (!user) return reply.code(401).send({ error: "Authentication required" });
+});
+
+app.addHook("onRequest", async (request) => {
+  const header = request.headers.authorization;
+  if (!header?.startsWith("Bearer ")) return;
+  const database = getDatabaseNameFromToken(header.slice("Bearer ".length), request.hostname);
+  if (database) enterDatabase(database);
 });
 
 if (webDistPath) {
@@ -49,7 +56,7 @@ if (webDistPath) {
 
 for (const module of moduleDefinitions) {
   for (const route of module.routes ?? []) {
-    await route.register({ app, db, modules: moduleDefinitions, getRegistry: () => registry, rebuildRegistry: () => { registry = buildRegistry(); }, createRequestEnvironment });
+    await route.register({ app, db, modules: moduleDefinitions, getRegistry: () => getRegistry(), rebuildRegistry: () => { registries.set(getCurrentDatabaseName(), buildRegistry()); }, createRequestEnvironment });
   }
 }
 
@@ -58,7 +65,17 @@ await app.listen({ port: config.port, host: "0.0.0.0" });
 function createRequestEnvironment(request: FastifyRequest) {
   const user = getUserFromRequest(request);
   if (!user) throw new Error("Authentication required");
-  return createEnvironment(registry, {}, user);
+  return createEnvironment(getRegistry(), {}, user);
+}
+
+function getRegistry() {
+  const database = getCurrentDatabaseName();
+  let registry = registries.get(database);
+  if (!registry) {
+    registry = buildRegistry();
+    registries.set(database, registry);
+  }
+  return registry;
 }
 
 function findWebDistPath() {

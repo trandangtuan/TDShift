@@ -1,6 +1,6 @@
 import { defineModule } from "@record-platform/core";
 import { discussChannelMemberModel, discussChannelModel, discussMessageModel, discussMessageReadModel } from "./models";
-import { discussChannelMemberViews, discussChannelViews, discussMessageViews } from "./views";
+import { discussChannelMemberView, discussChannelView, discussMessageView } from "./views";
 import { discussRoutes } from "./routes";
 
 export default defineModule({
@@ -10,7 +10,7 @@ export default defineModule({
   depends: ["base"],
   sequence: 15,
   models: [discussChannelModel, discussChannelMemberModel, discussMessageModel, discussMessageReadModel],
-  views: [...discussChannelViews, ...discussChannelMemberViews, ...discussMessageViews],
+  views: [...discussChannelView, ...discussChannelMemberView, ...discussMessageView],
   actions: [
     { technicalName: "discuss.action_channels", name: "Channels", type: "window", model: "discuss.channel", viewModes: ["list", "form"] },
     { technicalName: "discuss.action_chat", name: "Chat", type: "client" },

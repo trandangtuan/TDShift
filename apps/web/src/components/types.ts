@@ -7,7 +7,7 @@ export type RuntimeModel = {
   fields: FieldDefinition[];
 };
 
-export type AuthUser = { id: number; login?: string; name: string };
+export type AuthUser = { id: number; login?: string; name: string; isAdmin?: boolean; database?: string };
 export type ApiClient = <T>(path: string, init?: { method?: string; body?: unknown }) => Promise<T>;
 export type StreamHandler = (event: Record<string, unknown>) => void;
 export type StreamClient = (path: string, init: { method?: string; body?: unknown; onEvent: StreamHandler }) => Promise<void>;

@@ -8,8 +8,8 @@ export const discussChannelMemberModel: ModelDefinition = {
   accessRule: discussChannelMemberAccessRule,
   fields: [
     { name: "channel_id", label: "Channel", type: "many2one", relationModel: "discuss.channel", required: true, indexed: true, sequence: 10 },
-    { name: "user_id", label: "User", type: "many2one", relationModel: "core.user", required: true, indexed: true, sequence: 20 },
+    { name: "user_id", label: "Người dùng", type: "many2one", relationModel: "core.user", required: true, indexed: true, sequence: 20 },
     { name: "label", label: "Label", type: "char", sequence: 30 },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 40 }
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 40 }
   ]
 };

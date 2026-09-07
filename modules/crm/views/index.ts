@@ -1,4 +1,4 @@
-export { crmActivityViews } from "./activity";
-export { crmConfigViews } from "./config";
-export { crmLeadViews } from "./lead";
+export { crmActivityView } from "./activity";
+export { crmConfigView } from "./config";
+export { crmLeadView } from "./lead";
 export { crmSaleOrderViewExtensions } from "./sale-order";

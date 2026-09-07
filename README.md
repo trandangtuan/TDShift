@@ -76,6 +76,45 @@ npm run build
 npm run start
 ```
 
+### Docker multi-database mode
+
+The default Docker Compose configuration uses PostgreSQL as one configured database. To use the database selector, creation, and deletion flow, create a `.env` file from `.env.example` and set:
+
+```dotenv
+DATABASE_CLIENT=sqlite
+SQLITE_DATABASE_PATH=/app/storage/databases/record-platform.sqlite
+DATABASE_CATALOG_PATH=/app/storage/databases/record-platform.sqlite.catalog.sqlite
+DATABASE_DIRECTORY=/app/storage/databases
+```
+
+Then start the stack:
+
+```bash
+DATABASE_CLIENT=sqlite \
+SQLITE_DATABASE_PATH=/app/storage/databases/record-platform.sqlite \
+DATABASE_CATALOG_PATH=/app/storage/databases/record-platform.sqlite.catalog.sqlite \
+DATABASE_DIRECTORY=/app/storage/databases \
+docker compose up -d --build
+```
+
+Open `http://localhost:3100/web`. The database catalog and every created SQLite database are stored in the persistent `databases_data` volume. Log in as the configured administrator, then use the database settings button to create or delete databases. The default `main` database cannot be deleted.
+
+#### Odoo-style host selection
+
+Set `DB_FILTER` to select databases from the request hostname. `%d` means the first hostname label and `%h` means the full hostname:
+
+```dotenv
+DB_FILTER=^%d$
+```
+
+With this setting, `main.example.com` selects `main` and `demo.example.com` selects `demo`. Only matching databases are shown on the login screen and accepted by login/API requests. To lock the server to one database, use:
+
+```dotenv
+DB_NAME=main
+```
+
+When `DB_NAME` is set, only that database is selectable and database creation/deletion is disabled.
+
 Default URLs:
 
 ```text
@@ -211,20 +250,27 @@ modules/
 Authentication:
 
 ```text
+GET /api/databases
 POST /api/auth/login
 POST /api/auth/register
+POST /api/databases
+DELETE /api/databases/:name
 GET /api/auth/me
 POST /api/auth/reset-token
 POST /api/auth/logout
 ```
 
-`POST /api/auth/login` accepts `login` and `password`, then returns a JWT token. Send it as:
+`GET /api/databases` is public so the login screen can offer a database selector. Login and registration accept `database` together with the credentials. The JWT is bound to that database, so each database has its own users, modules, metadata, and records.
+
+`POST /api/databases` and `DELETE /api/databases/:name` require the configured administrator login. Database management currently supports SQLite files; PostgreSQL remains supported as a single configured database.
+
+`POST /api/auth/login` returns a JWT token. Send it as:
 
 ```text
 Authorization: Bearer <token>
 ```
 
-All `/api/*` routes except `/api/health`, `/api/auth/login`, and `/api/auth/register` require a valid bearer token.
+All `/api/*` routes except `/api/health`, `/api/databases`, `/api/auth/login`, and `/api/auth/register` require a valid bearer token.
 
 UI metadata:
 

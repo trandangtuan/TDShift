@@ -1,1 +1,1 @@
-export { partnerViews } from "./partner";
+export { partnerView } from "./partner";

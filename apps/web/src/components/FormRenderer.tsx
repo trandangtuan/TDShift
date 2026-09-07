@@ -65,18 +65,18 @@ const FormRenderer = forwardRef<FormRendererHandle, Props>(function FormRenderer
       <div className="form-toolbar">
         {["sale.order", "purchase.order"].includes(model.technicalName) && record?.id ? <Button icon={<Check size={17} />} onClick={() => call("confirm")}>Confirm</Button> : null}
         {model.technicalName === "stock.move" && record?.id ? <Button icon={<Check size={17} />} onClick={() => call("done")}>Mark Done</Button> : null}
-        {model.technicalName === "crm.lead" && record?.id && record.type === "lead" ? <Button icon={<Check size={17} />} onClick={() => call("convert")}>Convert</Button> : null}
+        {model.technicalName === "crm.lead" && record?.id && record.type === "lead" ? <Button icon={<Check size={17} />} onClick={() => call("convert")}>Chuyển đổi</Button> : null}
         {model.technicalName === "crm.lead" && record?.id ? <Button icon={<Plus size={17} />} onClick={createQuotation}>Create Quotation</Button> : null}
         {model.technicalName === "crm.lead" && record?.id && record.state !== "won" ? <Button icon={<Check size={17} />} onClick={() => call("won")}>Won</Button> : null}
         {model.technicalName === "crm.lead" && record?.id && record.state !== "lost" ? <Button danger onClick={() => call("lost")}>Lost</Button> : null}
-        {model.technicalName === "crm.lead" && record?.id && record.state === "lost" ? <Button onClick={() => call("restore")}>Restore</Button> : null}
+        {model.technicalName === "crm.lead" && record?.id && record.state === "lost" ? <Button onClick={() => call("restore")}>Khôi phục</Button> : null}
         {model.technicalName === "crm.activity" && record?.id && record.state !== "done" ? <Button icon={<Check size={17} />} onClick={() => call("done")}>Mark Done</Button> : null}
-        {model.technicalName === "crm.activity" && record?.id && record.state !== "cancelled" ? <Button danger onClick={() => call("cancel")}>Cancel</Button> : null}
-        {model.technicalName === "core.module" && record?.state !== "INSTALLED" ? <Button icon={<Download size={17} />} onClick={() => moduleAction("/api/modules/install")}>Install</Button> : null}
-        {model.technicalName === "core.module" && record?.state === "INSTALLED" ? <Button icon={<UploadCloud size={17} />} onClick={() => moduleAction("/api/modules/upgrade")}>Upgrade</Button> : null}
-        {model.technicalName === "core.module" && record?.state === "INSTALLED" && record?.technical_name !== "base" ? <Button danger icon={<Power size={17} />} onClick={() => moduleAction("/api/modules/uninstall")}>Uninstall</Button> : null}
+        {model.technicalName === "crm.activity" && record?.id && record.state !== "cancelled" ? <Button danger onClick={() => call("cancel")}>Hủy</Button> : null}
+        {model.technicalName === "core.module" && record?.state !== "INSTALLED" ? <Button icon={<Download size={17} />} onClick={() => moduleAction("/api/modules/install")}>Settings</Button> : null}
+        {model.technicalName === "core.module" && record?.state === "INSTALLED" ? <Button icon={<UploadCloud size={17} />} onClick={() => moduleAction("/api/modules/upgrade")}>Nâng cấp</Button> : null}
+        {model.technicalName === "core.module" && record?.state === "INSTALLED" && record?.technical_name !== "base" ? <Button danger icon={<Power size={17} />} onClick={() => moduleAction("/api/modules/uninstall")}>Gỡ cài đặt</Button> : null}
       </div>
-      <StatusBar model={model} values={values} />
+      <StateBar model={model} values={values} />
     </div>
     <ViewNodeRenderer api={api} node={view.architecture} model={model} values={values} parentId={record?.id ? Number(record.id) : null} onUploaded={onSaved} onChange={(name, value) => setValues((current) => ({ ...current, [name]: value }))} />
   </section>;
@@ -84,7 +84,7 @@ const FormRenderer = forwardRef<FormRendererHandle, Props>(function FormRenderer
 
 export default FormRenderer;
 
-function StatusBar({ model, values }: { model: RuntimeModel; values: Record<string, unknown> }) {
+function StateBar({ model, values }: { model: RuntimeModel; values: Record<string, unknown> }) {
   const field = model.fields.find((candidate) => ["state", "status"].includes(candidate.name) && candidate.type === "selection");
   if (!field) return null;
   const current = String(values[field.name] ?? field.defaultValue ?? "");
@@ -105,13 +105,13 @@ function ViewNodeRenderer({ api, node, model, values, parentId, onUploaded, onCh
 
 function NotebookRenderer({ api, node, model, values, parentId, onUploaded, onChange }: { api: ApiClient; node: Extract<ViewNode, { type: "notebook" }>; model: RuntimeModel; values: Record<string, unknown>; parentId: number | null; onUploaded: (id: number) => void; onChange: (name: string, value: unknown) => void }) {
   const pages = node.children.filter((child): child is Extract<ViewNode, { type: "page" }> => child.type === "page");
-  const [activeKey, setActiveKey] = useState("0");
-  useEffect(() => setActiveKey("0"), [node]);
+  const [activeKey, setActivityKey] = useState("0");
+  useEffect(() => setActivityKey("0"), [node]);
   const activeIndex = Math.min(Number(activeKey) || 0, Math.max(pages.length - 1, 0));
   const activePage = pages[activeIndex];
   if (!activePage) return null;
   return <div className="form-tabs">
-    <Tabs activeKey={String(activeIndex)} onChange={setActiveKey} items={pages.map((page, index) => ({ key: String(index), label: page.label }))} />
+    <Tabs activeKey={String(activeIndex)} onChange={setActivityKey} items={pages.map((page, index) => ({ key: String(index), label: page.label }))} />
     <div className="form-tab-panel">
       <ViewNodeRenderer api={api} node={activePage} model={model} values={values} parentId={parentId} onUploaded={onUploaded} onChange={onChange} />
     </div>
@@ -176,7 +176,7 @@ function AttachmentUploadField({ api, value, values, onUploaded, onChange, onBul
       <Upload {...uploadProps}>
         <Button icon={<UploadCloud size={15} />} loading={uploading}>Choose File</Button>
       </Upload>
-      <Input.TextArea value={String(value ?? "")} onChange={(event) => onChange(event.target.value)} placeholder="Optional legacy base64 input. Large files upload directly to MinIO when chosen above." />
+      <Input.TextArea value={String(value ?? "")} onChange={(event) => onChange(event.target.value)} placeholder="Ô nhập base64 cũ tùy chọn. File lớn sẽ tải trực tiếp lên MinIO khi chọn ở trên." />
       {fileName ? <small>{fileName}</small> : null}
     </div>
   </label>;
@@ -203,7 +203,7 @@ function OneToManyRenderer({ api, field, parentId }: { api: ApiClient; field: Fi
     await loadRows();
   }
   async function removeRow(row: Record<string, unknown>) { if (!field.relationModel) return; await api("/api/model/unlink", { method: "POST", body: { model: field.relationModel, ids: [Number(row.id)] } }); await loadRows(); }
-  return <div className="one2many"><div className="one2many-header"><span>{field.label}</span><Button type="text" icon={<Plus size={16} />} onClick={addRow} disabled={!parentId}>Add</Button></div>{!parentId ? <div className="one2many-empty">Save the parent record before adding lines.</div> : <table><thead><tr>{columns.map((column) => <th key={column.name} className={`line-col line-col-${column.name}`}>{column.label}</th>)}<th className="row-action" /></tr></thead><tbody>{rows.map((row) => <tr key={String(row.id)}>{columns.map((column) => <td key={column.name} className={`line-col line-col-${column.name}`}><InlineField api={api} field={column} value={row[column.name]} onChange={(value) => updateRow(row, column.name, value)} /></td>)}<td className="row-action"><Button type="text" danger icon={<Trash2 size={15} />} onClick={() => removeRow(row)} /></td></tr>)}</tbody></table>}{parentId && rows.length === 0 ? <div className="one2many-empty">No lines</div> : null}</div>;
+  return <div className="one2many"><div className="one2many-header"><span>{field.label}</span><Button type="text" icon={<Plus size={16} />} onClick={addRow} disabled={!parentId}>Thêm</Button></div>{!parentId ? <div className="one2many-empty">Save the parent record before adding lines.</div> : <table><thead><tr>{columns.map((column) => <th key={column.name} className={`line-col line-col-${column.name}`}>{column.label}</th>)}<th className="row-action" /></tr></thead><tbody>{rows.map((row) => <tr key={String(row.id)}>{columns.map((column) => <td key={column.name} className={`line-col line-col-${column.name}`}><InlineField api={api} field={column} value={row[column.name]} onChange={(value) => updateRow(row, column.name, value)} /></td>)}<td className="row-action"><Button type="text" danger icon={<Trash2 size={15} />} onClick={() => removeRow(row)} /></td></tr>)}</tbody></table>}{parentId && rows.length === 0 ? <div className="one2many-empty">Chưa có dòng</div> : null}</div>;
 }
 
 function InlineField({ api, field, value, onChange }: { api: ApiClient; field: FieldDefinition; value: unknown; onChange: (value: unknown) => void }) {

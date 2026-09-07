@@ -7,6 +7,7 @@ import FormRenderer from "./components/FormRenderer";
 import type { FormRendererHandle } from "./components/FormRenderer";
 import Gallery from "./components/Gallery";
 import DiscussChat from "./components/DiscussChat";
+import DatabaseManager from "./components/DatabaseManager";
 import LoginScreen from "./components/LoginScreen";
 import ListRenderer from "./components/ListRenderer";
 import MenuTree from "./components/MenuTree";
@@ -25,6 +26,7 @@ export default function App() {
   const [token, setToken] = useState<string | null>(() => authToken);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [databaseManagerOpen, setDatabaseManagerOpen] = useState(false);
   const [menus, setMenus] = useState<RuntimeMenu[]>([]);
   const [action, setAction] = useState<ActionDefinition | null>(null);
   const [model, setModel] = useState<RuntimeModel | null>(null);
@@ -275,7 +277,7 @@ export default function App() {
   }
 
   if (!authChecked) {
-    return <div className="auth-loading">Loading session...</div>;
+    return <div className="auth-loading">Đang tải phiên đăng nhập...</div>;
   }
 
   if (!token || !user) {
@@ -286,7 +288,7 @@ export default function App() {
     <ConfigProvider theme={{ token: { colorPrimary: "#0f766e", borderRadius: 5, colorBgLayout: "#f4f7f6", controlHeight: 28, fontFamily: "'DM Sans', sans-serif", fontSize: 12 } }}>
       <Layout className="app">
       <Layout.Sider className="sidebar" width={216} theme="light">
-        <div className="brand"><span className="brand-mark">R</span><div><strong>Record Platform</strong><small>Operations console</small></div></div>
+        <div className="brand"><span className="brand-mark">R</span><div><strong>Record Platform</strong><small>Bảng điều hành</small></div></div>
         <div className="sidebar-menu">
           <MenuTree menus={menus} onOpen={openAction} />
         </div>
@@ -294,20 +296,22 @@ export default function App() {
           <div>
             <span>{user.name}</span>
             {user.login ? <small>{user.login}</small> : null}
+            {user.database ? <small className="database-session-label">Database: {user.database}</small> : null}
           </div>
           <Button type="text" icon={<LogOut size={17} />} title="Logout" onClick={() => handleLogout()} />
+          {user.isAdmin ? <Button type="text" icon={<Settings size={17} />} title="Quản lý cơ sở dữ liệu" onClick={() => setDatabaseManagerOpen(true)} /> : null}
         </div>
       </Layout.Sider>
       <Layout.Content className="workspace">
-        {!action ? (
+        {databaseManagerOpen ? <DatabaseManager api={api} onClose={() => setDatabaseManagerOpen(false)} /> : !action ? (
           <div className="empty-state">
             <Settings size={36} />
-            <h1>Metadata runtime is ready</h1>
-            <p>Choose a menu record. The sidebar, action, view, fields, and records are all resolved from runtime metadata.</p>
+            <h1>Runtime metadata đã sẵn sàng</h1>
+            <p>Chọn một mục menu. Sidebar, hành động, view, trường và bản ghi đều được dựng từ metadata runtime.</p>
           </div>
         ) : action.technicalName === "discuss.action_chat" ? (
           <>
-            <div className="actionbar discuss-actionbar"><div><h1>{action.name}</h1><span>Internal messaging</span></div></div>
+            <div className="actionbar discuss-actionbar"><div><h1>{action.name}</h1><span>Nội bộ messaging</span></div></div>
             <DiscussChat api={api} user={user} />
           </>
         ) : action.technicalName === "ai.action_chat" ? (
@@ -325,8 +329,8 @@ export default function App() {
         ) : !model || !view ? (
           <div className="empty-state">
             <Settings size={36} />
-            <h1>Unsupported action</h1>
-            <p>This client action does not have a renderer yet.</p>
+            <h1>Action chưa hỗ trợ</h1>
+            <p>Action client này chưa có màn hình hiển thị.</p>
           </div>
         ) : (
           <>
@@ -342,16 +346,16 @@ export default function App() {
                     <Input.Search className="record-search" value={query} onChange={(event) => setQuery(event.target.value)} onSearch={() => {
                       setPage(0);
                       loadRecords(action.model, view, model, 0, pageSize);
-                    }} placeholder="Search name" allowClear />
-                    <Button icon={<RefreshCw size={17} />} onClick={() => loadRecords(action.model, view, model, page, pageSize)} title="Refresh list" />
-                    {model.technicalName === "core.module" ? <Button icon={<UploadCloud size={17} />} onClick={refreshModuleList}>Refresh Modules</Button> : null}
+                    }} placeholder="Tìm theo tên" allowClear />
+                    <Button icon={<RefreshCw size={17} />} onClick={() => loadRecords(action.model, view, model, page, pageSize)} title="Làm mới danh sách" />
+                    {model.technicalName === "core.module" ? <Button icon={<UploadCloud size={17} />} onClick={refreshModuleList}>Refresh Module</Button> : null}
                     <Button type="primary" icon={<Plus size={17} />} onClick={() => openForm(null)} title="Create" />
                   </>
                 ) : (
                   <>
-                    <Button className="icon-button" icon={<List size={17} />} onClick={() => backToList()} title="Back to list" />
+                    <Button className="icon-button" icon={<List size={17} />} onClick={() => backToList()} title="Quay lại danh sách" />
                     <Button className="icon-button" type="primary" icon={<Save size={17} />} onClick={() => formRef.current?.save()} title="Save" />
-                    {selectedId ? <Button className="icon-button" icon={<RefreshCw size={17} />} onClick={() => stayOnFormAfterSave(selectedId)} title="Reset" /> : null}
+                    {selectedId ? <Button className="icon-button" icon={<RefreshCw size={17} />} onClick={() => stayOnFormAfterSave(selectedId)} title="Tải lại" /> : null}
                     {selectedId ? <Button className="icon-button" danger icon={<Trash2 size={17} />} onClick={removeSelectedRecord} title="Delete" /> : null}
                   </>
                 )}
@@ -409,7 +413,7 @@ export default function App() {
 function ApiActivityIndicator() {
   const pending = useSyncExternalStore(subscribeApiActivity, getPendingApiRequests, () => 0);
   if (!pending) return null;
-  return <div className="api-activity-indicator" role="status" aria-label="API request in progress" title={`${pending} API request${pending === 1 ? "" : "s"} in progress`}><LoaderCircle size={16} /></div>;
+  return <div className="api-activity-indicator" role="status" aria-label="Đang xử lý yêu cầu API" title={`${pending} API request${pending === 1 ? "" : "s"} in progress`}><LoaderCircle size={16} /></div>;
 }
 
 function Breadcrumbs({ items, current, onOpen }: { items: BreadcrumbItem[]; current: string; onOpen: (item: BreadcrumbItem) => void }) {

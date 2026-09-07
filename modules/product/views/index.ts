@@ -1,1 +1,1 @@
-export { productViews } from "./product";
+export { productView } from "./product";

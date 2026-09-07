@@ -1,10 +1,10 @@
 import type { ViewDefinition } from "@record-platform/core";
 
-export const productViews: ViewDefinition[] = [
-  { technicalName: "product.product.list", name: "Products", model: "product.product", type: "list", architecture: { type: "list", model: "product.product", fields: ["name", "default_code", "list_price", "active"] } },
+export const productView: ViewDefinition[] = [
+  { technicalName: "product.product.list", name: "Sản phẩm", model: "product.product", type: "list", architecture: { type: "list", model: "product.product", fields: ["name", "default_code", "list_price", "active"] } },
   {
     technicalName: "product.product.form",
-    name: "Product",
+    name: "Sản phẩm",
     model: "product.product",
     type: "form",
     architecture: {

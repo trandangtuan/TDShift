@@ -6,6 +6,7 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- Translated module-facing menus, actions, views, field labels, and web client controls to Vietnamese across the admin workspace.
 - Changed first startup to install only the `base` module; all other modules are discovered and require explicit installation with their dependencies.
 - Changed the public website presentation layer to a separate Next.js App Router app at `apps/site`, while keeping `modules/website` as the source of page and menu metadata.
 - Changed new `ir.attachment` and gallery uploads to store file bytes on the local filesystem under `ATTACHMENT_STORAGE_PATH`, while retaining legacy MinIO reads.
@@ -14,6 +15,7 @@ All notable changes to this project are documented here.
 
 ### Added
 
+- Added `farm_core` with shared farm, area, production unit, species, breed, production batch, movement, growth, and mortality models, metadata views, menus, seed species, and database-isolated installation guidance in `docs/farm-core-guide.md` and `modules/farm_core/SKILL.md`.
 - Added 20 active demo products to the `product` module seed data for catalog and website_sale testing.
 - Added `website_sale`, a website extension that publishes active `product.product` records through the Next.js catalog at `/products` and `/products/:slug`.
 - Added module-owned Discuss access rules through the generic model access hook, so registry code no longer contains Discuss-specific model names or SQL.

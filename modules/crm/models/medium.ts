@@ -6,6 +6,6 @@ export const crmMediumModel: ModelDefinition = {
   tableName: "crm_medium",
   fields: [
     { name: "name", label: "Medium", type: "char", required: true, sequence: 10 },
-    { name: "active", label: "Active", type: "boolean", defaultValue: true, sequence: 20 }
+    { name: "active", label: "Activity", type: "boolean", defaultValue: true, sequence: 20 }
   ]
 };

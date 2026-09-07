@@ -49,7 +49,7 @@ export default function Gallery({ api, initialView }: GalleryProps) {
       offset.current = result.offset + result.items.length;
       setHasMore(result.has_more);
     } catch {
-      setError("Could not load images.");
+      setError("Không thể tải image.");
     } finally {
       setLoading(false);
     }
@@ -59,9 +59,9 @@ export default function Gallery({ api, initialView }: GalleryProps) {
     try {
       await api(`/api/gallery/images/${image.id}`, { method: "DELETE" });
       setImages((current) => current.filter((item) => item.id !== image.id));
-      message.success("Image deleted");
+      message.success("Đã xóa image");
     } catch {
-      message.error("Could not delete image");
+      message.error("Không thể xóa image");
     }
   }
 
@@ -86,11 +86,11 @@ export default function Gallery({ api, initialView }: GalleryProps) {
   return <section className="gallery-screen">
     <div className="gallery-toolbar">
       <div><h2><PictureOutlined /> Image Gallery</h2><p>{images.length} images loaded</p></div>
-      <div className="gallery-actions"><Segmented value={view} onChange={(value) => setView(value as "gallery" | "timeline")} options={[{ label: "Gallery", value: "gallery" }, { label: "Timeline", value: "timeline" }]} /><Upload.Dragger {...uploadProps} className="gallery-upload"><Button type="primary" icon={<UploadOutlined />}>Upload images</Button></Upload.Dragger></div>
+      <div className="gallery-actions"><Segmented value={view} onChange={(value) => setView(value as "gallery" | "timeline")} options={[{ label: "Gallery", value: "gallery" }, { label: "Timeline", value: "timeline" }]} /><Upload.Dragger {...uploadProps} className="gallery-upload"><Button type="primary" icon={<UploadOutlined />}>Tải image lên</Button></Upload.Dragger></div>
     </div>
-    {error ? <div className="gallery-error"><span>{error}</span><Button icon={<ReloadOutlined />} onClick={() => loadMore()}>Retry</Button></div> : null}
-    {!images.length && loading ? <div className="gallery-loading"><Spin size="large" /></div> : !images.length && !error ? <Empty description="No images yet" /> : view === "timeline" ? <Timeline images={images} onDelete={removeImage} /> : <ImageGrid images={images} onDelete={removeImage} />}
-    <div ref={sentinel} className="gallery-sentinel">{loading && images.length ? <Spin /> : hasMore ? null : images.length ? "You have reached the end" : null}</div>
+    {error ? <div className="gallery-error"><span>{error}</span><Button icon={<ReloadOutlined />} onClick={() => loadMore()}>Thử lại</Button></div> : null}
+    {!images.length && loading ? <div className="gallery-loading"><Spin size="large" /></div> : !images.length && !error ? <Empty description="Chưa có image" /> : view === "timeline" ? <Timeline images={images} onDelete={removeImage} /> : <ImageGrid images={images} onDelete={removeImage} />}
+    <div ref={sentinel} className="gallery-sentinel">{loading && images.length ? <Spin /> : hasMore ? null : images.length ? "Bạn đã xem hết" : null}</div>
   </section>;
 }
 
@@ -114,13 +114,13 @@ function GalleryCard({ image, onDelete }: { image: GalleryImage; onDelete: (imag
     const controller = new AbortController();
     beginApiRequest();
     fetch(`${apiBase}${image.thumbnail_url}`, { headers: { Authorization: `Bearer ${localStorage.getItem(tokenStorageKey) ?? ""}` }, signal: controller.signal }).then((response) => {
-      if (!response.ok) throw new Error("Image unavailable");
+      if (!response.ok) throw new Error("Không mở được image");
       return response.blob();
     }).then((blob) => { objectUrl = URL.createObjectURL(blob); setSrc(objectUrl); }).catch(() => undefined).finally(endApiRequest);
     return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl); };
   }, [image.id, image.thumbnail_url]);
   return <article className="gallery-card">
-    <div className="gallery-image-frame">{src ? <Image src={src} alt={image.name} preview={{ mask: "Open preview" }} /> : <Spin />}</div>
-    <div className="gallery-card-footer"><span title={image.filename}>{image.name}</span><Popconfirm title="Delete this image?" onConfirm={() => onDelete(image)}><Button type="text" danger icon={<DeleteOutlined />} aria-label={`Delete ${image.name}`} /></Popconfirm></div>
+    <div className="gallery-image-frame">{src ? <Image src={src} alt={image.name} preview={{ mask: "Mở xem trước" }} /> : <Spin />}</div>
+    <div className="gallery-card-footer"><span title={image.filename}>{image.name}</span><Popconfirm title="Delete image này?" onConfirm={() => onDelete(image)}><Button type="text" danger icon={<DeleteOutlined />} aria-label={`Delete ${image.name}`} /></Popconfirm></div>
   </article>;
 }

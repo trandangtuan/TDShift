@@ -67,7 +67,7 @@ export default function AiChat({ api, streamApi }: AiChatProps) {
     setMessages((current) => [...current, { role: "user", content: text }]);
     setLoading(true);
     const assistantIndex = messages.length + 1;
-    setMessages((current) => [...current, { role: "assistant", content: "", trace: [{ event: "status", message: "Starting request" }] }]);
+    setMessages((current) => [...current, { role: "assistant", content: "", trace: [{ event: "status", message: "Bắt đầu yêu cầu" }] }]);
     try {
       try {
         await streamApi("/api/ai/chat/stream", {
@@ -88,7 +88,7 @@ export default function AiChat({ api, streamApi }: AiChatProps) {
           body: { prompt: text, mcpClientId: clientId }
         });
         setMessages((current) => current.map((message, index) => index === assistantIndex && message.role === "assistant"
-          ? { ...message, content: result.answer || "(No answer)", trace: [...(message.trace ?? []), { event: "status", message: `Stream unavailable; used non-stream response. ${streamError instanceof Error ? streamError.message : String(streamError)}` }, ...(result.toolCalls ?? []).map((call) => ({ event: "tool_call", ...call }))] }
+          ? { ...message, content: result.answer || "(Không answer)", trace: [...(message.trace ?? []), { event: "status", message: `Stream unavailable; used non-stream response. ${streamError instanceof Error ? streamError.message : String(streamError)}` }, ...(result.toolCalls ?? []).map((call) => ({ event: "tool_call", ...call }))] }
           : message));
       }
     } catch (err) {
@@ -105,7 +105,7 @@ export default function AiChat({ api, streamApi }: AiChatProps) {
           value={clientId}
           onChange={setClientId}
           options={clients.map((client) => ({ label: client.name ?? `Client ${client.id}`, value: Number(client.id) }))}
-          placeholder="MCP Client"
+          placeholder="MCP client"
         />
       </div>
       <div className="ai-chat-main">
@@ -113,8 +113,8 @@ export default function AiChat({ api, streamApi }: AiChatProps) {
           {!messages.length ? (
             <div className="ai-chat-empty">
               <Bot size={34} />
-              <h2>AI Chat</h2>
-              <p>Ask about records, models, sales, contacts, inventory, or any data exposed through MCP tools.</p>
+              <h2>Chat AI</h2>
+              <p>Hỏi về bản ghi, model, bán hàng, liên hệ, kho hoặc dữ liệu được mở qua công cụ MCP.</p>
             </div>
           ) : null}
           {messages.map((message, index) => (
@@ -123,7 +123,7 @@ export default function AiChat({ api, streamApi }: AiChatProps) {
               <div className="ai-message-body">
                 {message.role === "assistant" ? (
                   <div className="ai-markdown">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content || "Working..."}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content || "Đang xử lý..."}</ReactMarkdown>
                   </div>
                 ) : (
                   <p>{message.content}</p>
@@ -137,7 +137,7 @@ export default function AiChat({ api, streamApi }: AiChatProps) {
         </div>
         <TraceSidebar trace={latestTrace(messages)} />
       </div>
-      {error ? <Alert type="error" showIcon message="AI request failed" description={error} /> : null}
+      {error ? <Alert type="error" showIcon message="Yêu cầu AI thất bại" description={error} /> : null}
       <div className="ai-chat-composer">
         <Input.TextArea
           value={prompt}
@@ -148,7 +148,7 @@ export default function AiChat({ api, streamApi }: AiChatProps) {
               send();
             }
           }}
-          placeholder="Ask AI to search records..."
+          placeholder="Nhờ AI tìm bản ghi..."
           autoSize={{ minRows: 2, maxRows: 6 }}
         />
         <Button type="primary" icon={<Send size={17} />} loading={loading} onClick={send} />
@@ -171,7 +171,7 @@ function TraceSidebar({ trace }: { trace: TraceEvent[] }) {
             <strong>{traceTitle(item)}</strong>
             <pre>{formatTrace(item)}</pre>
           </div>
-        )) : <div className="ai-trace-empty">No trace yet.</div>}
+        )) : <div className="ai-trace-empty">Chưa có trace.</div>}
       </div>
     </aside>
   );
@@ -212,9 +212,9 @@ function TraceDetails({ trace }: { trace: TraceEvent[] }) {
 }
 
 function traceTitle(item: TraceEvent) {
-  if (item.event === "status") return item.message ?? "Status";
-  if (item.event === "thought") return "Planning note";
-  if (item.event === "tools") return "Available tools";
+  if (item.event === "status") return item.message ?? "Trạng thái";
+  if (item.event === "thought") return "Ghi chú lập kế hoạch";
+  if (item.event === "công cụ") return "Công cụ khả dụng";
   if (item.event === "tool_call") return `Call tool: ${item.name}`;
   if (item.event === "tool_result") return `Tool result: ${item.name}`;
   if (item.event === "error") return "Error";
